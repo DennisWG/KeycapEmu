@@ -128,7 +128,12 @@ function writeEnum(name, alignment, values)
 end
 
 function writeDataStructure(type, name, attributes)
-    %}{{string.format("\n    %s %s\n    {", type, name)}}{%
+    local final = "";
+    if type == "class" then
+        final = " final";
+    end
+
+    %}{{string.format("\n    %s %s%s\n    {", type, name, final)}}{%
     writePublic();
     for _, attribute in pairs(attributes) do
         writeAttribute(attribute)

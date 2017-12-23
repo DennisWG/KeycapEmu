@@ -22,4 +22,4 @@ target_include_directories(logonserver PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Key
 
 include(FlatmessageCompile)
 
-flatmessage_compile_file("Protocol/LogonChallange.msg")
+flatmessage_compile_file("Protocol/Logon.msg")

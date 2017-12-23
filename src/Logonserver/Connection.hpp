@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include "LogonChallange.hpp"
+#include "Logon.hpp"
 
 #include "LogonService.hpp"
 
@@ -40,50 +40,40 @@ namespace Keycap::Logonserver
         bool OnLink(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::LinkStatus status) override;
 
       private:
+          enum class StateResult
+          {
+              // We've received the packet as intended and are ready to move on to the next state
+              Ok,
+              // There was some kind of error in the received packet and we have to terminate the connection
+              Abort,
+              // We're still wating for more data to arrive from the client
+              IncompleteData,
+          };
 
         struct Disconnected
         {
-            bool OnData(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream)
-            {
-                return true;
-            }
+            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream);
 
             std::string name = "Disconnected";
         };
 
         struct JustConnected
         {
-            bool OnData(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream)
-            {
-                Protocol::ClientLogonChallange packet;
-                packet.decode(stream);
-                stream.Shrink();
-
-                if (packet.command != Protocol::Command::Challange)
-                    return false;
-
-                return true;
-            }
+            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream);
 
             std::string name = "JustConnected";
         };
 
         struct Challanged
         {
-            bool OnData(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream)
-            {
-                return true;
-            }
+            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream);
 
             std::string name = "Challanged";
         };
 
         struct Authenticated
         {
-            bool OnData(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream)
-            {
-                return true;
-            }
+            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::MemoryStream& stream);
 
             std::string name = "Authenticated";
         };
