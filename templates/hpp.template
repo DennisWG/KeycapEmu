@@ -1,149 +1,4 @@
-{%
-cppTypes = {
-    byte = "uint8_t",
-    uint8 = "uint8_t",
-    int8 = "int8_t",
-    word = "uint16_t",
-    uint16 = "uint16_t",
-    int16 = "int16_t",
-    dword = "uint32_t",
-    uint32 = "uint32_t",
-    int32 = "int32_t",
-    qword = "uint64_t",
-    uint64 = "uint64_t",
-    int64 = "int64_t",
-    string = "std::string",
-}
-
-function extractNamespaceAndFile(string)
-    local namespace, file = string:match('(.*)%.(.*)')
-    return namespace, file
-end
-
-function writeNamespace()
-    local namespace, file = extractNamespaceAndFile(module.name)
-    namespace = namespace:gsub("%.", "::")
-    %}namespace {{namespace}}{%
-end
-
-function writeInclude(import)
-    local namespace, file = extractNamespaceAndFile(import.name)
-    %}#include "{{file}}.hpp"{{"\n"}}{%
-end
-
-function writeType(attribute)
-    if cppTypes[attribute.type] then %}{{cppTypes[attribute.type]}}{% else %}{{attribute.type}}{% end
-end
-
-function writeArray(attribute)
-    %}std::array<{% writeType(attribute) %}, {{attribute.arraySize.value}}>{%
-end
-
-function doSpecifier(name, attribute)
-    %}{{name}}<{% if attribute.arraySize.isset then writeArray(attribute) else writeType(attribute) end %}> {%
-end
-
-function writeSpecifier(specifier, attribute)
-    if specifier.value == "repeated" then
-        doSpecifier("std::vector", attribute)
-    elseif specifier.value == "optional" then
-        doSpecifier("boost::optional", attribute)
-    end
-    %}{{attribute.name}}{%
-end
-
-function writeAttribute(attribute)
-    %}{{"\n        "}}{%
-    if attribute.specifier.isset then
-        writeSpecifier(attribute.specifier, attribute)
-    else 
-        if attribute.arraySize.isset then
-            writeArray(attribute)
-        else
-            writeType(attribute)
-        end
-        
-        %} {{attribute.name}}{%
-    end
-
-    %};{%
-end
-
-function writeEncoder(attributes, type)
-    %}{{"\n\n        "}}void encode({{type}}& encoder) {{"\n        {"}} {%
-    for _, attribute in pairs(attributes) do
-        if attribute.type ~= "string" then
-            %}{{string.format("\n            encoder.Put(%s);", attribute.name)}}{%
-        else
-            %}{{string.format("\n            encoder.Put(static_cast<uint8_t>(%s.size()));", attribute.name)}}{%
-            %}{{string.format("\n            encoder.Put(%s);", attribute.name)}}{%
-        end
-    end
-    %}{{"\n        }"}}{%
-end
-
-function writeDecoder(attributes, type)
-    %}{{"\n\n        "}}void decode({{type}}& decoder) {{"\n        {"}} {%
-
-    local function GetType(attribute)
-        local type = attribute.type;
-        if cppTypes[attribute.type] then
-            type = cppTypes[attribute.type];
-        end
-
-        if attribute.arraySize.isset then
-            type = type..", ".. attribute.arraySize.value;
-        end
-
-        return type; 
-    end
-
-    local hasSize = false;
-    for _, attribute in pairs(attributes) do
-        if attribute.type ~= "string" then
-            %}{{string.format("\n            %s = decoder.Get<%s>();", attribute.name, GetType(attribute))}}{%
-        else
-            if not hasSize then
-                %}{{string.format("\n            auto size = decoder.Get<uint8_t>();")}}{%
-                hasSize = true;
-            else
-                %}{{string.format("\n            size = decoder.Get<uint8_t>();")}}{%
-            end
-            %}{{string.format("\n            %s = decoder.GetString(size);", attribute.name)}}{%
-        end
-    end
-    %}{{"\n        }"}}{%
-end
-
-function writePublic()
-    %}{{"\n    public:"}}{%
-end
-
-function writeEnum(name, alignment, values)
-    %}{{string.format("\n    keycap_enum(%s, %s,", name, cppTypes[alignment])}}{%
-    for _, value in pairs(values) do
-        %}{{"\n        "}}{{value.name}} = {{value.value}},{%
-    end
-    %}{{"\n    );\n"}}{%
-end
-
-function writeDataStructure(type, name, attributes)
-    local final = "";
-    if type == "class" then
-        final = " final";
-    end
-
-    %}{{string.format("\n    %s %s%s\n    {", type, name, final)}}{%
-    writePublic();
-    for _, attribute in pairs(attributes) do
-        writeAttribute(attribute)
-    end
-
-    writeEncoder(attributes, "Keycap::Root::Network::MemoryStream");
-    writeDecoder(attributes, "Keycap::Root::Network::MemoryStream");
-    %}{{"\n    };\n"}}{%
-end
-%}/*
+/*
     Copyright 2017 KeycapEmu
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -160,33 +15,147 @@ end
 */
 
 // This file was generated. DO NOT EDIT!
-{%
-for _,import in pairs(imports) do
-    writeInclude(import)
-end
 
-%}
 #include <Keycap/Root/Utility/Enum.hpp>
 #include <Keycap/Root/Network/MemoryStream.hpp>
+#include <Keycap/Root/Types.hpp>
+## if hasImports
+## for imp in imports
+#include "{{ imp/importName }}.hpp"
 
-{%
+## endfor
+{##}
 
-writeNamespace()
+## endif
+{##}
 
-%}
-{ {%
-for _,enum in pairs(enums) do
-    writeEnum(enum.name, enum.alignment, enum.values)
-end
-%}
+namespace {% for i in modulePath %}{% if is_first %}{{ i }}{% else %}::{{ i }}{% endif %}{% endfor %}
+{
+## if hasEnums
+## for enum in enums
+{##}
+    keycap_enum({{ enum/name }}, {% if enum/alignment == "byte" %}uint8{% else if enum/alignment == "word" %}uint16{% else if enum/alignment == "dword" %}uint32{% else if enum/alignment == "qword" %}uint64{% endif %},{%
+for value in enum/values %}
+        {{ value/name }} = {{ value/value }},{%
+endfor %}
+    );
+
+## endfor
+## endif
+{##}
 #pragma pack(push, 1)
-{%
-for _,data in pairs(data) do
-    writeDataStructure("struct", data.name, data.attributes)
-end
-for _,msg in pairs(messages) do
-    writeDataStructure("class", msg.name, msg.attributes)
-end
-%}
-#pragma pack(pop)
+
+## if hasData
+## for dat in data
+{##}
+    struct {{ dat/name }}
+    {
+    public:{%
+for attrib in dat/attributes %}
+        {% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %} {{ attrib/name }};{%
+endfor %}
+
+        void encode(Keycap::Root::Network::MemoryStream& encoder)
+        {
+## for attrib in dat/attributes
+## if attrib/type == "string"
+{##}
+            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
+            encoder.Put({{attrib/name}});
+## else
+{##}
+            encoder.Put({{attrib/name}});
+## endif
+## endfor
+        }
+    };
+
+## endfor
+## endif
+## if hasMessages
+{##}
+## for msg in messages
+{##}
+    class {{ msg/name }} final
+    {
+    public:{%
+for attrib in msg/attributes %}
+        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }};{%
+endfor %}
+
+        void Encode(Keycap::Root::Network::MemoryStream& encoder)
+        {
+## for attrib in msg/attributes
+## if attrib/type == "string"
+{##}
+            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
+            encoder.Put({{attrib/name}});
+## else
+{##}
+            encoder.Put({{attrib/name}});
+## endif
+## endfor
+{##}
+        }
+
+        void Decode(Keycap::Root::Network::MemoryStream& decoder)
+        {
+## for attrib in msg/attributes
+## if attrib/type == "string"
+{##}
+            auto size_{{ attrib/name }} = decoder.Get<uint8>();
+            {{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+## else if attrib/hasArraySize
+{##}
+            {{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
+## else
+{##}
+            {{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## endif
+## endfor
+{##}
+        }
+
+        std::string ToString()
+        {
+            std::stringstream ss;
+            ss << "Packet {{ msg/name }}\n";
+## for attrib in msg/attributes
+## if attrib/hasSpecifier
+## if attrib/specifier == "optional"
+{##}
+
+            if({{ attrib/name }})
+                ss << "    {{ attrib/name }} = " << *{{ attrib/name }};
+            else
+                ss << "    {{ attrib/name }} not set";
+            ss << '\n';
+## else
+{##}
+
+            ss << "    {{ attrib/name }}[" << {{ attrib/name }}.size() << "\n        ";
+            for(auto&& i_{{ attrib/name }} : {{ attrib/name }})
+                ss << i_{{ attrib/name }} << ", ";
+## endif
+## else if attrib/hasArraySize
+{##}
+
+            ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n        ";
+            for(auto&& i_{{ attrib/name }} : {{ attrib/name }})
+                ss << i_{{ attrib/name }} << ", ";
+## else
+{##}
+            ss << "    " << {{ attrib/name }} << '\n';
+## endif
+## endfor
+{##}
+
+            return ss.str();
+        }
+    };
+
+## endfor
+## endif
+{##}
+#pragma pop
 }
