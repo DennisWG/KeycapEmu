@@ -157,5 +157,5 @@ endfor %}
 ## endfor
 ## endif
 {##}
-#pragma pop
+#pragma pack(pop)
 }
