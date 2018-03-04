@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#undef SetConsoleTitle
+
 int main()
 {
     namespace utility = Keycap::Root::Utility;

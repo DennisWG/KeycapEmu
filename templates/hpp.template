@@ -19,6 +19,7 @@
 #include <Keycap/Root/Utility/Enum.hpp>
 #include <Keycap/Root/Network/MemoryStream.hpp>
 #include <Keycap/Root/Types.hpp>
+#include <Keycap/Root/Utility/Utility.hpp>
 ## if hasImports
 ## for imp in imports
 #include "{{ imp/importName }}.hpp"
@@ -52,21 +53,55 @@ endfor %}
     {
     public:{%
 for attrib in dat/attributes %}
-        {% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %} {{ attrib/name }};{%
+        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }};{%
 endfor %}
 
-        void encode(Keycap::Root::Network::MemoryStream& encoder)
+        void Encode(Keycap::Root::Network::MemoryStream& encoder)
         {
 ## for attrib in dat/attributes
 ## if attrib/type == "string"
 {##}
             encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
             encoder.Put({{attrib/name}});
+## else if attrib/hasSpecifier
+## if attrib/specifier == "repeated"
+{##}
+            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
+            encoder.Put({{attrib/name}});
+## endif
 ## else
 {##}
             encoder.Put({{attrib/name}});
 ## endif
 ## endfor
+{##}
+        }
+
+        static {{ dat/name }} Decode(Keycap::Root::Network::MemoryStream& decoder)
+        {
+            {{ dat/name }} packet;
+## for attrib in dat/attributes
+## if attrib/type == "string"
+{##}
+            auto size_{{ attrib/name }} = decoder.Get<uint8>();
+            packet.{{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+## else if attrib/hasSpecifier
+## if attrib/specifier == "repeated"
+{##}
+            auto size_{{attrib/name}} = decoder.Get<uint8>();
+            for(int i = 0; i < size_{{attrib/name}}; ++i)
+                packet.{{attrib/name}}.push_back(decoder.Get<{{ attrib/type }}>());
+## endif
+## else if attrib/hasArraySize
+{##}
+            packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
+## else
+{##}
+            packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## endif
+## endfor
+{##}
+            return packet;
         }
     };
 
@@ -90,6 +125,12 @@ endfor %}
 {##}
             encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
             encoder.Put({{attrib/name}});
+## else if attrib/hasSpecifier
+## if attrib/specifier == "repeated"
+{##}
+            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
+            encoder.Put({{attrib/name}});
+## endif
 ## else
 {##}
             encoder.Put({{attrib/name}});
@@ -98,22 +139,31 @@ endfor %}
 {##}
         }
 
-        void Decode(Keycap::Root::Network::MemoryStream& decoder)
+        static {{ msg/name }} Decode(Keycap::Root::Network::MemoryStream& decoder)
         {
+            {{ msg/name }} packet;
 ## for attrib in msg/attributes
 ## if attrib/type == "string"
 {##}
             auto size_{{ attrib/name }} = decoder.Get<uint8>();
-            {{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+            packet.{{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+## else if attrib/hasSpecifier
+## if attrib/specifier == "repeated"
+{##}
+            auto size_{{attrib/name}} = decoder.Get<uint8>();
+            for(int i = 0; i < size_{{attrib/name}}; ++i)
+                packet.{{attrib/name}}.push_back(decoder.Get<{{ attrib/type }}>());
+## endif
 ## else if attrib/hasArraySize
 {##}
-            {{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
+            packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
 ## else
 {##}
-            {{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+            packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
 ## endif
 ## endfor
 {##}
+            return packet;
         }
 
         std::string ToString()
@@ -133,19 +183,20 @@ endfor %}
 ## else
 {##}
 
-            ss << "    {{ attrib/name }}[" << {{ attrib/name }}.size() << "\n        ";
-            for(auto&& i_{{ attrib/name }} : {{ attrib/name }})
-                ss << i_{{ attrib/name }} << ", ";
+            ss << "    {{ attrib/name }}[" << {{ attrib/name }}.size() << "]\n";
+            
+            if constexpr(!std::is_class_v<{{ attrib/type }}>)
+                Keycap::Root::Utility::DumpAsHex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
 ## endif
 ## else if attrib/hasArraySize
 {##}
 
-            ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n        ";
-            for(auto&& i_{{ attrib/name }} : {{ attrib/name }})
-                ss << i_{{ attrib/name }} << ", ";
+            ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n";
+            if constexpr(!std::is_class_v<{{ attrib/type }}>)
+                Keycap::Root::Utility::DumpAsHex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
 ## else
 {##}
-            ss << "    " << {{ attrib/name }} << '\n';
+            ss << "    {{ attrib/name }} = " << {{ attrib/name }} << '\n';
 ## endif
 ## endfor
 {##}

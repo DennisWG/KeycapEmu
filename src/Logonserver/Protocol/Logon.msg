@@ -6,12 +6,41 @@ enum Command : byte
 {
     Challange = 0,
     Proof = 1,
-    RealmList = 2,
+    ReconnectChallange = 2,
+    ReconnectProof = 3,
+    SurveyResult = 4,
+    RealmList = 16,
+    XferInitiate = 48,
+    XferData = 49,
+
+    GruntAuthChallange = 0,
+    GruntAuthVerify = 2,
+    GruntConnPing = 16,
+    GruntConnPong = 17,
+    GruntHello = 32,
+    GruntProveSession = 33,
+    GruntKick = 36,
+    GruntPcWarning = 41,
 }
 
 enum Error : byte
 {
-    None = 0,
+    Success = 0,
+    Unk1 = 1,
+    Unk2 = 2,
+    Banned = 3,
+    UnknownAccount = 4,
+    IncorrectPassword = 5,
+    AlreadyOnline = 6,
+    NoTime = 7,
+    DbBusy = 8,
+    VersionInvalid = 9,
+    VersionUpdate = 10,
+    InvalidServer = 11,
+    Suspended = 12,
+    NoAccess = 13,
+    SuccessSurvey = 14,
+    ParentalControl = 15,
 }
 
 enum AuthResult : byte
@@ -86,7 +115,7 @@ message ClientLogonChallange
     uint8[4] country;
     uint32 timezoneBias;
     uint8[4] ip;
-    string name;
+    string accountName;
 }
 
 message ServerLogonChallange
@@ -102,6 +131,24 @@ message ServerLogonChallange
     uint8[32] s;
     uint8[16] checksumSalt;
     SecurityFlags securityFlags;
+}
+
+data TelemetryData
+{
+    uint16 unk1;
+    uint32 unk2;
+    uint8[4] unk3;
+    uint8[20] checksum;
+}
+
+message ClientLogonProof
+{
+    Command command;
+    uint8[32] A;
+    uint8[20] M1;
+    uint8[20] Checksum;
+    repeated TelemetryData telemetryData;
+    uint8 securityFlags;
 }
 
 message ServerLogonProof

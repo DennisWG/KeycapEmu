@@ -16,6 +16,13 @@
 
 #include "Connection.hpp"
 
+#include <Keycap/Root/Network/Srp6/Server.hpp>
+
+#include <botan/auto_rng.h>
+#include <botan/bigint.h>
+#include <botan/numthry.h>
+#include <botan/sha160.h>
+
 namespace net = Keycap::Root::Network;
 
 namespace Keycap::Logonserver
@@ -65,30 +72,97 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::JustConnected::OnData(Connection& connection, net::ServiceBase& service,
                                                               net::MemoryStream& stream)
     {
-        Protocol::ClientLogonChallange packet;
-        packet.decode(stream);
+        auto packet{Protocol::ClientLogonChallange::Decode(stream)};
         stream.Shrink();
+
+        std::cout << packet.ToString();
 
         if (packet.command != Protocol::Command::Challange)
             return Connection::StateResult::Abort;
 
+        constexpr auto compliance = net::Srp6::Compliance::Wow;
+
+        Botan::SHA_1 sha;
+        sha.update("test");
+        sha.update(":");
+        sha.update("PASSWORD");
+        auto xVec = sha.final();
+
+        // todo: generate a propper salt. store it in a database and load it
+        Botan::BigInt salt;
+
+        auto encode = [](Botan::BigInt const& bn, net::Srp6::Compliance compliance) {
+            if (compliance == net::Srp6::Compliance::RFC5054)
+                return Botan::BigInt::encode(bn);
+            else if (compliance == net::Srp6::Compliance::Wow)
+            {
+                std::vector<uint8_t> buffer{Botan::BigInt::encode(bn)};
+                std::reverse(std::begin(buffer), std::end(buffer));
+                return buffer;
+            }
+
+            throw std::exception("Unknown compliance mode!");
+        };
+
+        auto decode = [](Botan::secure_vector<uint8_t> vec, net::Srp6::Compliance compliance) {
+            if (compliance == net::Srp6::Compliance::RFC5054)
+                return Botan::BigInt::decode(vec);
+            else if (compliance == net::Srp6::Compliance::Wow)
+            {
+                std::reverse(std::begin(vec), std::end(vec));
+                return Botan::BigInt::decode(vec);
+            }
+
+            throw std::exception("Unknown compliance mode!");
+        };
+
+        auto toArray32 = [](Botan::BigInt value) {
+            std::array<uint8_t, 32> array;
+            auto tmp = Botan::BigInt::encode_1363(value, 32);
+            std::reverse_copy(std::begin(tmp), std::end(tmp), std::begin(array));
+            return array;
+        };
+
+        sha.update(encode(salt, compliance));
+
+        xVec = sha.process(xVec);
+        auto x = decode(xVec, compliance);
+
+        auto parameter = net::Srp6::GetParameters(net::Srp6::GroupParameters::_256);
+        Botan::BigInt N{parameter.value};
+        Botan::BigInt g{parameter.generator};
+        Botan::BigInt v = Botan::power_mod(g, x, N);
+
+        net::Srp6::Server srp{parameter, v, compliance};
+
+        ChallangedData challangedData;
+        challangedData.groupParameters = parameter;
+        challangedData.v = v;
+        challangedData.compliance = compliance;
+        challangedData.username = packet.accountName;
+        challangedData.userSalt = salt;
+        challangedData.checksumSalt = Botan::AutoSeeded_RNG().random_vec(16);
+
         Protocol::ServerLogonChallange outPacket{};
         outPacket.command = Protocol::Command::Challange;
-        outPacket.error = Protocol::Error::None;
+        outPacket.error = Protocol::Error::Success;
         outPacket.authResult = Protocol::AuthResult::Ok;
-        outPacket.B = {}; // todo
+        outPacket.B = toArray32(srp.PublicEphemeralValue());
         outPacket.g_length = 1;
-        outPacket.g = 0; // todo
+        outPacket.g = static_cast<uint8_t>(parameter.generator);
         outPacket.N_length = 32;
-        outPacket.N = {}; // todo
-        outPacket.s = {}; // todo
-        outPacket.checksumSalt = {}; // todo
+        outPacket.N = toArray32(N);
+        outPacket.s = toArray32(salt);
         outPacket.securityFlags = Protocol::SecurityFlags::None;
+        std::copy(std::begin(challangedData.checksumSalt), std::end(challangedData.checksumSalt),
+                  std::begin(outPacket.checksumSalt));
 
         net::MemoryStream buffer;
-        outPacket.encode(buffer);
+        outPacket.Encode(buffer);
 
         connection.Send(std::vector<uint8_t>(buffer.Data(), buffer.Data() + buffer.Size()));
+
+        connection.state_ = Challanged{challangedData};
 
         return Connection::StateResult::Ok;
     }
@@ -96,6 +170,24 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::Challanged::OnData(Connection& connection, net::ServiceBase& service,
                                                            net::MemoryStream& stream)
     {
+        auto packet{Protocol::ClientLogonProof::Decode(stream)};
+        stream.Shrink();
+
+        std::cout << packet.ToString();
+
+        Protocol::ServerLogonProof outPacket;
+        outPacket.command = Protocol::Command::Proof;
+        outPacket.error = Protocol::Error::Success;
+        //outPacket.M2 =
+        outPacket.accountFlags = Protocol::AccountFlags::None;
+        outPacket.surveyId = 0;
+        outPacket.messageFlags = 0;
+
+        net::MemoryStream buffer;
+        outPacket.Encode(buffer);
+
+        connection.Send(std::vector<uint8_t>(buffer.Data(), buffer.Data() + buffer.Size()));
+
         return Connection::StateResult::Abort;
     }
 
