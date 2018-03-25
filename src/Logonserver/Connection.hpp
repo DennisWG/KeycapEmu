@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 KeycapEmu
+    Copyright 2018 KeycapEmu
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace Keycap::Logonserver
         using BaseConnection = Keycap::Root::Network::Connection<Connection>;
 
       public:
-        Connection(Keycap::Root::Network::ServiceBase& service);
+        explicit Connection(Keycap::Root::Network::ServiceBase& service);
 
         bool OnData(Keycap::Root::Network::ServiceBase& service, std::vector<uint8_t> const& data) override;
 
@@ -82,7 +82,7 @@ namespace Keycap::Logonserver
         struct Challanged
         {
             Challanged() = default;
-            Challanged(ChallangedData const& data) : data{ data } {}
+            explicit Challanged(ChallangedData const& data) : data{ data } {}
             StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
                                Keycap::Root::Network::MemoryStream& stream);
 
