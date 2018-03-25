@@ -1,4 +1,4 @@
-#   Copyright 2017 KeycapEmu
+#   Copyright 2018 KeycapEmu
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 git_describe(GIT_BRANCH --all --tags --dirty=-d)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Utility/Version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp @ONLY)
-list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp Version.h)
+list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp)
 set(version_file ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp)
 
 ################################
@@ -60,6 +60,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   string(REPLACE ";" " " MY_CXX_FLAGS "${MY_CXX_FLAGS_LIST}")
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CXX_FLAGS}")
+endif()
+
+if(MSVC)
+  # Use at least verion 3.8.1 of FindBoost to fix some issues. Especialy in MSVC with fixed Toolset issues.
+  # This is a workaround while VisualStudio does not embed higher cmake version than 3.7.2
+  if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} LESS 3.8.1)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/FindBoost)
+    message(STATUS "FindBoost: most recent version of FindBoost is used.")
+  endif()
 endif()
 
 add_subdirectory (src)
