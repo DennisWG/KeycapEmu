@@ -1,4 +1,4 @@
-#   Copyright 2017 KeycapEmu
+#   Copyright 2018 KeycapEmu
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -13,4 +13,4 @@
 #   limitations under the License.
 
 add_subdirectory (Logonserver)
-#add_subdirectory (tools)
+add_subdirectory (Shared)

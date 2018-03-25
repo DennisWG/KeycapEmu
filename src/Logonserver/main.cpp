@@ -14,23 +14,122 @@
     limitations under the License.
 */
 
+#include "Cli/Registrar.hpp"
 #include "Connection.hpp"
+#include <Cli/Handler.hpp>
 
+#include <Keycap/Root/Utility/String.hpp>
 #include <Keycap/Root/Utility/Utility.hpp>
 
+#include <Rbac/Role.hpp>
 #include <iostream>
 
 #undef SetConsoleTitle
 
+Keycap::Shared::Cli::CommandMap commands;
+
+void RegisterCommand(Keycap::Shared::Cli::Command const& command)
+{
+    commands[command.name] = command;
+}
+
+void RegisterDefaultCommands(bool& running)
+{
+    using namespace std::string_literals;
+    using Keycap::Shared::Permission;
+    using Keycap::Shared::Cli::Command;
+    namespace rbac = Keycap::Shared::Rbac;
+
+    RegisterCommand(Command{"shutdown"s, Permission::CommandShutdown,
+                            [&running](std::vector<std::string> const& args, rbac::Role const& role) {
+                                running = false;
+                                return true;
+                            },
+                            "Shuts down the Server"s});
+}
+auto& GetCommandMap()
+{
+    return commands;
+}
+
+Keycap::Shared::Rbac::PermissionSet GetAllPermissions()
+{
+    auto const perms = Keycap::Shared::Permission::ToVector();
+    return Keycap::Shared::Rbac::PermissionSet{std::begin(perms), std::end(perms)};
+}
+
+Keycap::Shared::Rbac::Role CreateConsoleRole()
+{
+    return Keycap::Shared::Rbac::Role{0, "Console", GetAllPermissions()};
+}
+
+void PrintHandlerResult(Keycap::Shared::Cli::HandlerResult result, std::string const& command)
+{
+    switch (result)
+    {
+        case Keycap::Shared::Cli::HandlerResult::Ok:
+            break;
+        case Keycap::Shared::Cli::HandlerResult::InsufficientPermissions:
+        case Keycap::Shared::Cli::HandlerResult::CommandNotFound:
+            fmt::print("Unknown command '{}'\n", command);
+            break;
+        case Keycap::Shared::Cli::HandlerResult::CommandFailed:
+            fmt::print("Command '{}' failed to execute!\n", command);
+            break;
+    }
+}
+
+void ExtractCommandAndArguments(std::string const& line, std::string& outCommand, std::vector<std::string>& outArgs)
+{
+    if (line.empty())
+        return;
+    auto tokens = Keycap::Root::Utility::Explode(line);
+    outCommand = tokens[0];
+
+    std::copy(tokens.begin() + 1, tokens.end(), std::back_inserter(outArgs));
+
+    outArgs.erase(std::remove_if(std::begin(outArgs), std::end(outArgs), [](auto& i) { return i.empty(); }),
+                  std::end(outArgs));
+}
+
 int main()
 {
     namespace utility = Keycap::Root::Utility;
+
+    auto consoleRole = CreateConsoleRole();
 
     utility::SetConsoleTitle("Logonserver");
 
     Keycap::Logonserver::LogonService service;
     service.Start("0.0.0.0", 3724);
 
-    std::getline(std::cin, std::string());
+    bool running = true;
+
+    Keycap::Logonserver::Cli::RegisterCommands(commands);
+    RegisterDefaultCommands(running);
+
+    std::cout << '>';
+    for (std::string line; std::getline(std::cin, line);)
+    {
+        struct ScopeExit
+        {
+            ~ScopeExit()
+            {
+                std::cout << '>';
+            }
+        } sc;
+
+        std::string command;
+        std::vector<std::string> arguments;
+        ExtractCommandAndArguments(line, command, arguments);
+
+        auto result = Keycap::Shared::Cli::HandleCommand(command, arguments, consoleRole, commands);
+        PrintHandlerResult(result, command);
+
+        if (!running)
+            break;
+    }
+
+    spdlog::drop_all();
     std::cout << "Hello, World!";
 }
