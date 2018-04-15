@@ -18,6 +18,8 @@
 
 #include <Keycap/Root/Network/Srp6/Server.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include <botan/auto_rng.h>
 #include <botan/bigint.h>
 #include <botan/numthry.h>
@@ -39,10 +41,24 @@ namespace Keycap::Logonserver
         // clang-format off
         return std::visit([&](auto state)
         {
-            auto logger = Keycap::Root::Utility::GetSafeLogger("Connections");
+            auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+            logger->debug("Received data in state: {}", state.name);
 
-            std::cout << state.name << '\n';
-            return state.OnData(*this, service, inputStream_) != Connection::StateResult::Abort;
+            try
+            {
+                return state.OnData(*this, service, inputStream_) != Connection::StateResult::Abort;
+            }
+            catch (std::exception const& e)
+            {
+                logger->error(e.what());
+                return false;
+            }
+            catch (...)
+            {
+                return false;
+            }
+
+            return false;
         }, state_);
         // clang-format on
     }
@@ -51,12 +67,14 @@ namespace Keycap::Logonserver
     {
         if (status == net::LinkStatus::Up)
         {
-            std::cout << "New connection\n";
+            auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+            logger->debug("New connection");
             state_ = JustConnected{};
         }
         else
         {
-            std::cout << "Connection closed\n";
+            auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+            logger->debug("Connection closed");
             state_ = Disconnected{};
         }
 
@@ -66,6 +84,8 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::Disconnected::OnData(Connection& connection, net::ServiceBase& service,
                                                              net::MemoryStream& stream)
     {
+        auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+        logger->error("defuq???");
         return Connection::StateResult::Abort;
     }
 
@@ -75,7 +95,8 @@ namespace Keycap::Logonserver
         auto packet{Protocol::ClientLogonChallange::Decode(stream)};
         stream.Shrink();
 
-        std::cout << packet.ToString();
+        auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+        logger->debug(packet.ToString());
 
         if (packet.command != Protocol::Command::Challange)
             return Connection::StateResult::Abort;
@@ -173,7 +194,8 @@ namespace Keycap::Logonserver
         auto packet{Protocol::ClientLogonProof::Decode(stream)};
         stream.Shrink();
 
-        std::cout << packet.ToString();
+        auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+        logger->debug(packet.ToString());
 
         Protocol::ServerLogonProof outPacket;
         outPacket.command = Protocol::Command::Proof;

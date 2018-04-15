@@ -16,12 +16,16 @@
 
 #include "Cli/Registrar.hpp"
 #include "Connection.hpp"
+#include "Version.hpp"
 #include <Cli/Handler.hpp>
 
 #include <Keycap/Root/Utility/String.hpp>
 #include <Keycap/Root/Utility/Utility.hpp>
 
 #include <Rbac/Role.hpp>
+
+#include <spdlog/spdlog.h>
+
 #include <iostream>
 
 #undef SetConsoleTitle
@@ -47,14 +51,34 @@ void RegisterDefaultCommands(bool& running)
                             },
                             "Shuts down the Server"s});
 }
+
 auto& GetCommandMap()
 {
     return commands;
 }
 
+void CreateLogger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
+{
+    std::vector<spdlog::sink_ptr> sinks;
+    if (console)
+        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::stdout_sink_mt>()));
+    if (file)
+        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::daily_file_sink_mt>(name, 23, 59)));
+    auto combined_logger = std::make_shared<spdlog::logger>(name, std::begin(sinks), std::end(sinks));
+    combined_logger->set_level(level);
+    spdlog::register_logger(combined_logger);
+}
+
+void CreateLoggers()
+{
+    CreateLogger("console", true, true, spdlog::level::debug);
+    CreateLogger("command", false, true, spdlog::level::debug);
+    CreateLogger("connections", true, true, spdlog::level::debug);
+}
+
 Keycap::Shared::Rbac::PermissionSet GetAllPermissions()
 {
-    auto const perms = Keycap::Shared::Permission::ToVector();
+    auto const& perms = Keycap::Shared::Permission::ToVector();
     return Keycap::Shared::Rbac::PermissionSet{std::begin(perms), std::end(perms)};
 }
 
@@ -81,8 +105,6 @@ void PrintHandlerResult(Keycap::Shared::Cli::HandlerResult result, std::string c
 
 void ExtractCommandAndArguments(std::string const& line, std::string& outCommand, std::vector<std::string>& outArgs)
 {
-    if (line.empty())
-        return;
     auto tokens = Keycap::Root::Utility::Explode(line);
     outCommand = tokens[0];
 
@@ -92,22 +114,8 @@ void ExtractCommandAndArguments(std::string const& line, std::string& outCommand
                   std::end(outArgs));
 }
 
-int main()
+void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running)
 {
-    namespace utility = Keycap::Root::Utility;
-
-    auto consoleRole = CreateConsoleRole();
-
-    utility::SetConsoleTitle("Logonserver");
-
-    Keycap::Logonserver::LogonService service;
-    service.Start("0.0.0.0", 3724);
-
-    bool running = true;
-
-    Keycap::Logonserver::Cli::RegisterCommands(commands);
-    RegisterDefaultCommands(running);
-
     std::cout << '>';
     for (std::string line; std::getline(std::cin, line);)
     {
@@ -118,6 +126,8 @@ int main()
                 std::cout << '>';
             }
         } sc;
+        if (line.empty())
+            continue;
 
         std::string command;
         std::vector<std::string> arguments;
@@ -129,6 +139,30 @@ int main()
         if (!running)
             break;
     }
+}
+
+int main()
+{
+    namespace utility = Keycap::Root::Utility;
+
+    auto consoleRole = CreateConsoleRole();
+
+    utility::SetConsoleTitle("Logonserver");
+
+    CreateLoggers();
+    utility::GetSafeLogger("console")->info("Running KeycapEmu.Logonserver version {}/{}",
+                                            Keycap::Logonserver::Version::GIT_BRANCH,
+                                            Keycap::Logonserver::Version::GIT_HASH);
+
+    Keycap::Logonserver::LogonService service;
+    service.Start("0.0.0.0", 3724);
+
+    bool running = true;
+
+    Keycap::Logonserver::Cli::RegisterCommands(commands);
+    RegisterDefaultCommands(running);
+
+    RunCommandLine(consoleRole, running);
 
     spdlog::drop_all();
     std::cout << "Hello, World!";
