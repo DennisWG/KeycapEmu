@@ -104,7 +104,9 @@ enum SecurityFlags : byte
 
 message ClientLogonChallange
 {
+    [Expects="Command::Challange"]
     Command command;
+    [Expects="Error::DbBusy"]
     Error error;
     uint16 size;
     char[4] game;
@@ -143,6 +145,7 @@ data TelemetryData
 
 message ClientLogonProof
 {
+    [Expects="Command::Proof"]
     Command command;
     uint8[32] A;
     uint8[20] M1;

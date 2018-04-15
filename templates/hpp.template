@@ -87,6 +87,14 @@ endfor %}
 {##}
             auto size_{{ attrib/name }} = decoder.Get<uint8>();
             packet.{{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+## if attrib/hasAnnotations
+## for annotation in attrib/annotations
+## if annotation/name == "Expects"
+{##}
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotation/value}}");
+## endif
+## endfor
+## endif
 ## else if attrib/hasSpecifier
 ## if attrib/specifier == "repeated"
 {##}
@@ -100,10 +108,32 @@ endfor %}
 ## else
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## if attrib/hasAnnotations
+## for annotation in attrib/annotations
+## if annotation/name == "Expects"
+{##}
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
+## endif
+## endfor
+## endif
 ## endif
 ## endfor
 {##}
             return packet;
+        }
+
+    private:
+        template <typename T1, typename T2>
+        static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
+        {
+            if(v1 != v2)
+                throw std::exception(("Attribute '" + name + "'(" + std::to_string(v1) + ") was expected to be " + std::to_string(v2)).c_str());
+        }
+
+        template <typename T>
+        static void ensure(std::string const& name, std::vector<T> const& v1,  std::vector<T> const& v2)
+        {
+            
         }
     };
 
@@ -149,6 +179,14 @@ endfor %}
 {##}
             auto size_{{ attrib/name }} = decoder.Get<uint8>();
             packet.{{attrib/name}} = decoder.GetString(size_{{ attrib/name }});
+## if attrib/hasAnnotations
+## for annotation in attrib/annotations
+## if annotation/name == "Expects"
+{##}
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotation/value}}");
+## endif
+## endfor
+## endif
 ## else if attrib/hasSpecifier
 ## if attrib/specifier == "repeated"
 {##}
@@ -162,6 +200,14 @@ endfor %}
 ## else
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## if attrib/hasAnnotations
+## for annotation in attrib/annotations
+## if annotation/name == "Expects"
+{##}
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
+## endif
+## endfor
+## endif
 ## endif
 ## endfor
 {##}
@@ -204,6 +250,20 @@ endfor %}
 {##}
 
             return ss.str();
+        }
+
+    private:
+        template <typename T1, typename T2>
+        static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
+        {
+            if(v1 != v2)
+                throw std::exception(("Attribute '" + name + "'(" + std::to_string(v1) + ") was expected to be " + std::to_string(v2)).c_str());
+        }
+
+        template <typename T>
+        static void ensure(std::string const& name, std::vector<T> const& v1,  std::vector<T> const& v2)
+        {
+            
         }
     };
 
