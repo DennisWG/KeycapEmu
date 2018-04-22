@@ -22,6 +22,8 @@
 #include <Keycap/Root/Network/MemoryStream.hpp>
 #include <Keycap/Root/Types.hpp>
 #include <Keycap/Root/Utility/Utility.hpp>
+
+#include <spdlog/fmt/fmt.h>
 ## if hasImports
 ## for imp in imports
 #include "{{ imp/importName }}.hpp"
@@ -127,7 +129,7 @@ endfor %}
         static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
         {
             if(v1 != v2)
-                throw std::exception(("Attribute '" + name + "'(" + std::to_string(v1) + ") was expected to be " + std::to_string(v2)).c_str());
+                throw std::exception(fmt::format("Attribute '{}'({}) was expected to be {}", name, std::to_string(v1), std::to_string(v2)).c_str());
         }
 
         template <typename T>
@@ -257,7 +259,7 @@ endfor %}
         static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
         {
             if(v1 != v2)
-                throw std::exception(("Attribute '" + name + "'(" + std::to_string(v1) + ") was expected to be " + std::to_string(v2)).c_str());
+                throw std::exception(fmt::format("Attribute '{}'({}) was expected to be {}", name, std::to_string(v1), std::to_string(v2)).c_str());
         }
 
         template <typename T>
