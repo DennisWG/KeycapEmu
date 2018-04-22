@@ -21,6 +21,7 @@
 
 #include <Keycap/Root/Utility/String.hpp>
 #include <Keycap/Root/Utility/Utility.hpp>
+#include <Keycap/Root/Utility/ScopeExit.hpp>
 
 #include <Rbac/Role.hpp>
 
@@ -119,13 +120,10 @@ void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running)
     std::cout << '>';
     for (std::string line; std::getline(std::cin, line);)
     {
-        struct ScopeExit
-        {
-            ~ScopeExit()
-            {
-                std::cout << '>';
-            }
-        } sc;
+        SCOPE_EXIT(sc, []() {
+            std::cout << '>';
+        });
+
         if (line.empty())
             continue;
 
@@ -150,7 +148,12 @@ int main()
     utility::SetConsoleTitle("Logonserver");
 
     CreateLoggers();
-    utility::GetSafeLogger("console")->info("Running KeycapEmu.Logonserver version {}/{}",
+    SCOPE_EXIT(sc, []() {
+        spdlog::drop_all();
+    });
+
+    auto console = utility::GetSafeLogger("console");
+    console->info("Running KeycapEmu.Logonserver version {}/{}",
                                             Keycap::Logonserver::Version::GIT_BRANCH,
                                             Keycap::Logonserver::Version::GIT_HASH);
 
@@ -164,6 +167,5 @@ int main()
 
     RunCommandLine(consoleRole, running);
 
-    spdlog::drop_all();
     std::cout << "Hello, World!";
 }
