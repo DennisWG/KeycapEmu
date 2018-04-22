@@ -63,6 +63,7 @@ namespace Keycap::Logonserver
             Botan::secure_vector<uint8_t> checksumSalt;
         };
 
+        // Connection hasn't been established yet or has been terminated
         struct Disconnected
         {
             StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
@@ -71,6 +72,7 @@ namespace Keycap::Logonserver
             std::string name = "Disconnected";
         };
 
+        // Connection was just established
         struct JustConnected
         {
             StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
@@ -79,6 +81,7 @@ namespace Keycap::Logonserver
             std::string name = "JustConnected";
         };
 
+        // Auth Challange was send to client and we're waiting for a response
         struct Challanged
         {
             Challanged() = default;
@@ -90,6 +93,7 @@ namespace Keycap::Logonserver
             ChallangedData data;
         };
 
+        // Client send its Challange and is now authenticated
         struct Authenticated
         {
             StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,

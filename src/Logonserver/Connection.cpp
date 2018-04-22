@@ -92,11 +92,15 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::JustConnected::OnData(Connection& connection, net::ServiceBase& service,
                                                               net::MemoryStream& stream)
     {
-        auto packet{Protocol::ClientLogonChallange::Decode(stream)};
+        if(stream.Peek<Protocol::Command>() != Protocol::Command::Challange)
+            return Connection::StateResult::Abort;
+
+        auto packet{ Protocol::ClientLogonChallange::Decode(stream) };
         stream.Shrink();
 
         auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
         logger->debug(packet.ToString());
+
 
         if (packet.command != Protocol::Command::Challange)
             return Connection::StateResult::Abort;
@@ -191,6 +195,9 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::Challanged::OnData(Connection& connection, net::ServiceBase& service,
                                                            net::MemoryStream& stream)
     {
+        if (stream.Peek<Protocol::Command>() != Protocol::Command::Proof)
+            return Connection::StateResult::Abort;
+
         auto packet{Protocol::ClientLogonProof::Decode(stream)};
         stream.Shrink();
 
