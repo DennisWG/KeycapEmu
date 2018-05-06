@@ -147,7 +147,9 @@ message ClientLogonProof
 {
     [Expects="Command::Proof"]
     Command command;
+    [Reverse=1]
     uint8[32] A;
+    [Reverse=1]
     uint8[20] M1;
     uint8[20] Checksum;
     repeated TelemetryData telemetryData;

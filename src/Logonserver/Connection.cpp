@@ -92,15 +92,14 @@ namespace Keycap::Logonserver
     Connection::StateResult Connection::JustConnected::OnData(Connection& connection, net::ServiceBase& service,
                                                               net::MemoryStream& stream)
     {
-        if(stream.Peek<Protocol::Command>() != Protocol::Command::Challange)
+        if (stream.Peek<Protocol::Command>() != Protocol::Command::Challange)
             return Connection::StateResult::Abort;
 
-        auto packet{ Protocol::ClientLogonChallange::Decode(stream) };
+        auto packet{Protocol::ClientLogonChallange::Decode(stream)};
         stream.Shrink();
 
         auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
         logger->debug(packet.ToString());
-
 
         if (packet.command != Protocol::Command::Challange)
             return Connection::StateResult::Abort;
@@ -108,9 +107,9 @@ namespace Keycap::Logonserver
         constexpr auto compliance = net::Srp6::Compliance::Wow;
 
         Botan::SHA_1 sha;
-        sha.update("test");
+        sha.update("a");
         sha.update(":");
-        sha.update("PASSWORD");
+        sha.update("A");
         auto xVec = sha.final();
 
         // todo: generate a propper salt. store it in a database and load it
@@ -158,12 +157,9 @@ namespace Keycap::Logonserver
         Botan::BigInt g{parameter.generator};
         Botan::BigInt v = Botan::power_mod(g, x, N);
 
-        net::Srp6::Server srp{parameter, v, compliance};
-
         ChallangedData challangedData;
-        challangedData.groupParameters = parameter;
+        challangedData.server = std::make_shared<net::Srp6::Server>(parameter, v, compliance);
         challangedData.v = v;
-        challangedData.compliance = compliance;
         challangedData.username = packet.accountName;
         challangedData.userSalt = salt;
         challangedData.checksumSalt = Botan::AutoSeeded_RNG().random_vec(16);
@@ -172,7 +168,7 @@ namespace Keycap::Logonserver
         outPacket.command = Protocol::Command::Challange;
         outPacket.error = Protocol::Error::Success;
         outPacket.authResult = Protocol::AuthResult::Ok;
-        outPacket.B = toArray32(srp.PublicEphemeralValue());
+        outPacket.B = toArray32(challangedData.server->PublicEphemeralValue());
         outPacket.g_length = 1;
         outPacket.g = static_cast<uint8_t>(parameter.generator);
         outPacket.N_length = 32;
@@ -198,16 +194,75 @@ namespace Keycap::Logonserver
         if (stream.Peek<Protocol::Command>() != Protocol::Command::Proof)
             return Connection::StateResult::Abort;
 
+        auto encode = [](Botan::BigInt const& bn, net::Srp6::Compliance compliance) {
+            if (compliance == net::Srp6::Compliance::RFC5054)
+                return Botan::BigInt::encode(bn);
+            else if (compliance == net::Srp6::Compliance::Wow)
+            {
+                std::vector<uint8_t> buffer{Botan::BigInt::encode(bn)};
+                std::reverse(std::begin(buffer), std::end(buffer));
+                return buffer;
+            }
+
+            throw std::exception("Unknown compliance mode!");
+        };
+
+        auto decode = [](Botan::secure_vector<uint8_t> vec, net::Srp6::Compliance compliance) {
+            if (compliance == net::Srp6::Compliance::RFC5054)
+                return Botan::BigInt::decode(vec);
+            else if (compliance == net::Srp6::Compliance::Wow)
+            {
+                std::reverse(std::begin(vec), std::end(vec));
+                return Botan::BigInt::decode(vec);
+            }
+
+            throw std::exception("Unknown compliance mode!");
+        };
+
+        auto generateClientProof
+            = [&encode, &decode](Botan::BigInt const& N, Botan::BigInt const& g, Botan::BigInt const& s,
+                                 std::string const& I, Botan::BigInt const& A, Botan::BigInt const& B,
+                                 std::vector<uint8_t> const& S, net::Srp6::Compliance compliance) {
+                  Botan::SHA_160 hasher;
+
+                  auto nHash{hasher.process(encode(N, compliance))};
+                  auto gHash{hasher.process(encode(g, compliance))};
+                  auto iHash{hasher.process(I)};
+
+                  for (size_t i = 0; i < nHash.size(); ++i)
+                      nHash[i] ^= gHash[i];
+
+                  hasher.update(nHash);
+                  hasher.update(iHash);
+                  hasher.update(encode(s, compliance));
+                  hasher.update(encode(A, compliance));
+                  hasher.update(encode(B, compliance));
+                  hasher.update(S);
+                  return decode(hasher.final(), compliance);
+              };
+
         auto packet{Protocol::ClientLogonProof::Decode(stream)};
         stream.Shrink();
 
         auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
         logger->debug(packet.ToString());
 
+        Botan::BigInt A{ packet.A.data(), 32 };
+        Botan::BigInt M1{packet.M1.data(), 20};
+        auto sessionKey = data.server->SessionKey(A);
+
+        auto M1_S = generateClientProof(data.server->Prime(), data.server->Generator(), data.userSalt, data.username, A,
+                                        data.server->PublicEphemeralValue(), sessionKey, data.server->ComplianceMode());
+
+        if (M1_S == M1)
+            logger->debug("Yup");
+        else
+            logger->debug("Nope");
+
         Protocol::ServerLogonProof outPacket;
         outPacket.command = Protocol::Command::Proof;
         outPacket.error = Protocol::Error::Success;
-        //outPacket.M2 =
+        // outPacket.M2 =
         outPacket.accountFlags = Protocol::AccountFlags::None;
         outPacket.surveyId = 0;
         outPacket.messageFlags = 0;
@@ -225,4 +280,4 @@ namespace Keycap::Logonserver
     {
         return Connection::StateResult::Abort;
     }
-}
+} // namespace Keycap::Logonserver

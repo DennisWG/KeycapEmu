@@ -110,14 +110,19 @@ endfor %}
 ## else
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## endif
 ## if attrib/hasAnnotations
 ## for annotation in attrib/annotations
 ## if annotation/name == "Expects"
 {##}
             ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
+
+## else if annotation/name == "Reverse"
+{##}
+            std::reverse(std::begin(packet.{{attrib/name}}), std::end(packet.{{attrib/name}}));
+
 ## endif
 ## endfor
-## endif
 ## endif
 ## endfor
 {##}
@@ -202,14 +207,19 @@ endfor %}
 ## else
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
+## endif
 ## if attrib/hasAnnotations
 ## for annotation in attrib/annotations
 ## if annotation/name == "Expects"
 {##}
             ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
+
+## else if annotation/name == "Reverse"
+{##}
+            std::reverse(std::begin(packet.{{attrib/name}}), std::end(packet.{{attrib/name}}));
+
 ## endif
 ## endfor
-## endif
 ## endif
 ## endfor
 {##}

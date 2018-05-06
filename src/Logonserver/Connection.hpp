@@ -54,7 +54,7 @@ namespace Keycap::Logonserver
 
         struct ChallangedData
         {
-            Keycap::Root::Network::Srp6::GroupParameter groupParameters;
+            std::shared_ptr<Keycap::Root::Network::Srp6::Server> server;
             Botan::BigInt v;
             Keycap::Root::Network::Srp6::Compliance compliance;
 
