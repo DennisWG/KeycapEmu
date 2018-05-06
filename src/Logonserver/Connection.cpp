@@ -107,9 +107,9 @@ namespace Keycap::Logonserver
         constexpr auto compliance = net::Srp6::Compliance::Wow;
 
         Botan::SHA_1 sha;
-        sha.update("a");
+        sha.update("test");
         sha.update(":");
-        sha.update("A");
+        sha.update("PASSWORD");
         auto xVec = sha.final();
 
         // todo: generate a propper salt. store it in a database and load it
