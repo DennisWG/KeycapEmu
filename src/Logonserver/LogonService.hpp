@@ -23,8 +23,8 @@ namespace Keycap::Logonserver
     class LogonService : public Keycap::Root::Network::Service<Connection>
     {
     public:
-        LogonService()
-            : Service{ Keycap::Root::Network::ServiceMode::Server, 1 }
+        LogonService(int threadCount)
+            : Service{ Keycap::Root::Network::ServiceMode::Server, threadCount }
         {
         }
     };

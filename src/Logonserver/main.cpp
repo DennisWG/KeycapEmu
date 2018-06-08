@@ -19,15 +19,39 @@
 #include "Version.hpp"
 #include <Cli/Handler.hpp>
 
+#include <Keycap/Root/Configuration/ConfigFile.hpp>
+#include <Keycap/Root/Utility/ScopeExit.hpp>
 #include <Keycap/Root/Utility/String.hpp>
 #include <Keycap/Root/Utility/Utility.hpp>
-#include <Keycap/Root/Utility/ScopeExit.hpp>
 
+#include <Database/Database.hpp>
 #include <Rbac/Role.hpp>
 
 #include <spdlog/spdlog.h>
 
+#include <boost/algorithm/string/join.hpp>
+
 #include <iostream>
+
+struct Config
+{
+    struct
+    {
+        std::string BindIp;
+        int16_t Port;
+        int Threads;
+    } Network;
+
+    struct
+    {
+        std::string Host;
+        int16_t Port;
+        std::string User;
+        std::string Password;
+        std::string Schema;
+        int Threads;
+    } Database;
+};
 
 #undef SetConsoleTitle
 
@@ -75,6 +99,7 @@ void CreateLoggers()
     CreateLogger("console", true, true, spdlog::level::debug);
     CreateLogger("command", false, true, spdlog::level::debug);
     CreateLogger("connections", true, true, spdlog::level::debug);
+    CreateLogger("database", true, true, spdlog::level::debug);
 }
 
 Keycap::Shared::Rbac::PermissionSet GetAllPermissions()
@@ -120,9 +145,7 @@ void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running)
     std::cout << '>';
     for (std::string line; std::getline(std::cin, line);)
     {
-        SCOPE_EXIT(sc, []() {
-            std::cout << '>';
-        });
+        QUICK_SCOPE_EXIT(sc, []() { std::cout << '>'; });
 
         if (line.empty())
             continue;
@@ -139,6 +162,47 @@ void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running)
     }
 }
 
+boost::asio::io_service& GetDbService()
+{
+    static boost::asio::io_service dbService;
+    return dbService;
+}
+
+Keycap::Shared::Database::Database& GetLoginDatabase()
+{
+    static Keycap::Shared::Database::Database loginDatabase{GetDbService()};
+    return loginDatabase;
+}
+
+void InitDatabases(std::vector<std::thread>& threadPool, Config const& config)
+{
+    GetLoginDatabase().Connect(config.Database.Host, config.Database.Port, config.Database.User,
+                               config.Database.Password, config.Database.Schema);
+
+    auto& service = GetDbService();
+    for (int i = 0; i < config.Database.Threads; ++i)
+        threadPool.emplace_back([&] { service.run(); });
+}
+
+Config ParseConfig(std::string configFile)
+{
+    Keycap::Root::Configuration::ConfigFile cfgFile{configFile};
+
+    Config conf;
+    conf.Network.BindIp = cfgFile.GetOrDefault<std::string>("Network", "BindIp", "127.0.0.1");
+    conf.Network.Port = cfgFile.GetOrDefault<int16_t>("Network", "Port", 3724);
+    conf.Network.Threads = cfgFile.GetOrDefault<int>("Network", "Threads", 1);
+
+    conf.Database.Host = cfgFile.GetOrDefault<std::string>("Database", "Host", "127.0.0.1");
+    conf.Database.Port = cfgFile.GetOrDefault<int16_t>("Database", "Port", 3306);
+    conf.Database.User = cfgFile.GetOrDefault<std::string>("Database", "User", "root");
+    conf.Database.Password = cfgFile.GetOrDefault<std::string>("Database", "Password", "");
+    conf.Database.Schema = cfgFile.GetOrDefault<std::string>("Database", "Schema", "");
+    conf.Database.Threads = cfgFile.GetOrDefault<int>("Database", "Threads", 1);
+
+    return conf;
+}
+
 int main()
 {
     namespace utility = Keycap::Root::Utility;
@@ -148,22 +212,74 @@ int main()
     utility::SetConsoleTitle("Logonserver");
 
     CreateLoggers();
-    SCOPE_EXIT(sc, []() {
-        spdlog::drop_all();
-    });
+    QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::GetSafeLogger("console");
-    console->info("Running KeycapEmu.Logonserver version {}/{}",
-                                            Keycap::Logonserver::Version::GIT_BRANCH,
-                                            Keycap::Logonserver::Version::GIT_HASH);
+    console->info("Running KeycapEmu.Logonserver version {}/{}", Keycap::Logonserver::Version::GIT_BRANCH,
+                  Keycap::Logonserver::Version::GIT_HASH);
 
-    Keycap::Logonserver::LogonService service;
-    service.Start("0.0.0.0", 3724);
+    auto config = ParseConfig("config.json");
+
+    boost::asio::io_service::work dbWork{GetDbService()};
+    std::vector<std::thread> dbThreadPool;
+    InitDatabases(dbThreadPool, config);
+
+    SCOPE_EXIT(sc2, [&] {
+        GetDbService().stop();
+        for (auto& thread : dbThreadPool)
+        {
+            if (thread.joinable())
+                thread.join();
+        }
+    });
 
     bool running = true;
 
     Keycap::Logonserver::Cli::RegisterCommands(commands);
     RegisterDefaultCommands(running);
+
+    Keycap::Logonserver::LogonService service{config.Network.Threads};
+    service.Start(config.Network.BindIp, config.Network.Port);
+
+    /////////////////////////
+    using namespace std::string_literals;
+    using Keycap::Shared::Permission;
+    using Keycap::Shared::Cli::Command;
+    namespace rbac = Keycap::Shared::Rbac;
+
+    RegisterCommand(Command{"db"s, Permission::CommandShutdown,
+                            [&](std::vector<std::string> const& args, rbac::Role const& role) {
+                                console->info("Connected: {}", GetLoginDatabase().IsConnected());
+                                return true;
+                            },
+                            "db"s});
+
+    RegisterCommand(
+        Command{"query"s, Permission::CommandShutdown,
+                [&](std::vector<std::string> const& args, rbac::Role const& role) {
+                    auto stmt = boost::algorithm::join(args, " ");
+                    GetLoginDatabase().Query(stmt, [](boost::system::error_code const& ec, amy::result_set result) {
+                        if (ec)
+                        {
+                            auto logger = Keycap::Root::Utility::GetSafeLogger("database");
+                            logger->error("Message: {}, Error Code: {}", ec.message(), ec.value());
+                            return;
+                        }
+
+                        auto console = utility::GetSafeLogger("console");
+                        console->info("Affected: {}, field count: {}, size: {}", result.affected_rows(),
+                                      result.field_count(), result.size());
+                        console->info("Rows:");
+                        for (const auto& row : result)
+                        {
+                            console->info("{}, {}, {}, {}, {}", row[0].as<amy::sql_bigint>(), row[1].as<std::string>(),
+                                          row[2].as<std::string>(), row[3].as<std::string>(), row[4].as<std::string>());
+                        }
+                    });
+                    return true;
+                },
+                "query"s});
+    /////////////////////////
 
     RunCommandLine(consoleRole, running);
 

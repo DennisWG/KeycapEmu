@@ -18,9 +18,28 @@ add_library(${LIBRARY_NAME}
     Cli/Handler.cpp
 )
 
+target_link_libraries(${LIBRARY_NAME}
+    PUBLIC
+        "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
+)
+
 target_include_directories(${LIBRARY_NAME}
     PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}/..
         ${KeycapRoot_INCLUDE_DIR}
+        ${Spdlog_INCLUDE_DIR}
+        ${Boost_INCLUDE_DIR}
+        ${AMY_INCLUDE_DIR}
+        "${MySQL_C_Connector_ROOT_DIR}/include"
         "."
+    PRIVATE
 )
+
+target_compile_definitions(${LIBRARY_NAME}
+    PUBLIC
+        USE_BOOST_ASIO=1
+)
+
+flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_object.template" "hpp")
+
+flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_mysql.template" "sql")

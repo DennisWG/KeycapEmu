@@ -24,7 +24,7 @@ target_link_libraries(logonserver keycaproot keycapemushared boost ${Boost_LIBRA
 target_include_directories(logonserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${Spdlog_INCLUDE_DIR}
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
 )
 
 include(FlatmessageCompile)
@@ -37,5 +37,3 @@ flatmessage_compile_files(
         "../Shared/Permissions.scm"
 
 )
-
-flatmessage_compile_file("Database/Account.scm" "${PROJECT_SOURCE_DIR}/templates/db_mysql.template" "sql")

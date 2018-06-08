@@ -12,5 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+add_subdirectory (Accountserver)
 add_subdirectory (Logonserver)
 add_subdirectory (Shared)
