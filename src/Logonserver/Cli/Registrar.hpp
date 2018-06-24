@@ -22,6 +22,7 @@ namespace Keycap::Logonserver::Cli
 {
     namespace cli = Keycap::Shared::Cli;
     extern cli::Command RegisterHelp();
+    extern cli::Command RegisterAccount();
 
     namespace impl
     {
@@ -34,5 +35,6 @@ namespace Keycap::Logonserver::Cli
     void RegisterCommands(cli::CommandMap& commandMap)
     {
         impl::RegisterCommand(RegisterHelp(), commandMap);
+        impl::RegisterCommand(RegisterAccount(), commandMap);
     }
 }

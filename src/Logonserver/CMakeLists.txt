@@ -15,6 +15,7 @@
 add_executable (logonserver
     Connection.cpp
     main.cpp
+    Cli/Account.cpp
     Cli/Help.cpp
     ${version_file}
 )
