@@ -29,7 +29,7 @@ CREATE TABLE `{{ dat/name }}` (
 {% if annotation/name == "Index" %} PRIMARY KEY{% endif %}{% if annotation/name == "NotNull" %} NOT NULL{% endif %}{% if annotation/name == "Increment" %} AUTO_INCREMENT{% endif %}
 ## endfor
 ## endif
-## if not is_last
+## if not loop/is_last
 ,
 ## endif
 ## endfor

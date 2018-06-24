@@ -34,7 +34,7 @@
 ## endif
 {##}
 
-namespace {% for i in modulePath %}{% if is_first %}{{ i }}{% else %}::{{ i }}{% endif %}{% endfor %}
+namespace {% for i in modulePath %}{% if loop/is_first %}{{ i }}{% else %}::{{ i }}{% endif %}{% endfor %}
 {
 ## if hasEnums
 ## for enum in enums
@@ -57,25 +57,49 @@ endfor %}
     {
     public:{%
 for attrib in dat/attributes %}
-        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }};{%
-endfor %}
+## if not hasAnnotation(attrib, "IsSize")
+
+        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};
+## endif
+{% endfor %}
 
         void Encode(Keycap::Root::Network::MemoryStream& encoder)
         {
 ## for attrib in dat/attributes
 ## if attrib/type == "string"
+## if hasAnnotation(attrib, "ZeroTeminated")
 {##}
-            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
-            encoder.Put({{attrib/name}});
+            encoder.Put({{ attrib/name }});
+            encoder.Put<uint8>(0);
+## else
+{##}
+            encoder.Put(static_cast<uint8>({{ attrib/name }}.size()));
+            encoder.Put({{ attrib/name }});
+## endif 
 ## else if attrib/hasSpecifier
 ## if attrib/specifier == "repeated"
 {##}
-            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
-            encoder.Put({{attrib/name}});
+            encoder.Put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
+            for(auto&& elem : {{ attrib/name }})
+                elem.Encode(encoder);
 ## endif
 ## else
+## if not hasAnnotation(attrib, "IsSize")
 {##}
             encoder.Put({{attrib/name}});
+## else
+{##}
+            auto position_{{ attrib/name }} = static_cast<{{ attrib/type }}>(encoder.Size());
+            encoder.Put<{{ attrib/type }}>(0);
+## endif
+## endif
+## endfor
+{##}
+## for attrib in dat/attributes
+## if hasAnnotation(attrib, "IsSize")
+{##}
+
+            encoder.Override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.Size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
 ## endif
 ## endfor
 {##}
@@ -107,7 +131,7 @@ endfor %}
 ## else if attrib/hasArraySize
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else
+## else if not hasAnnotation(attrib, "IsSize")
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
 ## endif
@@ -154,25 +178,46 @@ endfor %}
     {
     public:{%
 for attrib in msg/attributes %}
-        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }};{%
+        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};{%
 endfor %}
 
         void Encode(Keycap::Root::Network::MemoryStream& encoder)
         {
 ## for attrib in msg/attributes
 ## if attrib/type == "string"
+## if hasAnnotation(attrib, "ZeroTeminated")
 {##}
-            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
-            encoder.Put({{attrib/name}});
+            encoder.Put({{ attrib/name }});
+            encoder.Put<uint8>(0);
+## else
+{##}
+            encoder.Put(static_cast<uint8>({{ attrib/name }}.size()));
+            encoder.Put({{ attrib/name }});
+## endif 
 ## else if attrib/hasSpecifier
 ## if attrib/specifier == "repeated"
 {##}
-            encoder.Put(static_cast<uint8>({{attrib/name}}.size()));
-            encoder.Put({{attrib/name}});
+            encoder.Put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
+            for(auto&& elem : {{ attrib/name }})
+                elem.Encode(encoder);
 ## endif
 ## else
+## if not hasAnnotation(attrib, "IsSize")
 {##}
             encoder.Put({{attrib/name}});
+## else
+{##}
+            auto position_{{ attrib/name }} = static_cast<{{ attrib/type }}>(encoder.Size());
+            encoder.Put<{{ attrib/type }}>(0);
+## endif
+## endif
+## endfor
+{##}
+## for attrib in msg/attributes
+## if hasAnnotation(attrib, "IsSize")
+{##}
+
+            encoder.Override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.Size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
 ## endif
 ## endfor
 {##}
@@ -204,7 +249,7 @@ endfor %}
 ## else if attrib/hasArraySize
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else
+## else if not hasAnnotation(attrib, "IsSize")
 {##}
             packet.{{attrib/name}} = decoder.Get<{{ attrib/type }}>();
 ## endif
