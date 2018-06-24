@@ -102,6 +102,27 @@ enum SecurityFlags : byte
     Token = 4,
 }
 
+enum RealmType : byte
+{
+    PvE = 0,
+    PvP = 1,
+    Rp = 6,
+    RpPvp = 8,
+}
+
+enum RealmFlags : byte
+{
+    None = 0,
+    Invalid = 1,
+    Offline = 2,
+    SpecifyBuild = 4,
+    Unk1 = 8,
+    Unk2 = 16,
+    Recommended = 32,
+    New = 64,
+    Full = 128,
+}
+
 message ClientLogonChallange
 {
     [Expects="Command::Challange"]
@@ -122,8 +143,8 @@ message ClientLogonChallange
 
 message ServerLogonChallange
 {
-    Command command;
-    Error error;
+    Command command = "Command::Challange";
+    Error error = "Error::Success";
     AuthResult authResult;
     uint8[32] B;
     uint8 g_length;
@@ -158,10 +179,46 @@ message ClientLogonProof
 
 message ServerLogonProof
 {
-    Command command;
-    Error error;
+    Command command = "Command::Proof";
+    Error error = "Error::Success";
     uint8[20] M2;
     AccountFlags accountFlags;
-    uint32 surveyId;
-    uint16 messageFlags;
+    uint32 surveyId = 0;
+    uint16 numAccountMessages = 0;
+}
+
+message ClientRealmList
+{
+    [Expects="Command::RealmList"]
+    Command command;
+    [Expects="0"]
+    uint32 alwaysZero;
+}
+
+data RealmListData
+{
+     RealmType type;
+     uint8 locked;
+     RealmFlags flags;
+     [ZeroTeminated=1]
+     string name;
+     [ZeroTeminated=1]
+     string ip;
+     float population;
+     uint8 numCharacters;
+     uint8 category;
+     uint8 id;
+}
+
+message ServerRealmList
+{
+    Command command = "Command::RealmList";
+    [IsSize=1]
+    uint16 size;
+
+    uint32 alwaysZero = 0;
+    [SizeType="uint16"]
+    repeated RealmListData data;
+    
+     uint16 unk = 0;
 }

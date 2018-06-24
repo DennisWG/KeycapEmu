@@ -20,6 +20,8 @@
 #include <Keycap/Root/Network/Srp6/Utility.hpp>
 #include <Keycap/Root/Utility/ScopeExit.hpp>
 
+#include <Database/Database.hpp>
+
 #include <spdlog/fmt/bundled/ostream.h>
 #include <spdlog/spdlog.h>
 
@@ -27,6 +29,8 @@
 #include <botan/bigint.h>
 #include <botan/numthry.h>
 #include <botan/sha160.h>
+
+extern Keycap::Shared::Database::Database& GetLoginDatabase();
 
 std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& vec)
 {
@@ -121,30 +125,11 @@ namespace Keycap::Logonserver
 
         constexpr auto compliance = net::Srp6::Compliance::Wow;
 
-        Botan::SHA_1 sha;
-        sha.update("abcd");
-        sha.update(":");
-        sha.update("PASSWORD");
-        auto xVec = sha.final();
-
         // todo: generate a propper salt. store it in a database and load it
-        Botan::BigInt salt;
-
-        sha.update(net::Srp6::Encode(salt, compliance));
-
-        xVec = sha.process(xVec);
-        auto x = net::Srp6::Decode(xVec, compliance);
-
+        Botan::BigInt salt = Botan::BigInt::decode({Botan::AutoSeeded_RNG().random_vec(32)});
         auto parameter = net::Srp6::GetParameters(net::Srp6::GroupParameters::_256);
-        Botan::BigInt N{parameter.value};
-        Botan::BigInt g{parameter.generator};
-        Botan::BigInt v = Botan::power_mod(g, x, N);
 
-        auto bytes = net::Srp6::Encode(v, compliance);
-        std::reverse(std::begin(bytes), std::end(bytes));
-
-        std::cout << bytes << '\n';
-        // logger->error("v: {}", bytes);
+        auto v = net::Srp6::GenerateVerifier("user", "password", parameter, salt, compliance);
 
         ChallangedData challangedData;
         challangedData.server = std::make_shared<net::Srp6::Server>(parameter, v, compliance);
@@ -157,12 +142,12 @@ namespace Keycap::Logonserver
         outPacket.command = Protocol::Command::Challange;
         outPacket.error = Protocol::Error::Success;
         outPacket.authResult = Protocol::AuthResult::Ok;
-        outPacket.B = net::Srp6::ToArray(challangedData.server->PublicEphemeralValue(), compliance);
+        outPacket.B = net::Srp6::ToArray<32>(challangedData.server->PublicEphemeralValue(), compliance);
         outPacket.g_length = 1;
-        outPacket.g = static_cast<uint8_t>(parameter.generator);
+        outPacket.g = static_cast<uint8_t>(parameter.g);
         outPacket.N_length = 32;
-        outPacket.N = net::Srp6::ToArray(N, compliance);
-        outPacket.s = net::Srp6::ToArray(salt, compliance);
+        outPacket.N = net::Srp6::ToArray<32>(Botan::BigInt{parameter.N}, compliance);
+        outPacket.s = net::Srp6::ToArray<32>(salt, compliance);
         outPacket.securityFlags = Protocol::SecurityFlags::None;
         std::copy(std::begin(challangedData.checksumSalt), std::end(challangedData.checksumSalt),
                   std::begin(outPacket.checksumSalt));
@@ -183,27 +168,6 @@ namespace Keycap::Logonserver
         if (stream.Peek<Protocol::Command>() != Protocol::Command::Proof)
             return Connection::StateResult::Abort;
 
-        auto generateClientProof = [](Botan::BigInt const& N, Botan::BigInt const& g, Botan::BigInt const& s,
-                                      std::string const& I, Botan::BigInt const& A, Botan::BigInt const& B,
-                                      std::vector<uint8_t> const& S, net::Srp6::Compliance compliance) {
-            Botan::SHA_160 hasher;
-
-            auto nHash{hasher.process(net::Srp6::Encode(N, compliance))};
-            auto gHash{hasher.process(net::Srp6::Encode(g, compliance))};
-            auto iHash{hasher.process(I)};
-
-            for (size_t i = 0; i < nHash.size(); ++i)
-                nHash[i] ^= gHash[i];
-
-            hasher.update(nHash);
-            hasher.update(iHash);
-            hasher.update(net::Srp6::Encode(s, compliance));
-            hasher.update(net::Srp6::Encode(A, compliance));
-            hasher.update(net::Srp6::Encode(B, compliance));
-            hasher.update(S);
-            return net::Srp6::Decode(hasher.final(), compliance);
-        };
-
         auto packet{Protocol::ClientLogonProof::Decode(stream)};
         stream.Shrink();
 
@@ -214,33 +178,91 @@ namespace Keycap::Logonserver
         Botan::BigInt M1{packet.M1.data(), 20};
         auto sessionKey = data.server->SessionKey(A);
 
-        auto M1_S = generateClientProof(data.server->Prime(), data.server->Generator(), data.userSalt, data.username, A,
-                                        data.server->PublicEphemeralValue(), sessionKey, data.server->ComplianceMode());
+        std::stringstream ss;
+        ss << std::hex << std::uppercase << std::setfill('0');
+        for (auto&& v : sessionKey)
+            ss << std::setw(2) << (int)v;
 
-        if (M1_S == M1)
-            logger->debug("Yup");
-        else
-            logger->debug("Nope");
+        auto& db = GetLoginDatabase();
+
+        //db.Query("UPDATE account SET sessionKey = '" + ss.str() + "' WHERE username = '" + data.username + "'", [](auto a, auto b){});
+
+        auto M1_S = net::Srp6::GenerateClientProof(data.server->Prime(), data.server->Generator(), data.userSalt,
+                                                   data.username, A, data.server->PublicEphemeralValue(), sessionKey,
+                                                   data.server->ComplianceMode());
+
+        if (M1_S != M1)
+        {
+            logger->error("User {} tried to log in with incorrect login info!", data.username);
+            return Connection::StateResult::Abort;
+        }
+
 
         Protocol::ServerLogonProof outPacket;
         outPacket.command = Protocol::Command::Proof;
         outPacket.error = Protocol::Error::Success;
-        // outPacket.M2 =
-        outPacket.accountFlags = Protocol::AccountFlags::None;
-        outPacket.surveyId = 0;
-        outPacket.messageFlags = 0;
+        outPacket.M2 = net::Srp6::ToArray<20>(data.server->Proof(M1_S, sessionKey), data.server->ComplianceMode());
+        outPacket.accountFlags = Protocol::AccountFlags::ProPass;
 
         net::MemoryStream buffer;
         outPacket.Encode(buffer);
 
         connection.Send(std::vector<uint8_t>(buffer.Data(), buffer.Data() + buffer.Size()));
 
-        return Connection::StateResult::Abort;
+        connection.state_ = Authenticated{};
+        return Connection::StateResult::Ok;
     }
 
     Connection::StateResult Connection::Authenticated::OnData(Connection& connection, net::ServiceBase& service,
                                                               net::MemoryStream& stream)
     {
-        return Connection::StateResult::Abort;
+        if (stream.Peek<Protocol::Command>() != Protocol::Command::RealmList)
+            return Connection::StateResult::Abort;
+
+        auto packet{Protocol::ClientRealmList::Decode(stream)};
+        stream.Shrink();
+
+        stream.Put(stream);
+
+        auto logger = Keycap::Root::Utility::GetSafeLogger("connections");
+        logger->debug(packet.ToString());
+
+        Protocol::ServerRealmList outPacket;
+        auto& data = outPacket.data.emplace_back(Protocol::RealmListData{});
+        data.type = Protocol::RealmType::PvE;
+        data.locked = 0;
+        data.flags = Protocol::RealmFlags::Recommended;
+        data.name = "KeycapEmu Testrealm";
+        data.ip = "127.0.0.1:8085";
+        data.population = 0.f;
+        data.numCharacters = 0;
+        data.category = 5;
+        data.id = 1;
+
+        auto& data2 = outPacket.data.emplace_back(Protocol::RealmListData{});
+        data2.type = Protocol::RealmType::PvE;
+        data2.locked = 0;
+        data2.flags = Protocol::RealmFlags::New;
+        data2.name = "KeycapEmu Testrealm 2";
+        data2.ip = "127.0.0.1:8086";
+        data2.population = 0.f;
+        data2.numCharacters = 0;
+        data2.category = 1;
+        data2.id = 2;
+
+        outPacket.unk = 0xACAB;
+
+        net::MemoryStream buffer;
+        outPacket.Encode(buffer);
+
+        auto begin = buffer.Data();
+        auto end = begin + buffer.Size();
+        std::stringstream ss;
+        Keycap::Root::Utility::DumpAsHex(begin, end, ss);
+        logger->debug(ss.str());
+
+        connection.Send(std::vector<uint8_t>(buffer.Data(), buffer.Data() + buffer.Size()));
+
+        return Connection::StateResult::Ok;
     }
-} // namespace Keycap::Logonserver
+}
