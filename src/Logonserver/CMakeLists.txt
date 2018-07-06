@@ -20,7 +20,13 @@ add_executable (logonserver
     ${version_file}
 )
 
-target_link_libraries(logonserver keycaproot keycapemushared boost ${Boost_LIBRARIES} ${Botan_LIBRARIES})
+target_link_libraries(logonserver
+    keycaproot
+    keycapemushared
+    boost
+    ${Boost_LIBRARIES}
+    ${Botan_LIBRARIES}
+)
 
 target_include_directories(logonserver
     PRIVATE

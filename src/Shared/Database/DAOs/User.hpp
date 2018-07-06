@@ -14,7 +14,4 @@
     limitations under the License.
 */
 
-namespace Keycap::Shared::Database::Dal
-{
-
-}
+#include "MySQL/User.hpp"

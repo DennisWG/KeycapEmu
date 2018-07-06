@@ -16,11 +16,16 @@ set(LIBRARY_NAME keycapemushared)
 
 add_library(${LIBRARY_NAME}
     Cli/Handler.cpp
+    Database/DAOs/MySQL/User.cpp
+    Database/MySQL/Database.cpp
+    Database/MySQL/PreparedStatement.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
     PUBLIC
-        "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
+#        "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
+#        "${MySQL_C_Connector_ROOT_DIR}/lib/vs14/mysqlclient.lib"
+        "${MySQL_Cpp_Connector_ROOT_DIR}/lib64/vs14/mysqlcppconn.lib"
 )
 
 target_include_directories(${LIBRARY_NAME}
@@ -29,8 +34,10 @@ target_include_directories(${LIBRARY_NAME}
         ${KeycapRoot_INCLUDE_DIR}
         ${Spdlog_INCLUDE_DIR}
         ${Boost_INCLUDE_DIR}
-        ${AMY_INCLUDE_DIR}
-        "${MySQL_C_Connector_ROOT_DIR}/include"
+#        ${AMY_INCLUDE_DIR}
+#        "${MySQL_C_Connector_ROOT_DIR}/mysql"
+#        "${MySQL_C_Connector_ROOT_DIR}"
+        "${MySQL_Cpp_Connector_ROOT_DIR}/include/jdbc"
         "."
     PRIVATE
 )
@@ -38,6 +45,7 @@ target_include_directories(${LIBRARY_NAME}
 target_compile_definitions(${LIBRARY_NAME}
     PUBLIC
         USE_BOOST_ASIO=1
+        _HAS_AUTO_PTR_ETC=1
 )
 
 flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_object.template" "hpp")

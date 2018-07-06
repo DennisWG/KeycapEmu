@@ -25,6 +25,7 @@
 
 #include <Keycap/Root/Network/Srp6/Server.hpp>
 #include <Keycap/Root/Network/Srp6/Utility.hpp>
+#include <Keycap/Root/Utility/Meta.hpp>
 
 #include <botan/auto_rng.h>
 #include <botan/bigint.h>
@@ -70,16 +71,13 @@ namespace Keycap::Logonserver::Cli
 
         auto hexV = Keycap::Root::Utility::ToHexString(v.begin(), v.end());
         auto hexSalt = Keycap::Root::Utility::ToHexString(rndSalt.begin(), rndSalt.end());
-        /*
-        auto& db = GetLoginDatabase();
-        auto query = fmt::format("SELECT * FROM user WHERE accountName = '{}'", username);
-        db.Query(query, [=](boost::system::error_code const& ec, amy::result_set result) {
-            if (ec || !result.empty())
-                return;
 
-            CreateCommandCallback(username, email, hexV, hexSalt);
+        auto dao = db::Dal::user_dao(GetLoginDatabase());
+        dao->User(username, [=](std::optional<Shared::Database::User> user) {
+            auto dao = db::Dal::user_dao(GetLoginDatabase());
+            if (!user)
+                dao->Create(db::User{0, username, email, hexV, hexSalt});
         });
-        */
 
         return true;
     }
