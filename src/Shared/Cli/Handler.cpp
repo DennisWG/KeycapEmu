@@ -47,7 +47,7 @@ namespace Keycap::Shared::Cli
 
         std::cout << "Sub commands (name - required permission - description):\n";
         for (auto&& child : command.childCommands)
-            std::cout << fmt::format("{} - {} - {}\n", child.name, child.permission.ToString(), child.description);
+            std::cout << fmt::format("{} - {} - {}\n", child.name, child.permission.to_string(), child.description);
 
         return HandlerResult::Ok;
     }

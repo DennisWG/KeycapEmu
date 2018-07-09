@@ -34,7 +34,7 @@ namespace Keycap::Shared::Database::Dal
             static auto statement = database_.PrepareStatement("SELECT * FROM user WHERE accountName = ?");
             statement.AddParameter(username);
 
-            auto whenDone = [callback, foo = int(&callback)](std::unique_ptr<sql::ResultSet> result)
+            auto whenDone = [callback](std::unique_ptr<sql::ResultSet> result)
             {
                 if (!result || !result->next())
                     return callback(std::nullopt);

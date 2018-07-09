@@ -23,9 +23,9 @@
 #include <Rbac/Role.hpp>
 #include <User.hpp>
 
-#include <Keycap/Root/Network/Srp6/Server.hpp>
-#include <Keycap/Root/Network/Srp6/Utility.hpp>
-#include <Keycap/Root/Utility/Meta.hpp>
+#include <keycap/root/network/srp6/server.hpp>
+#include <keycap/root/network/srp6/utility.hpp>
+#include <keycap/root/utility/meta.hpp>
 
 #include <botan/auto_rng.h>
 #include <botan/bigint.h>
@@ -38,7 +38,7 @@
 
 namespace cli = Keycap::Shared::Cli;
 namespace db = Keycap::Shared::Database;
-namespace net = Keycap::Root::Network;
+namespace net = keycap::root::network;
 namespace rbac = Keycap::Shared::Rbac;
 
 extern Keycap::Shared::Database::Database& GetLoginDatabase();
@@ -62,15 +62,15 @@ namespace Keycap::Logonserver::Cli
         auto password = args[1];
         auto email = args[2];
 
-        constexpr auto compliance = net::Srp6::Compliance::Wow;
-        auto parameter = net::Srp6::GetParameters(net::Srp6::GroupParameters::_256);
+        constexpr auto compliance = net::srp6::compliance::Wow;
+        auto parameter = net::srp6::get_parameters(net::srp6::group_parameters::_256);
 
         auto rndSalt = Botan::AutoSeeded_RNG().random_vec(32);
         Botan::BigInt salt = Botan::BigInt::decode({rndSalt});
-        auto v = Botan::BigInt::encode(net::Srp6::GenerateVerifier(username, password, parameter, salt, compliance));
+        auto v = Botan::BigInt::encode(net::srp6::generate_verifier(username, password, parameter, salt, compliance));
 
-        auto hexV = Keycap::Root::Utility::ToHexString(v.begin(), v.end());
-        auto hexSalt = Keycap::Root::Utility::ToHexString(rndSalt.begin(), rndSalt.end());
+        auto hexV = keycap::root::utility::to_hex_string(v.begin(), v.end());
+        auto hexSalt = keycap::root::utility::to_hex_string(rndSalt.begin(), rndSalt.end());
 
         auto dao = db::Dal::user_dao(GetLoginDatabase());
         dao->User(username, [=](std::optional<Shared::Database::User> user) {
