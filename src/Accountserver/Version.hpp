@@ -18,7 +18,7 @@
 
 #include <string>
 
-namespace Keycap::Logonserver::Version
+namespace keycap::logonserver::Version
 {
     extern std::string const GIT_HASH;
     extern std::string const GIT_BRANCH;

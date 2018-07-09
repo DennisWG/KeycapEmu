@@ -141,8 +141,8 @@ int main()
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
-    console->info("Running KeycapEmu.Accountserver version {}/{}", Keycap::Logonserver::Version::GIT_BRANCH,
-                  Keycap::Logonserver::Version::GIT_HASH);
+    console->info("Running KeycapEmu.Accountserver version {}/{}", keycap::logonserver::Version::GIT_BRANCH,
+                  keycap::logonserver::Version::GIT_HASH);
     auto config = ParseConfig("account.json");
 
     console->info("Listening to {} on port {} with {} thread(s).", config.Network.BindIp, config.Network.Port,
