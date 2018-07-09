@@ -16,6 +16,7 @@ set(LIBRARY_NAME keycapemushared)
 
 add_library(${LIBRARY_NAME}
     Cli/Handler.cpp
+    Cli/Helpers.cpp
     Database/DAOs/MySQL/User.cpp
     Database/MySQL/Database.cpp
     Database/MySQL/PreparedStatement.cpp
@@ -46,6 +47,7 @@ target_compile_definitions(${LIBRARY_NAME}
     PUBLIC
         USE_BOOST_ASIO=1
         _HAS_AUTO_PTR_ETC=1
+        _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 )
 
 flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_object.template" "hpp")

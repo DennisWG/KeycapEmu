@@ -14,32 +14,33 @@
     limitations under the License.
 */
 
+#pragma once
+
 #include "Logon.hpp"
 #include "LogonService.hpp"
 
 #include <botan/bigint.h>
 
-#include <Keycap/Root/Network/Connection.hpp>
-#include <Keycap/Root/Network/MemoryStream.hpp>
-#include <Keycap/Root/Network/MessageHandler.hpp>
-#include <Keycap/Root/Network/Srp6/Server.hpp>
+#include <keycap/root/network/connection.hpp>
+#include <keycap/root/network/memory_stream.hpp>
+#include <keycap/root/network/message_handler.hpp>
+#include <keycap/root/network/srp6/server.hpp>
 
-#include <iostream>
 #include <variant>
 
 namespace Keycap::Logonserver
 {
-    class Connection : public Keycap::Root::Network::Connection<Connection>,
-                       public Keycap::Root::Network::MessageHandler
+    class ClientConnection : public keycap::root::network::connection<ClientConnection>,
+                       public keycap::root::network::message_handler
     {
-        using BaseConnection = Keycap::Root::Network::Connection<Connection>;
+        using BaseConnection = keycap::root::network::connection<ClientConnection>;
 
       public:
-        explicit Connection(Keycap::Root::Network::ServiceBase& service);
+        explicit ClientConnection(keycap::root::network::service_base& service);
 
-        bool OnData(Keycap::Root::Network::ServiceBase& service, std::vector<uint8_t> const& data) override;
+        bool on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data) override;
 
-        bool OnLink(Keycap::Root::Network::ServiceBase& service, Keycap::Root::Network::LinkStatus status) override;
+        bool on_link(keycap::root::network::service_base& service, keycap::root::network::link_status status) override;
 
       private:
         enum class StateResult
@@ -54,9 +55,9 @@ namespace Keycap::Logonserver
 
         struct ChallangedData
         {
-            std::shared_ptr<Keycap::Root::Network::Srp6::Server> server;
+            std::shared_ptr<keycap::root::network::srp6::server> server;
             Botan::BigInt v;
-            Keycap::Root::Network::Srp6::Compliance compliance;
+            keycap::root::network::srp6::compliance compliance;
 
             std::string username;
             Botan::BigInt userSalt;
@@ -66,8 +67,8 @@ namespace Keycap::Logonserver
         // Connection hasn't been established yet or has been terminated
         struct Disconnected
         {
-            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
-                               Keycap::Root::Network::MemoryStream& stream);
+            StateResult OnData(ClientConnection& connection, keycap::root::network::service_base& service,
+                               keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -75,8 +76,8 @@ namespace Keycap::Logonserver
         // Connection was just established
         struct JustConnected
         {
-            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
-                               Keycap::Root::Network::MemoryStream& stream);
+            StateResult OnData(ClientConnection& connection, keycap::root::network::service_base& service,
+                               keycap::root::network::memory_stream& stream);
 
             std::string name = "JustConnected";
         };
@@ -86,8 +87,8 @@ namespace Keycap::Logonserver
         {
             Challanged() = default;
             explicit Challanged(ChallangedData const& data) : data{ data } {}
-            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
-                               Keycap::Root::Network::MemoryStream& stream);
+            StateResult OnData(ClientConnection& connection, keycap::root::network::service_base& service,
+                               keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
             ChallangedData data;
@@ -96,14 +97,14 @@ namespace Keycap::Logonserver
         // Client send its Challange and is now authenticated
         struct Authenticated
         {
-            StateResult OnData(Connection& connection, Keycap::Root::Network::ServiceBase& service,
-                               Keycap::Root::Network::MemoryStream& stream);
+            StateResult OnData(ClientConnection& connection, keycap::root::network::service_base& service,
+                               keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
         };
 
         std::variant<Disconnected, JustConnected, Challanged, Authenticated> state_;
 
-        Keycap::Root::Network::MemoryStream inputStream_;
+        keycap::root::network::memory_stream inputStream_;
     };
 }

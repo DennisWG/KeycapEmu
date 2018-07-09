@@ -13,7 +13,9 @@
 #   limitations under the License.
 
 add_executable (logonserver
-    Connection.cpp
+    AccountConnection.cpp
+    ClientConnection.cpp
+    LogonService.cpp
     main.cpp
     Cli/Account.cpp
     Cli/Help.cpp

@@ -14,10 +14,18 @@
 
 add_executable(accountserver
     main.cpp
+    Connection.cpp
     ${version_file}
 )
 
-target_link_libraries(accountserver keycaproot keycapemushared boost ${Boost_LIBRARIES} ${Botan_LIBRARIES})
+target_link_libraries(accountserver 
+    keycaproot
+    keycapemushared
+    boost
+    ${Boost_LIBRARIES}
+    ${Botan_LIBRARIES}
+    "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
+    "${MySQL_C_Connector_ROOT_DIR}/lib/vs14/mysqlclient.lib")
 
 target_include_directories(accountserver
     PRIVATE
