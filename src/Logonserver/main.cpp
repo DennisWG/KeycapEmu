@@ -14,10 +14,10 @@
     limitations under the License.
 */
 
-#include "Cli/Registrar.hpp"
-#include "ClientConnection.hpp"
-#include "Version.hpp"
-#include <Cli/Helpers.hpp>
+#include "cli/registrar.hpp"
+#include "client_connection.hpp"
+#include "version.hpp"
+#include <cli/helpers.hpp>
 
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/utility/meta.hpp>
@@ -25,8 +25,8 @@
 #include <keycap/root/utility/string.hpp>
 #include <keycap/root/utility/utility.hpp>
 
-#include <Database/DAOs/User.hpp>
-#include <Rbac/Role.hpp>
+#include <database/daos/user.hpp>
+#include <rbac/role.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -34,48 +34,46 @@
 
 #include <iostream>
 
-struct Config
+struct config
 {
     struct
     {
-        std::string BindIp;
-        int16_t Port;
-        int Threads;
-    } Network;
+        std::string bind_ip;
+        int16_t port;
+        int threads;
+    } network;
 
     struct
     {
-        std::string Host;
-        int16_t Port;
-        std::string User;
-        std::string Password;
-        std::string Schema;
-        int Threads;
-    } Database;
+        std::string host;
+        int16_t port;
+        std::string user;
+        std::string password;
+        std::string schema;
+        int threads;
+    } database;
 };
-
-#undef SetConsoleTitle
 
 keycap::shared::cli::command_map commands;
 
-void RegisterCommand(keycap::shared::cli::command const& command)
+void register_command(keycap::shared::cli::command const& command)
 {
     commands[command.name] = command;
 }
 
-void RegisterDefaultCommands(bool& running)
+void register_default_commands(bool& running)
 {
     using namespace std::string_literals;
     using keycap::shared::cli::command;
     using keycap::shared::permission;
     namespace rbac = keycap::shared::rbac;
 
-    RegisterCommand(command{"shutdown"s, permission::CommandShutdown,
-                            [&running](std::vector<std::string> const& args, rbac::role const& role) {
-                                running = false;
-                                return true;
-                            },
-                            "Shuts down the Server"s});
+    register_command(command{"shutdown"s, permission::CommandShutdown,
+                             [&running](std::vector<std::string> const& args, rbac::role const& role) {
+                                 running = false;
+                                 return true;
+                             },
+                             "Shuts down the Server"s});
 }
 
 auto& get_command_map()
@@ -83,7 +81,7 @@ auto& get_command_map()
     return commands;
 }
 
-void CreateLogger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
+void create_logger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
 {
     std::vector<spdlog::sink_ptr> sinks;
     if (console)
@@ -95,72 +93,72 @@ void CreateLogger(std::string const& name, bool console, bool file, spdlog::leve
     spdlog::register_logger(combined_logger);
 }
 
-void CreateLoggers()
+void create_loggers()
 {
-    CreateLogger("console", true, true, spdlog::level::debug);
-    CreateLogger("command", false, true, spdlog::level::debug);
-    CreateLogger("connections", true, true, spdlog::level::debug);
-    CreateLogger("database", true, true, spdlog::level::debug);
+    create_logger("console", true, true, spdlog::level::debug);
+    create_logger("command", false, true, spdlog::level::debug);
+    create_logger("connections", true, true, spdlog::level::debug);
+    create_logger("database", true, true, spdlog::level::debug);
 }
 
-keycap::shared::rbac::permission_set GetAllPermissions()
+keycap::shared::rbac::permission_set get_all_permissions()
 {
     auto const& perms = keycap::shared::permission::to_vector();
     return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
 }
 
-keycap::shared::rbac::role CreateConsoleRole()
+keycap::shared::rbac::role create_console_role()
 {
-    return keycap::shared::rbac::role{0, "Console", GetAllPermissions()};
+    return keycap::shared::rbac::role{0, "Console", get_all_permissions()};
 }
 
-boost::asio::io_service& GetDbService()
+boost::asio::io_service& get_db_service()
 {
-    static boost::asio::io_service dbService;
-    return dbService;
+    static boost::asio::io_service db_service;
+    return db_service;
 }
 
-keycap::shared::database::database& GetLoginDatabase()
+keycap::shared::database::database& get_login_database()
 {
-    static keycap::shared::database::database loginDatabase{GetDbService()};
-    return loginDatabase;
+    static keycap::shared::database::database login_database{get_db_service()};
+    return login_database;
 }
 
-void InitDatabases(std::vector<std::thread>& threadPool, Config const& config)
+void init_databases(std::vector<std::thread>& thread_pool, config const& config)
 {
-    GetLoginDatabase().connect(config.Database.Host, config.Database.Port, config.Database.User,
-                               config.Database.Password, config.Database.Schema);
+    get_login_database().connect(config.database.host, config.database.port, config.database.user,
+                                 config.database.password, config.database.schema);
 
-    auto& service = GetDbService();
-    for (int i = 0; i < config.Database.Threads; ++i)
-        threadPool.emplace_back([&] { service.run(); });
+    auto& service = get_db_service();
+    for (int i = 0; i < config.database.threads; ++i)
+        thread_pool.emplace_back([&] { service.run(); });
 }
 
-void KillDatabases(std::vector<std::thread>& threadPool)
+void kill_databases(std::vector<std::thread>& thread_pool)
 {
-    GetDbService().stop();
-    for (auto& thread : threadPool)
+    get_db_service().stop();
+    for (auto& thread : thread_pool)
     {
         if (thread.joinable())
             thread.join();
     }
 }
 
-Config ParseConfig(std::string configFile)
+config parse_config(std::string config_file)
 {
-    keycap::root::configuration::config_file cfgFile{configFile};
+    keycap::root::configuration::config_file cfg_file{config_file};
 
-    Config conf;
-    conf.Network.BindIp = cfgFile.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
-    conf.Network.Port = cfgFile.get_or_default<int16_t>("Network", "Port", 3724);
-    conf.Network.Threads = cfgFile.get_or_default<int>("Network", "Threads", 1);
+    config conf;
+    conf.network.bind_ip = cfg_file.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
+    conf.network.port = cfg_file.get_or_default<int16_t>("Network", "Port", 3724);
+    conf.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
 
-    conf.Database.Host = cfgFile.get_or_default<std::string>("Database", "Host", "127.0.0.1");
-    conf.Database.Port = cfgFile.get_or_default<int16_t>("Database", "Port", 3306);
-    conf.Database.User = cfgFile.get_or_default<std::string>("Database", "User", "root");
-    conf.Database.Password = cfgFile.get_or_default<std::string>("Database", "Password", "");
-    conf.Database.Schema = cfgFile.get_or_default<std::string>("Database", "Schema", "");
-    conf.Database.Threads = cfgFile.get_or_default<int>("Database", "Threads", 1);
+    conf.database.host = cfg_file.get_or_default<std::string>("Database", "Host", "127.0.0.1");
+    conf.database.port = cfg_file.get_or_default<int16_t>("Database", "Port", 3306);
+    conf.database.user = cfg_file.get_or_default<std::string>("Database", "User", "root");
+    conf.database.password = cfg_file.get_or_default<std::string>("Database", "Password", "");
+    conf.database.schema = cfg_file.get_or_default<std::string>("Database", "Schema", "");
+    conf.database.threads = cfg_file.get_or_default<int>("Database", "Threads", 1);
 
     return conf;
 }
@@ -169,33 +167,33 @@ int main()
 {
     namespace utility = keycap::root::utility;
 
-    auto consoleRole = CreateConsoleRole();
+    auto console_role = create_console_role();
 
     utility::set_console_title("Logonserver");
 
-    CreateLoggers();
+    create_loggers();
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
-    console->info("Running KeycapEmu.Logonserver version {}/{}", Keycap::Logonserver::Version::GIT_BRANCH,
-                  Keycap::Logonserver::Version::GIT_HASH);
+    console->info("Running KeycapEmu.Logonserver version {}/{}", keycap::logonserver::version::GIT_BRANCH,
+                  keycap::logonserver::version::GIT_HASH);
 
-    auto config = ParseConfig("config.json");
+    auto config = parse_config("config.json");
 
-    boost::asio::io_service::work dbWork{GetDbService()};
-    std::vector<std::thread> dbThreadPool;
-    InitDatabases(dbThreadPool, config);
-    SCOPE_EXIT(sc2, [&] { KillDatabases(dbThreadPool); });
+    boost::asio::io_service::work db_work{get_db_service()};
+    std::vector<std::thread> db_thread_pool;
+    init_databases(db_thread_pool, config);
+    SCOPE_EXIT(sc2, [&] { kill_databases(db_thread_pool); });
 
     bool running = true;
 
-    Keycap::Logonserver::Cli::RegisterCommands(commands);
-    RegisterDefaultCommands(running);
+    keycap::logonserver::cli::register_commands(commands);
+    register_default_commands(running);
 
-    Keycap::Logonserver::LogonService service{config.Network.Threads};
-    service.start(config.Network.BindIp, config.Network.Port);
+    keycap::logonserver::logon_service service{config.network.threads};
+    service.start(config.network.bind_ip, config.network.port);
 
-    //Keycap::Logonserver::
+    // keycap::logonserver::
 
     /////////////////////////
     using namespace std::string_literals;
@@ -203,45 +201,45 @@ int main()
     using keycap::shared::permission;
     namespace rbac = keycap::shared::rbac;
 
-    RegisterCommand(command{"db"s, permission::CommandShutdown,
-                            [&](std::vector<std::string> const& args, rbac::role const& role) {
-                                console->info("Connected: {}", GetLoginDatabase().is_connected());
-                                return true;
-                            },
-                            "db"s});
+    register_command(command{"db"s, permission::CommandShutdown,
+                             [&](std::vector<std::string> const& args, rbac::role const& role) {
+                                 console->info("Connected: {}", get_login_database().is_connected());
+                                 return true;
+                             },
+                             "db"s});
 
-    RegisterCommand(command{"query"s, permission::CommandShutdown,
-                            [&](std::vector<std::string> const& args, rbac::role const& role) {
-                                /*
-                                auto statement = db.PrepareStatement("SELECT * FROM user");
+    register_command(command{"query"s, permission::CommandShutdown,
+                             [&](std::vector<std::string> const& args, rbac::role const& role) {
+                                 /*
+                                 auto statement = db.PrepareStatement("SELECT * FROM user");
 
-                                auto result = statement.Query();
+                                 auto result = statement.Query();
 
-                                while (result->next())
-                                {
-                                    console->info("{}, {}, {}, {}, {}", result->getInt("id"),
-                                                  result->getString("accountName").c_str(),
-                                                  result->getString("email").c_str(), result->getString("v").c_str(),
-                                                  result->getString("s").c_str());
-                                }
-                                */
+                                 while (result->next())
+                                 {
+                                     console->info("{}, {}, {}, {}, {}", result->getInt("id"),
+                                                   result->getString("accountName").c_str(),
+                                                   result->getString("email").c_str(), result->getString("v").c_str(),
+                                                   result->getString("s").c_str());
+                                 }
+                                 */
 
-                                using callback = keycap::shared::database::dal::user_dao::user_callback;
-                                auto& db = GetLoginDatabase();
-                                auto dao = keycap::shared::database::dal::get_user_dao(db);
-                                dao->user(args[0], [&](std::optional<keycap::shared::database::user> user) {
-                                    if (user)
-                                        console->info("{}, {}, {}, {}, {}", user->id, user->accountName, user->email,
-                                                      user->v, user->s);
-                                    else
-                                        console->info("User couldn't be found!");
-                                });
-                                return true;
-                            },
-                            "query"s});
+                                 using callback = keycap::shared::database::dal::user_dao::user_callback;
+                                 auto& db = get_login_database();
+                                 auto dao = keycap::shared::database::dal::get_user_dao(db);
+                                 dao->user(args[0], [&](std::optional<keycap::shared::database::user> user) {
+                                     if (user)
+                                         console->info("{}, {}, {}, {}, {}", user->id, user->accountName, user->email,
+                                                       user->v, user->s);
+                                     else
+                                         console->info("User couldn't be found!");
+                                 });
+                                 return true;
+                             },
+                             "query"s});
     ////////////////////////*/
 
-    keycap::shared::cli::run_command_line(consoleRole, running);
+    keycap::shared::cli::run_command_line(console_role, running);
 
     std::cout << "Hello, World!";
 }

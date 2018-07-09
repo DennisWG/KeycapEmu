@@ -19,15 +19,15 @@
 #include <keycap/root/network/connection.hpp>
 #include <keycap/root/network/message_handler.hpp>
 
-namespace Keycap::Logonserver
+namespace keycap::logonserver
 {
-    class AccountConnection : public keycap::root::network::connection<AccountConnection>,
-                              public keycap::root::network::message_handler
+    class account_connection : public keycap::root::network::connection<account_connection>,
+                               public keycap::root::network::message_handler
     {
-        using BaseConnection = keycap::root::network::connection<AccountConnection>;
+        using BaseConnection = keycap::root::network::connection<account_connection>;
 
       public:
-        explicit AccountConnection(keycap::root::network::service_base& service);
+        explicit account_connection(keycap::root::network::service_base& service);
 
         bool on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data) override;
 

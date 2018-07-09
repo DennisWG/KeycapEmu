@@ -63,7 +63,7 @@ for attrib in dat/attributes %}
 ## endif
 {% endfor %}
 
-        void Encode(keycap::root::network::memory_stream& encoder)
+        void encode(keycap::root::network::memory_stream& encoder)
         {
 ## for attrib in dat/attributes
 ## if attrib/type == "string"
@@ -81,7 +81,7 @@ for attrib in dat/attributes %}
 {##}
             encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
             for(auto&& elem : {{ attrib/name }})
-                elem.Encode(encoder);
+                elem.encode(encoder);
 ## endif
 ## else
 ## if not hasAnnotation(attrib, "IsSize")
@@ -105,7 +105,7 @@ for attrib in dat/attributes %}
 {##}
         }
 
-        static {{ dat/name }} Decode(keycap::root::network::memory_stream& decoder)
+        static {{ dat/name }} decode(keycap::root::network::memory_stream& decoder)
         {
             {{ dat/name }} packet;
 ## for attrib in dat/attributes
@@ -181,7 +181,7 @@ for attrib in msg/attributes %}
         {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};{%
 endfor %}
 
-        void Encode(keycap::root::network::memory_stream& encoder)
+        void encode(keycap::root::network::memory_stream& encoder)
         {
 ## for attrib in msg/attributes
 ## if attrib/type == "string"
@@ -199,7 +199,7 @@ endfor %}
 {##}
             encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
             for(auto&& elem : {{ attrib/name }})
-                elem.Encode(encoder);
+                elem.encode(encoder);
 ## endif
 ## else
 ## if not hasAnnotation(attrib, "IsSize")
@@ -223,7 +223,7 @@ endfor %}
 {##}
         }
 
-        static {{ msg/name }} Decode(keycap::root::network::memory_stream& decoder)
+        static {{ msg/name }} decode(keycap::root::network::memory_stream& decoder)
         {
             {{ msg/name }} packet;
 ## for attrib in msg/attributes

@@ -14,20 +14,19 @@
     limitations under the License.
 */
 
-#include <Cli/Command.hpp>
-#include <Permissions.hpp>
-#include <Rbac/Role.hpp>
+#include <cli/command.hpp>
+#include <permissions.hpp>
+#include <rbac/role.hpp>
 
 #include <iostream>
 
-namespace cli = keycap::shared::cli;
 namespace rbac = keycap::shared::rbac;
 
-extern cli::command_map& get_command_map();
+extern keycap::shared::cli::command_map& get_command_map();
 
-namespace Keycap::Logonserver::Cli
+namespace keycap::logonserver::cli
 {
-    bool HelpCommand(std::vector<std::string> const& args, rbac::role const& role)
+    bool help_command(std::vector<std::string> const& args, rbac::role const& role)
     {
         if (args.empty())
         {
@@ -43,12 +42,12 @@ namespace Keycap::Logonserver::Cli
         return false;
     }
 
-    cli::command RegisterHelp()
+    keycap::shared::cli::command register_help()
     {
         using keycap::shared::permission;
         using namespace std::string_literals;
 
-        return cli::command{"help"s, permission::CommandHelp, &HelpCommand,
-                            "Displays all commands or details about a specific command"s};
+        return keycap::shared::cli::command{"help"s, permission::CommandHelp, &help_command,
+                                            "Displays all commands or details about a specific command"s};
     }
 }

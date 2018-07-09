@@ -14,14 +14,14 @@
     limitations under the License.
 */
 
-#include <Cli/Command.hpp>
+#include <cli/command.hpp>
 
-#include <Database/DAOs/User.hpp>
+#include <database/daos/user.hpp>
 
-#include <Database/Database.hpp>
-#include <Permissions.hpp>
-#include <Rbac/Role.hpp>
-#include <User.hpp>
+#include <database/database.hpp>
+#include <permissions.hpp>
+#include <rbac/role.hpp>
+#include <user.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
@@ -36,23 +36,15 @@
 
 #include <iostream>
 
-namespace cli = keycap::shared::cli;
 namespace db = keycap::shared::database;
 namespace net = keycap::root::network;
 namespace rbac = keycap::shared::rbac;
 
-extern keycap::shared::database::database& GetLoginDatabase();
+extern keycap::shared::database::database& get_login_database();
 
-namespace Keycap::Logonserver::Cli
+namespace keycap::logonserver::cli
 {
-    void CreateCommandCallback(std::string const& username, std::string const& email, std::string const& v,
-                               std::string const& salt)
-    {
-        auto dao = db::dal::get_user_dao(GetLoginDatabase());
-        dao->create(db::user{0, username, email, v, salt});
-    }
-
-    bool CreateCommand(std::vector<std::string> const& args, rbac::role const& role)
+    bool create_command(std::vector<std::string> const& args, rbac::role const& role)
     {
         constexpr auto requiredArguments = 3;
         if (args.empty() || args.size() < requiredArguments)
@@ -65,33 +57,34 @@ namespace Keycap::Logonserver::Cli
         constexpr auto compliance = net::srp6::compliance::Wow;
         auto parameter = net::srp6::get_parameters(net::srp6::group_parameters::_256);
 
-        auto rndSalt = Botan::AutoSeeded_RNG().random_vec(32);
-        Botan::BigInt salt = Botan::BigInt::decode({rndSalt});
+        auto rnd_salt = Botan::AutoSeeded_RNG().random_vec(32);
+        Botan::BigInt salt = Botan::BigInt::decode({rnd_salt});
         auto v = Botan::BigInt::encode(net::srp6::generate_verifier(username, password, parameter, salt, compliance));
 
-        auto hexV = keycap::root::utility::to_hex_string(v.begin(), v.end());
-        auto hexSalt = keycap::root::utility::to_hex_string(rndSalt.begin(), rndSalt.end());
+        auto hex_v = keycap::root::utility::to_hex_string(v.begin(), v.end());
+        auto hex_salt = keycap::root::utility::to_hex_string(rnd_salt.begin(), rnd_salt.end());
 
-        auto dao = db::dal::get_user_dao(GetLoginDatabase());
+        auto dao = db::dal::get_user_dao(get_login_database());
         dao->user(username, [=](std::optional<keycap::shared::database::user> user) {
-            auto dao = db::dal::get_user_dao(GetLoginDatabase());
+            auto dao = db::dal::get_user_dao(get_login_database());
             if (!user)
-                dao->create(db::user{0, username, email, hexV, hexSalt});
+                dao->create(db::user{0, username, email, hex_v, hex_salt});
         });
 
         return true;
     }
 
-    cli::command RegisterAccount()
+    keycap::shared::cli::command register_account()
     {
         using keycap::shared::permission;
         using namespace std::string_literals;
 
-        std::vector<cli::command> commands = {
-            cli::command{"create", permission::CommandAccountCreate, CreateCommand,
-                         "Creates a new account. Arguments: username, password, email"s},
+        std::vector<keycap::shared::cli::command> commands = {
+            keycap::shared::cli::command{"create", permission::CommandAccountCreate, create_command,
+                                         "Creates a new account. Arguments: username, password, email"s},
         };
 
-        return cli::command{"account"s, permission::CommandAccount, nullptr, "Account specific commands"s, commands};
+        return keycap::shared::cli::command{"account"s, permission::CommandAccount, nullptr,
+                                            "Account specific commands"s, commands};
     }
 }

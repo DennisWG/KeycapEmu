@@ -14,23 +14,22 @@
     limitations under the License.
 */
 
-#include "AccountConnection.hpp"
+#pragma once
 
-namespace Keycap::Logonserver
+#include <keycap/root/network/service.hpp>
+
+namespace keycap::logonserver
 {
-    AccountConnection::AccountConnection(keycap::root::network::service_base& service)
-      : BaseConnection{service}
-    {
-    }
+    class client_connection;
 
-    bool AccountConnection::on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data)
+    class logon_service : public keycap::root::network::service<client_connection>
     {
-        return false;
-    }
+      public:
+        logon_service(int threadCount)
+          : service{keycap::root::network::service_mode::Server, threadCount}
+        {
+        }
 
-    bool AccountConnection::on_link(keycap::root::network::service_base& service,
-                                    keycap::root::network::link_status status)
-    {
-        return false;
-    }
+        virtual bool on_new_connection(SharedHandler handler) override;
+    };
 }

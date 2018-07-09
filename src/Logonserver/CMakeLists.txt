@@ -13,12 +13,12 @@
 #   limitations under the License.
 
 add_executable (logonserver
-    AccountConnection.cpp
-    ClientConnection.cpp
-    LogonService.cpp
+    account_connection.cpp
+    client_connection.cpp
+    logon_service.cpp
     main.cpp
-    Cli/Account.cpp
-    Cli/Help.cpp
+    cli/account.cpp
+    cli/help.cpp
     ${version_file}
 )
 
@@ -42,7 +42,7 @@ flatmessage_compile_files(
     TEMPLATE "${PROJECT_SOURCE_DIR}/templates/hpp.template" 
     EXTENSION "hpp"
     FILES
-        "Protocol/Logon.msg"
-        "../Shared/Permissions.scm"
+        "protocol/logon.msg"
+        "../shared/permissions.scm"
 
 )

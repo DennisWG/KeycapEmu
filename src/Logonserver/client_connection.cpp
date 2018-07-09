@@ -14,13 +14,13 @@
     limitations under the License.
 */
 
-#include "ClientConnection.hpp"
+#include "client_connection.hpp"
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 
-#include <Database/Database.hpp>
+#include <database/database.hpp>
 
 #include <spdlog/fmt/bundled/ostream.h>
 #include <spdlog/spdlog.h>
@@ -30,7 +30,7 @@
 #include <botan/numthry.h>
 #include <botan/sha160.h>
 
-extern keycap::shared::database::database& GetLoginDatabase();
+extern keycap::shared::database::database& get_login_database();
 
 std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& vec)
 {
@@ -46,15 +46,15 @@ std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& vec)
 
 namespace net = keycap::root::network;
 
-namespace Keycap::Logonserver
+namespace keycap::logonserver
 {
-    ClientConnection::ClientConnection(net::service_base& service)
-      : BaseConnection{service}
+    client_connection::client_connection(net::service_base& service)
+      : base_connection{service}
     {
         router_.configure_inbound(this);
     }
 
-    bool ClientConnection::on_data(net::service_base& service, std::vector<uint8_t> const& data)
+    bool client_connection::on_data(net::service_base& service, std::vector<uint8_t> const& data)
     {
         inputStream_.put(gsl::make_span(data));
         // clang-format off
@@ -65,7 +65,7 @@ namespace Keycap::Logonserver
 
             try
             {
-                return state.OnData(*this, service, inputStream_) != ClientConnection::StateResult::Abort;
+                return state.OnData(*this, service, inputStream_) != client_connection::StateResult::Abort;
             }
             catch (std::exception const& e)
             {
@@ -82,7 +82,7 @@ namespace Keycap::Logonserver
         // clang-format on
     }
 
-    bool ClientConnection::on_link(net::service_base& service, net::link_status status)
+    bool client_connection::on_link(net::service_base& service, net::link_status status)
     {
         if (status == net::link_status::Up)
         {
@@ -100,30 +100,30 @@ namespace Keycap::Logonserver
         return true;
     }
 
-    ClientConnection::StateResult ClientConnection::Disconnected::OnData(ClientConnection& connection,
-                                                                         net::service_base& service,
-                                                                         net::memory_stream& stream)
+    client_connection::StateResult client_connection::Disconnected::OnData(client_connection& connection,
+                                                                           net::service_base& service,
+                                                                           net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("defuq???");
-        return ClientConnection::StateResult::Abort;
+        return client_connection::StateResult::Abort;
     }
 
-    ClientConnection::StateResult ClientConnection::JustConnected::OnData(ClientConnection& connection,
-                                                                          net::service_base& service,
-                                                                          net::memory_stream& stream)
+    client_connection::StateResult client_connection::JustConnected::OnData(client_connection& connection,
+                                                                            net::service_base& service,
+                                                                            net::memory_stream& stream)
     {
-        if (stream.peek<Protocol::Command>() != Protocol::Command::Challange)
-            return ClientConnection::StateResult::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::Challange)
+            return client_connection::StateResult::Abort;
 
-        auto packet{Protocol::ClientLogonChallange::Decode(stream)};
+        auto packet{protocol::client_logon_challange::decode(stream)};
         stream.shrink();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.ToString());
 
-        if (packet.command != Protocol::Command::Challange)
-            return ClientConnection::StateResult::Abort;
+        if (packet.cmd != protocol::command::Challange)
+            return client_connection::StateResult::Abort;
 
         constexpr auto compliance = net::srp6::compliance::Wow;
 
@@ -136,42 +136,42 @@ namespace Keycap::Logonserver
         ChallangedData challangedData;
         challangedData.server = std::make_shared<net::srp6::server>(parameter, v, compliance);
         challangedData.v = v;
-        challangedData.username = packet.accountName;
+        challangedData.username = packet.account_name;
         challangedData.userSalt = salt;
         challangedData.checksumSalt = Botan::AutoSeeded_RNG().random_vec(16);
 
-        Protocol::ServerLogonChallange outPacket{};
-        outPacket.command = Protocol::Command::Challange;
-        outPacket.error = Protocol::Error::Success;
-        outPacket.authResult = Protocol::AuthResult::Ok;
+        protocol::server_logon_challange outPacket{};
+        outPacket.cmd = protocol::command::Challange;
+        outPacket.error_code = protocol::error::Success;
+        outPacket.result = protocol::auth_result::Ok;
         outPacket.B = net::srp6::to_array<32>(challangedData.server->public_ephemeral_value(), compliance);
         outPacket.g_length = 1;
         outPacket.g = static_cast<uint8_t>(parameter.g);
         outPacket.N_length = 32;
         outPacket.N = net::srp6::to_array<32>(Botan::BigInt{parameter.N}, compliance);
         outPacket.s = net::srp6::to_array<32>(salt, compliance);
-        outPacket.securityFlags = Protocol::SecurityFlags::None;
+        outPacket.security_flags = protocol::security_flag::None;
         std::copy(std::begin(challangedData.checksumSalt), std::end(challangedData.checksumSalt),
-                  std::begin(outPacket.checksumSalt));
+                  std::begin(outPacket.checksum_salt));
 
         net::memory_stream buffer;
-        outPacket.Encode(buffer);
+        outPacket.encode(buffer);
 
         connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
 
         connection.state_ = Challanged{challangedData};
 
-        return ClientConnection::StateResult::Ok;
+        return client_connection::StateResult::Ok;
     }
 
-    ClientConnection::StateResult ClientConnection::Challanged::OnData(ClientConnection& connection,
-                                                                       net::service_base& service,
-                                                                       net::memory_stream& stream)
+    client_connection::StateResult client_connection::Challanged::OnData(client_connection& connection,
+                                                                         net::service_base& service,
+                                                                         net::memory_stream& stream)
     {
-        if (stream.peek<Protocol::Command>() != Protocol::Command::Proof)
-            return ClientConnection::StateResult::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::Proof)
+            return client_connection::StateResult::Abort;
 
-        auto packet{Protocol::ClientLogonProof::Decode(stream)};
+        auto packet{protocol::client_logon_proof::decode(stream)};
         stream.shrink();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
@@ -186,7 +186,7 @@ namespace Keycap::Logonserver
         for (auto&& v : sessionKey)
             ss << std::setw(2) << (int)v;
 
-        // auto& db = GetLoginDatabase();
+        // auto& db = get_login_database();
 
         // db.Query("UPDATE account SET sessionKey = '" + ss.str() + "' WHERE username = '" + data.username + "'",
         // [](auto a, auto b){});
@@ -198,32 +198,32 @@ namespace Keycap::Logonserver
         if (M1_S != M1)
         {
             logger->error("User {} tried to log in with incorrect login info!", data.username);
-            return ClientConnection::StateResult::Abort;
+            return client_connection::StateResult::Abort;
         }
 
-        Protocol::ServerLogonProof outPacket;
-        outPacket.command = Protocol::Command::Proof;
-        outPacket.error = Protocol::Error::Success;
+        protocol::server_logon_proof outPacket;
+        outPacket.cmd = protocol::command::Proof;
+        outPacket.error_code = protocol::error::Success;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, sessionKey), data.server->compliance_mode());
-        outPacket.accountFlags = Protocol::AccountFlags::ProPass;
+        outPacket.account_flags = protocol::account_flag::ProPass;
 
         net::memory_stream buffer;
-        outPacket.Encode(buffer);
+        outPacket.encode(buffer);
 
         connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
 
         connection.state_ = Authenticated{};
-        return ClientConnection::StateResult::Ok;
+        return client_connection::StateResult::Ok;
     }
 
-    ClientConnection::StateResult ClientConnection::Authenticated::OnData(ClientConnection& connection,
-                                                                          net::service_base& service,
-                                                                          net::memory_stream& stream)
+    client_connection::StateResult client_connection::Authenticated::OnData(client_connection& connection,
+                                                                            net::service_base& service,
+                                                                            net::memory_stream& stream)
     {
-        if (stream.peek<Protocol::Command>() != Protocol::Command::RealmList)
-            return ClientConnection::StateResult::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::RealmList)
+            return client_connection::StateResult::Abort;
 
-        auto packet{Protocol::ClientRealmList::Decode(stream)};
+        auto packet{protocol::client_realm_list::decode(stream)};
         stream.shrink();
 
         stream.put(stream);
@@ -231,33 +231,33 @@ namespace Keycap::Logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.ToString());
 
-        Protocol::ServerRealmList outPacket;
-        auto& data = outPacket.data.emplace_back(Protocol::RealmListData{});
-        data.type = Protocol::RealmType::PvE;
+        protocol::ServerRealmList outPacket;
+        auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
+        data.type = protocol::realm_type::PvE;
         data.locked = 0;
-        data.flags = Protocol::RealmFlags::Recommended;
+        data.realm_flags = protocol::realm_flag::Recommended;
         data.name = "KeycapEmu Testrealm";
         data.ip = "127.0.0.1:8085";
         data.population = 0.f;
-        data.numCharacters = 0;
+        data.num_characters = 0;
         data.category = 5;
         data.id = 1;
 
-        auto& data2 = outPacket.data.emplace_back(Protocol::RealmListData{});
-        data2.type = Protocol::RealmType::PvE;
+        auto& data2 = outPacket.data.emplace_back(protocol::realm_list_data{});
+        data2.type = protocol::realm_type::PvE;
         data2.locked = 0;
-        data2.flags = Protocol::RealmFlags::New;
+        data2.realm_flags = protocol::realm_flag::New;
         data2.name = "KeycapEmu Testrealm 2";
         data2.ip = "127.0.0.1:8086";
         data2.population = 0.f;
-        data2.numCharacters = 0;
+        data2.num_characters = 0;
         data2.category = 1;
         data2.id = 2;
 
         outPacket.unk = 0xACAB;
 
         net::memory_stream buffer;
-        outPacket.Encode(buffer);
+        outPacket.encode(buffer);
 
         auto begin = buffer.data();
         auto end = begin + buffer.size();
@@ -267,6 +267,6 @@ namespace Keycap::Logonserver
 
         connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
 
-        return ClientConnection::StateResult::Ok;
+        return client_connection::StateResult::Ok;
     }
 }

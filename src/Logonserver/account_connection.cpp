@@ -14,18 +14,23 @@
     limitations under the License.
 */
 
-#include <keycap/root/network/service.hpp>
+#include "account_connection.hpp"
 
-namespace Keycap::Logonserver
+namespace keycap::logonserver
 {
-    class Connection;
-
-    class AccountService : public keycap::root::network::service<Connection>
+    account_connection::account_connection(keycap::root::network::service_base& service)
+      : BaseConnection{service}
     {
-      public:
-        AccountService()
-          : Service{keycap::root::network::service_mode::Client, 1}
-        {
-        }
-    };
+    }
+
+    bool account_connection::on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data)
+    {
+        return false;
+    }
+
+    bool account_connection::on_link(keycap::root::network::service_base& service,
+                                     keycap::root::network::link_status status)
+    {
+        return false;
+    }
 }

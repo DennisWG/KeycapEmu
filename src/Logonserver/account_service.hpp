@@ -14,14 +14,18 @@
     limitations under the License.
 */
 
-#include "ClientConnection.hpp"
-#include "LogonService.hpp"
+#include <keycap/root/network/service.hpp>
 
-
-namespace Keycap::Logonserver
+namespace keycap::logonserver
 {
-    bool LogonService::on_new_connection(SharedHandler handler)
+    class connection;
+
+    class account_service : public keycap::root::network::service<connection>
     {
-        return true;
-    }
+      public:
+        account_service()
+          : Service{keycap::root::network::service_mode::Client, 1}
+        {
+        }
+    };
 }

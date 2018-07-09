@@ -18,7 +18,7 @@
 
 #include <../Logonserver/Version.hpp>
 
-namespace Keycap::Logonserver::Version
+namespace keycap::logonserver::version
 {
     const std::string GIT_HASH = "@GIT_SHA1@";
     const std::string GIT_BRANCH = "@GIT_BRANCH@";

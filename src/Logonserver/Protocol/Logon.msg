@@ -1,8 +1,8 @@
-module Keycap.Logonserver.Protocol.LogonChallange;
+module keycap.logonserver.protocol.LogonChallange;
 
-protocol Logon;
+protocol logon;
 
-enum Command : byte
+enum command : byte
 {
     Challange = 0,
     Proof = 1,
@@ -23,7 +23,7 @@ enum Command : byte
     GruntPcWarning = 41,
 }
 
-enum Error : byte
+enum error : byte
 {
     Success = 0,
     Unk1 = 1,
@@ -43,7 +43,7 @@ enum Error : byte
     ParentalControl = 15,
 }
 
-enum AuthResult : byte
+enum auth_result : byte
 {
     Ok = 0,
     Banned = 3,
@@ -58,7 +58,7 @@ enum AuthResult : byte
     Disconnected = 255,
 }
 
-enum AccountFlags : dword
+enum account_flag : dword
 {
     None = 0,
     GameMaster = 1,
@@ -94,7 +94,7 @@ enum AccountFlags : dword
     DeathKnightOk = 1073741824,
 }
 
-enum SecurityFlags : byte
+enum security_flag : byte
 {
     None = 0,
     Pin = 1,
@@ -102,7 +102,7 @@ enum SecurityFlags : byte
     Token = 4,
 }
 
-enum RealmType : byte
+enum realm_type : byte
 {
     PvE = 0,
     PvP = 1,
@@ -110,7 +110,7 @@ enum RealmType : byte
     RpPvp = 8,
 }
 
-enum RealmFlags : byte
+enum realm_flag : byte
 {
     None = 0,
     Invalid = 1,
@@ -123,40 +123,40 @@ enum RealmFlags : byte
     Full = 128,
 }
 
-message ClientLogonChallange
+message client_logon_challange
 {
-    [Expects="Command::Challange"]
-    Command command;
-    [Expects="Error::DbBusy"]
-    Error error;
+    [Expects="command::Challange"]
+    command cmd;
+    [Expects="error::DbBusy"]
+    error unk_error_maybe;
     uint16 size;
     char[4] game;
     byte[3] version;
     uint16 build;
     uint8[4] platform;
-    uint8[4] operatingSystem;
+    uint8[4] operating_system;
     uint8[4] country;
-    uint32 timezoneBias;
+    uint32 timezone_bias;
     uint8[4] ip;
-    string accountName;
+    string account_name;
 }
 
-message ServerLogonChallange
+message server_logon_challange
 {
-    Command command = "Command::Challange";
-    Error error = "Error::Success";
-    AuthResult authResult;
+    command cmd = "command::Challange";
+    error error_code = "error::Success";
+    auth_result result;
     uint8[32] B;
     uint8 g_length;
     uint8 g;
     uint8 N_length;
     uint8[32] N;
     uint8[32] s;
-    uint8[16] checksumSalt;
-    SecurityFlags securityFlags;
+    uint8[16] checksum_salt;
+    security_flag security_flags;
 }
 
-data TelemetryData
+data telemetry_data
 {
     uint16 unk1;
     uint32 unk2;
@@ -164,61 +164,61 @@ data TelemetryData
     uint8[20] checksum;
 }
 
-message ClientLogonProof
+message client_logon_proof
 {
-    [Expects="Command::Proof"]
-    Command command;
+    [Expects="command::Proof"]
+    command cmd;
     [Reverse=1]
     uint8[32] A;
     [Reverse=1]
     uint8[20] M1;
-    uint8[20] Checksum;
-    repeated TelemetryData telemetryData;
-    uint8 securityFlags;
+    uint8[20] checksum;
+    repeated telemetry_data data;
+    uint8 security_flags;
 }
 
-message ServerLogonProof
+message server_logon_proof
 {
-    Command command = "Command::Proof";
-    Error error = "Error::Success";
+    command cmd = "command::Proof";
+    error error_code = "error::Success";
     uint8[20] M2;
-    AccountFlags accountFlags;
-    uint32 surveyId = 0;
-    uint16 numAccountMessages = 0;
+    account_flag account_flags;
+    uint32 survey_id = 0;
+    uint16 num_account_messages = 0;
 }
 
-message ClientRealmList
+message client_realm_list
 {
-    [Expects="Command::RealmList"]
-    Command command;
+    [Expects="command::RealmList"]
+    command cmd;
     [Expects="0"]
-    uint32 alwaysZero;
+    uint32 always_zero;
 }
 
-data RealmListData
+data realm_list_data
 {
-     RealmType type;
+     realm_type type;
      uint8 locked;
-     RealmFlags flags;
+     realm_flag realm_flags;
      [ZeroTeminated=1]
      string name;
      [ZeroTeminated=1]
      string ip;
      float population;
-     uint8 numCharacters;
+     uint8 num_characters;
      uint8 category;
      uint8 id;
 }
 
 message ServerRealmList
 {
-    Command command = "Command::RealmList";
+    command cmd = "command::RealmList";
     [IsSize=1]
     uint16 size;
 
     uint32 alwaysZero = 0;
     [SizeType="uint16"]
-    repeated RealmListData data;
+    repeated realm_list_data data;
     
      uint16 unk = 0;
 }

@@ -16,25 +16,25 @@
 
 #pragma once
 
-#include <Cli/Command.hpp>
+#include <cli/command.hpp>
 
-namespace Keycap::Logonserver::Cli
+namespace keycap::logonserver::cli
 {
     namespace cli = keycap::shared::cli;
-    extern cli::command RegisterHelp();
-    extern cli::command RegisterAccount();
+    extern cli::command register_help();
+    extern cli::command register_account();
 
     namespace impl
     {
-        void RegisterCommand(cli::command const& command, cli::command_map& commandMap)
+        void register_command(cli::command const& command, cli::command_map& commandMap)
         {
             commandMap[command.name] = command;
         }
     }
 
-    void RegisterCommands(cli::command_map& commandMap)
+    void register_commands(cli::command_map& commandMap)
     {
-        impl::RegisterCommand(RegisterHelp(), commandMap);
-        impl::RegisterCommand(RegisterAccount(), commandMap);
+        impl::register_command(register_help(), commandMap);
+        impl::register_command(register_account(), commandMap);
     }
 }
