@@ -17,9 +17,9 @@ set(LIBRARY_NAME keycapemushared)
 add_library(${LIBRARY_NAME}
     cli/handler.cpp
     cli/helpers.cpp
-    Database/daos/mysql/user.cpp
-    Database/mysql/database.cpp
-    Database/mysql/prepared_statement.cpp
+    database/daos/mysql/user.cpp
+    database/mysql/database.cpp
+    database/mysql/prepared_statement.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
