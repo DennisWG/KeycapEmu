@@ -1,7 +1,0 @@
-{
-  "Network": {
-    "BindIp": "127.0.0.1",
-    "Port": 3724,
-    "Threads": 1
-  }
-}
