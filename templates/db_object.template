@@ -20,7 +20,7 @@
 
 #include <Keycap/Root/Types.hpp>
 
-namespace Keycap::Shared::Database
+namespace keycap::shared::database
 {
 ## if hasData
 ## for dat in data

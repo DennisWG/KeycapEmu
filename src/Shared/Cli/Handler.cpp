@@ -14,18 +14,18 @@
     limitations under the License.
 */
 
-#include "Handler.hpp"
-#include "../Rbac/Role.hpp"
+#include "handler.hpp"
+#include "../rbac/role.hpp"
 
 #include <spdlog/fmt/fmt.h>
 
 #include <algorithm>
 #include <iostream>
 
-bool isChild(std::vector<std::string> const& arguments, Keycap::Shared::Cli::Command const& command)
+bool is_child(std::vector<std::string> const& arguments, keycap::shared::cli::command const& command)
 {
     // clang-format off
-    return std::any_of(std::begin(command.childCommands), std::end(command.childCommands), [&](auto&& value)
+    return std::any_of(std::begin(command.child_commands), std::end(command.child_commands), [&](auto&& value)
     {
         return std::any_of(std::begin(arguments), std::end(arguments), [&](auto&& argument)
         {
@@ -35,57 +35,57 @@ bool isChild(std::vector<std::string> const& arguments, Keycap::Shared::Cli::Com
     // clang-format on
 }
 
-namespace Keycap::Shared::Cli
+namespace keycap::shared::cli
 {
-    HandlerResult DoCommand(Command const& command, std::vector<std::string> const& arguments, Rbac::Role const& role)
+    handler_result do_command(command const& command, std::vector<std::string> const& arguments, rbac::role const& role)
     {
-        if (!role.Has(command.permission))
-            return HandlerResult::InsufficientPermissions;
+        if (!role.has(command.permission))
+            return handler_result::InsufficientPermissions;
 
         if (command.handler)
-            return command.handler(arguments, role) ? HandlerResult::Ok : HandlerResult::CommandFailed;
+            return command.handler(arguments, role) ? handler_result::Ok : handler_result::CommandFailed;
 
         std::cout << "Sub commands (name - required permission - description):\n";
-        for (auto&& child : command.childCommands)
+        for (auto&& child : command.child_commands)
             std::cout << fmt::format("{} - {} - {}\n", child.name, child.permission.to_string(), child.description);
 
-        return HandlerResult::Ok;
+        return handler_result::Ok;
     }
 
-    HandlerResult HandleChildCommand(std::string const& name, std::vector<std::string> const& arguments,
-                                     Rbac::Role const& role, Command const& parent);
+    handler_result handle_child_command(std::string const& name, std::vector<std::string> const& arguments,
+                                        rbac::role const& role, command const& parent);
 
-    HandlerResult HandleCommand(Command const& command, std::string const& name,
-                                std::vector<std::string> const& arguments, Rbac::Role const& role)
+    handler_result handle_command(command const& command, std::string const& name,
+                                  std::vector<std::string> const& arguments, rbac::role const& role)
     {
-        if (!isChild(arguments, command))
-            return DoCommand(command, arguments, role);
+        if (!is_child(arguments, command))
+            return do_command(command, arguments, role);
 
         auto newName = arguments[0];
         auto newArguments = std::vector<std::string>{std::begin(arguments) + 1, std::end(arguments)};
 
-        return HandleChildCommand(newName, newArguments, role, command);
+        return handle_child_command(newName, newArguments, role, command);
     }
 
-    HandlerResult HandleChildCommand(std::string const& name, std::vector<std::string> const& arguments,
-                                     Rbac::Role const& role, Command const& parent)
+    handler_result handle_child_command(std::string const& name, std::vector<std::string> const& arguments,
+                                        rbac::role const& role, command const& parent)
     {
-        auto& childen = parent.childCommands;
+        auto& childen = parent.child_commands;
         auto command
             = std::find_if(std::begin(childen), std::end(childen), [&](auto&& child) { return child.name == name; });
 
         if (command != childen.end())
-            return HandleCommand(*command, name, arguments, role);
+            return handle_command(*command, name, arguments, role);
 
-        return HandlerResult::CommandNotFound;
+        return handler_result::CommandNotFound;
     }
 
-    HandlerResult HandleCommand(std::string const& name, std::vector<std::string> const& arguments,
-                                Rbac::Role const& role, CommandMap const& commands)
+    handler_result handle_command(std::string const& name, std::vector<std::string> const& arguments,
+                                  rbac::role const& role, command_map const& commands)
     {
         if (auto itr = commands.find(name); itr != commands.end())
-            return HandleCommand(itr->second, name, arguments, role);
+            return handle_command(itr->second, name, arguments, role);
 
-        return HandlerResult::CommandNotFound;
+        return handler_result::CommandNotFound;
     }
 }

@@ -23,26 +23,26 @@
 
 #include <string>
 
-namespace Keycap::Shared::Database
+namespace keycap::shared::database
 {
-    class PreparedStatement;
+    class prepared_statement;
 
-    class Database
+    class database
     {
       public:
-        explicit Database(boost::asio::io_service& work_service);
+        explicit database(boost::asio::io_service& work_service);
 
         // Connects to the database with the given connection information
-        void Connect(std::string const& host, uint16_t port, std::string const& username, std::string const& password,
+        void connect(std::string const& host, uint16_t port, std::string const& username, std::string const& password,
                      std::string const& schema);
 
         // Prepares the given statement
-        PreparedStatement PrepareStatement(std::string const& statement);
+        prepared_statement prepare_statement(std::string const& statement);
 
         // Returns wether the database is connected
-        bool IsConnected() const;
+        bool is_connected() const;
 
-        bool Execute(std::string const& statement) const;
+        bool execute(std::string const& statement) const;
 
       private:
         boost::asio::io_service& work_service_;

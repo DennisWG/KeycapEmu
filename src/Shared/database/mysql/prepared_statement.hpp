@@ -23,33 +23,33 @@
 #include <memory>
 #include <string>
 
-namespace Keycap::Shared::Database
+namespace keycap::shared::database
 {
-    class Database;
+    class database;
 
-    class PreparedStatement
+    class prepared_statement
     {
-        friend class Database;
+        friend class database;
 
       public:
         // Adds the given parameter to the parameter list
         template <typename T>
-        void AddParameter(T parameter);
+        void add_parameter(T parameter);
 
         // Adds the given parameter to the parameter list
-        void AddParameter(std::string const& parameter);
+        void add_parameter(std::string const& parameter);
 
-        using ExecuteAsyncCallback = std::function<void(bool)>;
+        using execute_async_callback = std::function<void(bool)>;
 
         // Executes the statement asynchronously and calls the given callback from the database thread.
         // Callback must have the signature callback(bool success)
-        void ExecuteAsync(ExecuteAsyncCallback callback)
+        void execute_async(execute_async_callback callback)
         {
             parameter_index_ = 1;
             work_service_.post([&, callback = std::move(callback)] {
                 try
                 {
-                    auto success = Execute();
+                    auto success = execute();
                     callback(success);
                 }
                 catch (...)
@@ -59,23 +59,23 @@ namespace Keycap::Shared::Database
             });
         }
 
-        void ExecuteAsync();
+        void execute_async();
 
         // Executes the statement synchronously and returns wether it succeeded
-        bool Execute();
+        bool execute();
 
-        using QueryAsyncCallback = std::function<void(std::unique_ptr<sql::ResultSet>)>;
+        using query_async_callback = std::function<void(std::unique_ptr<sql::ResultSet>)>;
 
         // Queries the database asynchronously and calls the given callback from the database thread.
         // Callback must have the signature callback(std::unique_ptr<sql::ResultSet> result_set)
-        void QueryAsync(QueryAsyncCallback callback)
+        void query_async(query_async_callback callback)
         {
             parameter_index_ = 1;
 
             work_service_.post([&, callback = std::move(callback)] {
                 try
                 {
-                    auto result = Query();
+                    auto result = query();
                     callback(std::move(result));
                 }
                 catch (...)
@@ -86,10 +86,10 @@ namespace Keycap::Shared::Database
         }
 
         // Queries the database synchronously and returns the result set
-        std::unique_ptr<sql::ResultSet> Query();
+        std::unique_ptr<sql::ResultSet> query();
 
       private:
-        PreparedStatement(sql::PreparedStatement* statement, boost::asio::io_service& work_service);
+        prepared_statement(sql::PreparedStatement* statement, boost::asio::io_service& work_service);
 
         std::unique_ptr<sql::PreparedStatement> statement_;
         boost::asio::io_service& work_service_;

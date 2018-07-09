@@ -14,4 +14,4 @@
     limitations under the License.
 */
 
-#include "MySQL/PreparedStatement.hpp"
+#include "mysql/prepared_statement.hpp"

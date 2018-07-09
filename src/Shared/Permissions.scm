@@ -1,6 +1,6 @@
-module Keycap.Shared.Permissions;
+module keycap.shared.permissions;
 
-enum Permission : dword
+enum permission : dword
 {
     CommandHelp = 200,
     CommandShutdown = 201,

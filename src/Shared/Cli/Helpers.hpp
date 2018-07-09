@@ -14,22 +14,22 @@
     limitations under the License.
 */
 
-#include "Handler.hpp"
+#include "handler.hpp"
 
-#include <Keycap/Root/Utility/String.hpp>
+#include <keycap/root/utility/string.hpp>
 
 #include <string>
 #include <vector>
 
-namespace Keycap::Shared::Cli
+namespace keycap::shared::cli
 {
     // Splits the given line into a command and a list of arguments
     // Example:
     // line="print Hello World" -> outCommand="print", outArgs={"Hello", "World"}
-    void ExtractCommandAndArguments(std::string const& line, std::string& outCommand,
-                                    std::vector<std::string>& outArgs);
+    void extract_command_and_arguments(std::string const& line, std::string& outCommand,
+                                       std::vector<std::string>& outArgs);
 
-    void PrintHandlerResult(Keycap::Shared::Cli::HandlerResult result, std::string const& command);
+    void print_handler_result(keycap::shared::cli::handler_result result, std::string const& command);
 
-    void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running);
+    void run_command_line(keycap::shared::rbac::role& consoleRole, bool& running);
 }

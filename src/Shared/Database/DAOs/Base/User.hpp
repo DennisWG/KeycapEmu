@@ -19,21 +19,21 @@
 #include <functional>
 #include <optional>
 
-namespace Keycap::Shared::Database::Dal
+namespace keycap::shared::database::dal
 {
-    class UserDao
+    class user_dao
     {
       public:
-        virtual ~UserDao()
+        virtual ~user_dao()
         {
         }
 
-        using UserCallback = std::function<void(std::optional<Shared::Database::User>)>;
+        using user_callback = std::function<void(std::optional<shared::database::user>)>;
 
         // Retreives the user with the given username from the database and then calls the given callback
-        virtual void User(std::string const& username, UserCallback callback) const = 0;
+        virtual void user(std::string const& username, user_callback callback) const = 0;
 
         // Creates a new user in the database from the given user
-        virtual void Create(Shared::Database::User const& user) const = 0;
+        virtual void create(shared::database::user const& user) const = 0;
     };
 }

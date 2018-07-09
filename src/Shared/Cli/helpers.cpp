@@ -14,18 +14,18 @@
     limitations under the License.
 */
 
-#include "Helpers.hpp"
+#include "helpers.hpp"
 
 #include <keycap/root/utility/scope_exit.hpp>
 
 #include <iostream>
 
+extern keycap::shared::cli::command_map& get_command_map();
 
-extern Keycap::Shared::Cli::CommandMap& GetCommandMap();
-
-namespace Keycap::Shared::Cli
+namespace keycap::shared::cli
 {
-    void ExtractCommandAndArguments(std::string const& line, std::string& outCommand, std::vector<std::string>& outArgs)
+    void extract_command_and_arguments(std::string const& line, std::string& outCommand,
+                                       std::vector<std::string>& outArgs)
     {
         auto tokens = keycap::root::utility::explode(line);
         outCommand = tokens[0];
@@ -36,23 +36,23 @@ namespace Keycap::Shared::Cli
                       std::end(outArgs));
     }
 
-    void PrintHandlerResult(Keycap::Shared::Cli::HandlerResult result, std::string const& command)
+    void print_handler_result(keycap::shared::cli::handler_result result, std::string const& command)
     {
         switch (result)
         {
-            case Keycap::Shared::Cli::HandlerResult::Ok:
+            case keycap::shared::cli::handler_result::Ok:
                 break;
-            case Keycap::Shared::Cli::HandlerResult::InsufficientPermissions:
-            case Keycap::Shared::Cli::HandlerResult::CommandNotFound:
+            case keycap::shared::cli::handler_result::InsufficientPermissions:
+            case keycap::shared::cli::handler_result::CommandNotFound:
                 fmt::print("Unknown command '{}'\n", command);
                 break;
-            case Keycap::Shared::Cli::HandlerResult::CommandFailed:
+            case keycap::shared::cli::handler_result::CommandFailed:
                 fmt::print("Command '{}' failed to execute!\n", command);
                 break;
         }
     }
 
-    void RunCommandLine(Keycap::Shared::Rbac::Role& consoleRole, bool& running)
+    void run_command_line(keycap::shared::rbac::role& consoleRole, bool& running)
     {
         std::cout << '>';
         for (std::string line; std::getline(std::cin, line);)
@@ -65,10 +65,10 @@ namespace Keycap::Shared::Cli
             std::string command;
             std::vector<std::string> arguments;
 
-            Keycap::Shared::Cli::ExtractCommandAndArguments(line, command, arguments);
+            keycap::shared::cli::extract_command_and_arguments(line, command, arguments);
 
-            auto result = Keycap::Shared::Cli::HandleCommand(command, arguments, consoleRole, GetCommandMap());
-            PrintHandlerResult(result, command);
+            auto result = keycap::shared::cli::handle_command(command, arguments, consoleRole, get_command_map());
+            print_handler_result(result, command);
 
             if (!running)
                 break;

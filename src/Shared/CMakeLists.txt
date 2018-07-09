@@ -15,11 +15,11 @@
 set(LIBRARY_NAME keycapemushared)
 
 add_library(${LIBRARY_NAME}
-    Cli/Handler.cpp
-    Cli/Helpers.cpp
-    Database/DAOs/MySQL/User.cpp
-    Database/MySQL/Database.cpp
-    Database/MySQL/PreparedStatement.cpp
+    cli/handler.cpp
+    cli/helpers.cpp
+    Database/daos/mysql/user.cpp
+    Database/mysql/database.cpp
+    Database/mysql/prepared_statement.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
@@ -50,6 +50,6 @@ target_compile_definitions(${LIBRARY_NAME}
         _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 )
 
-flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_object.template" "hpp")
+flatmessage_compile_file("database/schemata/user.scm" "${PROJECT_SOURCE_DIR}/templates/db_object.template" "hpp")
 
-flatmessage_compile_file("Database/Schemata/User.scm" "${PROJECT_SOURCE_DIR}/templates/db_mysql.template" "sql")
+flatmessage_compile_file("database/schemata/user.scm" "${PROJECT_SOURCE_DIR}/templates/db_mysql.template" "sql")

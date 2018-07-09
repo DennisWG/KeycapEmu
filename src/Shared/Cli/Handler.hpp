@@ -14,11 +14,11 @@
     limitations under the License.
 */
 
-#include "Command.hpp"
+#include "command.hpp"
 
-namespace Keycap::Shared::Cli
+namespace keycap::shared::cli
 {
-    enum class HandlerResult
+    enum class handler_result
     {
         Ok,
         CommandNotFound,
@@ -28,6 +28,6 @@ namespace Keycap::Shared::Cli
 
     // Executes the Command with the given name and the given argumets if the given role has the permissions the execute
     // it
-    HandlerResult HandleCommand(std::string const& name, std::vector<std::string> const& arguments,
-                                Rbac::Role const& role, CommandMap const& commands);
+    handler_result handle_command(std::string const& name, std::vector<std::string> const& arguments,
+                                  rbac::role const& role, command_map const& commands);
 }

@@ -14,35 +14,35 @@
     limitations under the License.
 */
 
-#include "Database.hpp"
-#include "PreparedStatement.hpp"
+#include "database.hpp"
+#include "prepared_statement.hpp"
 
-namespace Keycap::Shared::Database
+namespace keycap::shared::database
 {
-    Database::Database(boost::asio::io_service& work_service)
+    database::database(boost::asio::io_service& work_service)
       : work_service_(work_service)
       , driver_(sql::mysql::get_driver_instance())
     {
     }
 
-    void Database::Connect(std::string const& host, uint16_t port, std::string const& username,
+    void database::connect(std::string const& host, uint16_t port, std::string const& username,
                            std::string const& password, std::string const& schema)
     {
         connection_.reset(driver_->connect(host.c_str(), username.c_str(), password.c_str()));
         connection_->setSchema(schema.c_str());
     }
 
-    PreparedStatement Database::PrepareStatement(std::string const& query)
+    prepared_statement database::prepare_statement(std::string const& query)
     {
-        return PreparedStatement(connection_->prepareStatement(query.c_str()), work_service_);
+        return prepared_statement(connection_->prepareStatement(query.c_str()), work_service_);
     }
 
-    bool Database::IsConnected() const
+    bool database::is_connected() const
     {
-        return connection_  != nullptr && !connection_->isClosed();
+        return connection_ != nullptr && !connection_->isClosed();
     }
 
-    bool Database::Execute(std::string const& query) const
+    bool database::execute(std::string const& query) const
     {
         std::unique_ptr<sql::Statement> statement{connection_->createStatement()};
 

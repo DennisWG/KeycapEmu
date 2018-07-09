@@ -13,28 +13,28 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-#include "PreparedStatement.hpp"
+#include "prepared_statement.hpp"
 
 #include <mysql_connection.h>
 #include <mysql_driver.h>
 
 #include <cppconn/prepared_statement.h>
 
-namespace Keycap::Shared::Database
+namespace keycap::shared::database
 {
-    PreparedStatement::PreparedStatement(sql::PreparedStatement* statement, boost::asio::io_service& work_service)
+    prepared_statement::prepared_statement(sql::PreparedStatement* statement, boost::asio::io_service& work_service)
       : statement_(statement)
       , work_service_(work_service)
     {
     }
 
-    void PreparedStatement::ExecuteAsync()
+    void prepared_statement::execute_async()
     {
         parameter_index_ = 1;
         work_service_.post([&] {
             try
             {
-                Execute();
+                execute();
             }
             catch (...)
             {
@@ -42,31 +42,31 @@ namespace Keycap::Shared::Database
         });
     }
 
-    bool PreparedStatement::Execute()
+    bool prepared_statement::execute()
     {
         parameter_index_ = 1;
         return statement_->execute();
     }
 
-    std::unique_ptr<sql::ResultSet> PreparedStatement::Query()
+    std::unique_ptr<sql::ResultSet> prepared_statement::query()
     {
         parameter_index_ = 1;
         return std::unique_ptr<sql::ResultSet>(statement_->executeQuery());
     }
 
-    void PreparedStatement::AddParameter(std::string const& parameter)
+    void prepared_statement::add_parameter(std::string const& parameter)
     {
         statement_->setString(parameter_index_++, parameter.c_str());
     }
 
     template <>
-    void PreparedStatement::AddParameter(int param)
+    void prepared_statement::add_parameter(int param)
     {
         statement_->setInt(parameter_index_++, param);
     }
 
     template <>
-    void PreparedStatement::AddParameter(const char* param)
+    void prepared_statement::add_parameter(const char* param)
     {
         statement_->setString(parameter_index_++, param);
     }

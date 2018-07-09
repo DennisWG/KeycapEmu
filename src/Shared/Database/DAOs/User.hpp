@@ -14,4 +14,4 @@
     limitations under the License.
 */
 
-#include "MySQL/User.hpp"
+#include "mysql/user.hpp"

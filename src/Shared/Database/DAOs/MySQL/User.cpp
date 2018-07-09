@@ -17,56 +17,55 @@
 #include "./User.hpp"
 
 #include "../../Database.hpp"
-#include "../../PreparedStatement.hpp"
+#include "../../prepared_statement.hpp"
 
-namespace Keycap::Shared::Database::Dal
+namespace keycap::shared::database::dal
 {
-    class MySqlUserDao final : public UserDao
+    class mysql_user_dao final : public user_dao
     {
       public:
-        MySqlUserDao(Database& database)
+        mysql_user_dao(database& database)
           : database_{database}
         {
         }
 
-        void User(std::string const& username, UserCallback callback) const override
+        void user(std::string const& username, user_callback callback) const override
         {
-            static auto statement = database_.PrepareStatement("SELECT * FROM user WHERE accountName = ?");
-            statement.AddParameter(username);
+            static auto statement = database_.prepare_statement("SELECT * FROM user WHERE accountName = ?");
+            statement.add_parameter(username);
 
-            auto whenDone = [callback](std::unique_ptr<sql::ResultSet> result)
-            {
+            auto whenDone = [callback](std::unique_ptr<sql::ResultSet> result) {
                 if (!result || !result->next())
                     return callback(std::nullopt);
 
-                Shared::Database::User user{result->getUInt("id"), result->getString("accountName").c_str(),
+                shared::database::user user{result->getUInt("id"), result->getString("accountName").c_str(),
                                             result->getString("email").c_str(), result->getString("v").c_str(),
                                             result->getString("s").c_str()};
                 callback(user);
             };
 
-            statement.QueryAsync(whenDone);
+            statement.query_async(whenDone);
         }
 
-        void Create(Shared::Database::User const& user) const override
+        void create(shared::database::user const& user) const override
         {
             static auto statement
-                = database_.PrepareStatement("INSERT INTO user(accountName, email, v, s) VALUES (?, ?, ?, ?)");
+                = database_.prepare_statement("INSERT INTO user(accountName, email, v, s) VALUES (?, ?, ?, ?)");
 
-            statement.AddParameter(user.accountName);
-            statement.AddParameter(user.email);
-            statement.AddParameter(user.v);
-            statement.AddParameter(user.s);
+            statement.add_parameter(user.accountName);
+            statement.add_parameter(user.email);
+            statement.add_parameter(user.v);
+            statement.add_parameter(user.s);
 
-            statement.ExecuteAsync();
+            statement.execute_async();
         }
 
       private:
-        Database& database_;
+        database& database_;
     };
 
-    std::unique_ptr<UserDao> user_dao(Database& database)
+    std::unique_ptr<user_dao> get_user_dao(database& database)
     {
-        return std::make_unique<MySqlUserDao>(database);
+        return std::make_unique<mysql_user_dao>(database);
     }
 }

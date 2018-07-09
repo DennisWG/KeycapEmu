@@ -17,32 +17,35 @@
 #pragma once
 
 #include <Permissions.hpp>
-#include <Keycap/Root/Types.hpp>
+#include <keycap/root/types.hpp>
 
 #include <unordered_set>
 
-namespace Keycap::Shared::Rbac
+namespace keycap::shared::rbac
 {
-    using PermissionSet = std::unordered_set<Shared::Permission, std::hash<uint32>, std::equal_to<uint32>>;
+    using permission_set = std::unordered_set<shared::permission, std::hash<uint32>, std::equal_to<uint32>>;
 
     // A Role contains a set of permissions
-    struct Role final
+    struct role final
     {
         uint32 id = 0;
         std::string name = "";
-        PermissionSet permissions;
+        permission_set permissions;
 
-        void Add(Shared::Permission perm)
+        // Adds the given permission
+        void add(shared::permission perm)
         {
             permissions.insert(perm);
         }
 
-        void Remove(Shared::Permission perm)
+        // Removes the given permission
+        void remove(shared::permission perm)
         {
             permissions.erase(perm);
         }
 
-        bool Has(Shared::Permission perm) const
+        // Returns if the given permission has been added to the role
+        bool has(shared::permission perm) const
         {
             return permissions.find(perm) != permissions.end();
         }

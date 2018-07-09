@@ -14,13 +14,12 @@
     limitations under the License.
 */
 
-#include "../Base/User.hpp"
-#include "../../Database.hpp"
+#include "../../database.hpp"
+#include "../base/user.hpp"
 
 #include <memory>
 
-namespace Keycap::Shared::Database::Dal
+namespace keycap::shared::database::dal
 {
-    // TODO: rename me. UserDao conflicts. Get creative!
-    std::unique_ptr<UserDao> user_dao(Database& database);
+    std::unique_ptr<user_dao> get_user_dao(database& database);
 }

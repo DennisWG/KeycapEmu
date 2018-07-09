@@ -16,43 +16,43 @@
 
 #pragma once
 
-#include <Permissions.hpp>
+#include <permissions.hpp>
 
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace Keycap::Shared::Rbac
+namespace keycap::shared::rbac
 {
-    struct Role;
+    struct role;
 }
 
-namespace Keycap::Shared::Cli
+namespace keycap::shared::cli
 {
-    class Command final
+    class command final
     {
       public:
-        using Callback = std::function<bool(std::vector<std::string> const& arguments, Rbac::Role const& role)>;
+        using callback = std::function<bool(std::vector<std::string> const& arguments, rbac::role const& role)>;
 
         std::string name;
-        Keycap::Shared::Permission permission;
-        Callback handler;
+        keycap::shared::permission permission;
+        callback handler;
         std::string description;
-        std::vector<Command> childCommands;
+        std::vector<command> child_commands;
 
-        Command(std::string const& name, Keycap::Shared::Permission permission, Callback handler,
-                std::string const& description = "", std::vector<Command> const& childCommands = {})
+        command(std::string const& name, keycap::shared::permission permission, callback handler,
+                std::string const& description = "", std::vector<command> const& child_commands = {})
           : name(name)
           , permission(permission)
           , handler(handler)
           , description(description)
-          , childCommands(childCommands)
+          , child_commands(child_commands)
         {
         }
 
-        Command() = default;
+        command() = default;
     };
 
-    using CommandMap = std::unordered_map<std::string, Command>;
+    using command_map = std::unordered_map<std::string, command>;
 }
