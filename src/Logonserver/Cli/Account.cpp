@@ -36,23 +36,23 @@
 
 #include <iostream>
 
-namespace cli = Keycap::Shared::Cli;
-namespace db = Keycap::Shared::Database;
+namespace cli = keycap::shared::cli;
+namespace db = keycap::shared::database;
 namespace net = keycap::root::network;
-namespace rbac = Keycap::Shared::Rbac;
+namespace rbac = keycap::shared::rbac;
 
-extern Keycap::Shared::Database::Database& GetLoginDatabase();
+extern keycap::shared::database::database& GetLoginDatabase();
 
 namespace Keycap::Logonserver::Cli
 {
     void CreateCommandCallback(std::string const& username, std::string const& email, std::string const& v,
                                std::string const& salt)
     {
-        auto dao = db::Dal::user_dao(GetLoginDatabase());
-        dao->Create(db::User{0, username, email, v, salt});
+        auto dao = db::dal::get_user_dao(GetLoginDatabase());
+        dao->create(db::user{0, username, email, v, salt});
     }
 
-    bool CreateCommand(std::vector<std::string> const& args, rbac::Role const& role)
+    bool CreateCommand(std::vector<std::string> const& args, rbac::role const& role)
     {
         constexpr auto requiredArguments = 3;
         if (args.empty() || args.size() < requiredArguments)
@@ -72,26 +72,26 @@ namespace Keycap::Logonserver::Cli
         auto hexV = keycap::root::utility::to_hex_string(v.begin(), v.end());
         auto hexSalt = keycap::root::utility::to_hex_string(rndSalt.begin(), rndSalt.end());
 
-        auto dao = db::Dal::user_dao(GetLoginDatabase());
-        dao->User(username, [=](std::optional<Shared::Database::User> user) {
-            auto dao = db::Dal::user_dao(GetLoginDatabase());
+        auto dao = db::dal::get_user_dao(GetLoginDatabase());
+        dao->user(username, [=](std::optional<keycap::shared::database::user> user) {
+            auto dao = db::dal::get_user_dao(GetLoginDatabase());
             if (!user)
-                dao->Create(db::User{0, username, email, hexV, hexSalt});
+                dao->create(db::user{0, username, email, hexV, hexSalt});
         });
 
         return true;
     }
 
-    cli::Command RegisterAccount()
+    cli::command RegisterAccount()
     {
-        using Keycap::Shared::Permission;
+        using keycap::shared::permission;
         using namespace std::string_literals;
 
-        std::vector<cli::Command> commands = {
-            cli::Command{"create", Permission::CommandAccountCreate, CreateCommand,
+        std::vector<cli::command> commands = {
+            cli::command{"create", permission::CommandAccountCreate, CreateCommand,
                          "Creates a new account. Arguments: username, password, email"s},
         };
 
-        return cli::Command{"account"s, Permission::CommandAccount, nullptr, "Account specific commands"s, commands};
+        return cli::command{"account"s, permission::CommandAccount, nullptr, "Account specific commands"s, commands};
     }
 }

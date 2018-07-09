@@ -20,19 +20,19 @@
 
 namespace Keycap::Logonserver::Cli
 {
-    namespace cli = Keycap::Shared::Cli;
-    extern cli::Command RegisterHelp();
-    extern cli::Command RegisterAccount();
+    namespace cli = keycap::shared::cli;
+    extern cli::command RegisterHelp();
+    extern cli::command RegisterAccount();
 
     namespace impl
     {
-        void RegisterCommand(cli::Command const& command, cli::CommandMap& commandMap)
+        void RegisterCommand(cli::command const& command, cli::command_map& commandMap)
         {
             commandMap[command.name] = command;
         }
     }
 
-    void RegisterCommands(cli::CommandMap& commandMap)
+    void RegisterCommands(cli::command_map& commandMap)
     {
         impl::RegisterCommand(RegisterHelp(), commandMap);
         impl::RegisterCommand(RegisterAccount(), commandMap);

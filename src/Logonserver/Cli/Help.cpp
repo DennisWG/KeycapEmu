@@ -20,20 +20,20 @@
 
 #include <iostream>
 
-namespace cli = Keycap::Shared::Cli;
-namespace rbac = Keycap::Shared::Rbac;
+namespace cli = keycap::shared::cli;
+namespace rbac = keycap::shared::rbac;
 
-extern cli::CommandMap& GetCommandMap();
+extern cli::command_map& get_command_map();
 
 namespace Keycap::Logonserver::Cli
 {
-    bool HelpCommand(std::vector<std::string> const& args, rbac::Role const& role)
+    bool HelpCommand(std::vector<std::string> const& args, rbac::role const& role)
     {
         if (args.empty())
         {
-            for (auto[name, command] : GetCommandMap())
+            for (auto[name, command] : get_command_map())
             {
-                if(role.Has(command.permission))
+                if (role.has(command.permission))
                     std::cout << name << " - " << command.description << '\n';
             }
 
@@ -43,12 +43,12 @@ namespace Keycap::Logonserver::Cli
         return false;
     }
 
-    cli::Command RegisterHelp()
+    cli::command RegisterHelp()
     {
-        using Keycap::Shared::Permission;
+        using keycap::shared::permission;
         using namespace std::string_literals;
 
-        return cli::Command{"help"s, Permission::CommandHelp, &HelpCommand,
+        return cli::command{"help"s, permission::CommandHelp, &HelpCommand,
                             "Displays all commands or details about a specific command"s};
     }
 }

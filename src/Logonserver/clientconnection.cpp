@@ -30,7 +30,7 @@
 #include <botan/numthry.h>
 #include <botan/sha160.h>
 
-extern Keycap::Shared::Database::Database& GetLoginDatabase();
+extern keycap::shared::database::database& GetLoginDatabase();
 
 std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& vec)
 {

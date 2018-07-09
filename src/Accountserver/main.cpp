@@ -92,15 +92,15 @@ boost::asio::io_service& GetDbService()
     return dbService;
 }
 
-Keycap::Shared::Database::Database& GetLoginDatabase()
+keycap::shared::database::database& GetLoginDatabase()
 {
-    static Keycap::Shared::Database::Database loginDatabase{GetDbService()};
+    static keycap::shared::database::database loginDatabase{GetDbService()};
     return loginDatabase;
 }
 
 void InitDatabases(std::vector<std::thread>& threadPool, Config const& config)
 {
-    GetLoginDatabase().Connect(config.Database.Host, config.Database.Port, config.Database.User,
+    GetLoginDatabase().connect(config.Database.Host, config.Database.Port, config.Database.User,
                                config.Database.Password, config.Database.Schema);
 
     auto& service = GetDbService();
@@ -118,17 +118,17 @@ void KillDatabases(std::vector<std::thread>& threadPool)
     }
 }
 
-Keycap::Shared::Cli::CommandMap commands;
+keycap::shared::cli::command_map commands;
 
-auto& GetCommandMap()
+auto& get_command_map()
 {
     return commands;
 }
 
-Keycap::Shared::Rbac::PermissionSet GetAllPermissions()
+keycap::shared::rbac::permission_set GetAllPermissions()
 {
-    auto const& perms = Keycap::Shared::Permission::to_vector();
-    return Keycap::Shared::Rbac::PermissionSet{std::begin(perms), std::end(perms)};
+    auto const& perms = keycap::shared::permission::to_vector();
+    return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
 }
 
 int main()
@@ -158,5 +158,5 @@ int main()
     Keycap::Accountserver::AccountService service{config.Network.Threads};
     service.start(config.Network.BindIp, config.Network.Port);
 
-    Keycap::Shared::Cli::RunCommandLine(Keycap::Shared::Rbac::Role{0, "Console", GetAllPermissions()}, running);
+    keycap::shared::cli::RunCommandLine(keycap::shared::rbac::role{0, "Console", GetAllPermissions()}, running);
 }

@@ -56,9 +56,9 @@ struct Config
 
 #undef SetConsoleTitle
 
-Keycap::Shared::Cli::CommandMap commands;
+keycap::shared::cli::command_map commands;
 
-void RegisterCommand(Keycap::Shared::Cli::Command const& command)
+void RegisterCommand(keycap::shared::cli::command const& command)
 {
     commands[command.name] = command;
 }
@@ -66,19 +66,19 @@ void RegisterCommand(Keycap::Shared::Cli::Command const& command)
 void RegisterDefaultCommands(bool& running)
 {
     using namespace std::string_literals;
-    using Keycap::Shared::Cli::Command;
-    using Keycap::Shared::Permission;
-    namespace rbac = Keycap::Shared::Rbac;
+    using keycap::shared::cli::command;
+    using keycap::shared::permission;
+    namespace rbac = keycap::shared::rbac;
 
-    RegisterCommand(Command{"shutdown"s, Permission::CommandShutdown,
-                            [&running](std::vector<std::string> const& args, rbac::Role const& role) {
+    RegisterCommand(command{"shutdown"s, permission::CommandShutdown,
+                            [&running](std::vector<std::string> const& args, rbac::role const& role) {
                                 running = false;
                                 return true;
                             },
                             "Shuts down the Server"s});
 }
 
-auto& GetCommandMap()
+auto& get_command_map()
 {
     return commands;
 }
@@ -103,15 +103,15 @@ void CreateLoggers()
     CreateLogger("database", true, true, spdlog::level::debug);
 }
 
-Keycap::Shared::Rbac::PermissionSet GetAllPermissions()
+keycap::shared::rbac::permission_set GetAllPermissions()
 {
-    auto const& perms = Keycap::Shared::Permission::to_vector();
-    return Keycap::Shared::Rbac::PermissionSet{std::begin(perms), std::end(perms)};
+    auto const& perms = keycap::shared::permission::to_vector();
+    return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
 }
 
-Keycap::Shared::Rbac::Role CreateConsoleRole()
+keycap::shared::rbac::role CreateConsoleRole()
 {
-    return Keycap::Shared::Rbac::Role{0, "Console", GetAllPermissions()};
+    return keycap::shared::rbac::role{0, "Console", GetAllPermissions()};
 }
 
 boost::asio::io_service& GetDbService()
@@ -120,15 +120,15 @@ boost::asio::io_service& GetDbService()
     return dbService;
 }
 
-Keycap::Shared::Database::Database& GetLoginDatabase()
+keycap::shared::database::database& GetLoginDatabase()
 {
-    static Keycap::Shared::Database::Database loginDatabase{GetDbService()};
+    static keycap::shared::database::database loginDatabase{GetDbService()};
     return loginDatabase;
 }
 
 void InitDatabases(std::vector<std::thread>& threadPool, Config const& config)
 {
-    GetLoginDatabase().Connect(config.Database.Host, config.Database.Port, config.Database.User,
+    GetLoginDatabase().connect(config.Database.Host, config.Database.Port, config.Database.User,
                                config.Database.Password, config.Database.Schema);
 
     auto& service = GetDbService();
@@ -199,19 +199,19 @@ int main()
 
     /////////////////////////
     using namespace std::string_literals;
-    using Keycap::Shared::Cli::Command;
-    using Keycap::Shared::Permission;
-    namespace rbac = Keycap::Shared::Rbac;
+    using keycap::shared::cli::command;
+    using keycap::shared::permission;
+    namespace rbac = keycap::shared::rbac;
 
-    RegisterCommand(Command{"db"s, Permission::CommandShutdown,
-                            [&](std::vector<std::string> const& args, rbac::Role const& role) {
-                                console->info("Connected: {}", GetLoginDatabase().IsConnected());
+    RegisterCommand(command{"db"s, permission::CommandShutdown,
+                            [&](std::vector<std::string> const& args, rbac::role const& role) {
+                                console->info("Connected: {}", GetLoginDatabase().is_connected());
                                 return true;
                             },
                             "db"s});
 
-    RegisterCommand(Command{"query"s, Permission::CommandShutdown,
-                            [&](std::vector<std::string> const& args, rbac::Role const& role) {
+    RegisterCommand(command{"query"s, permission::CommandShutdown,
+                            [&](std::vector<std::string> const& args, rbac::role const& role) {
                                 /*
                                 auto statement = db.PrepareStatement("SELECT * FROM user");
 
@@ -226,10 +226,10 @@ int main()
                                 }
                                 */
 
-                                using callback = Keycap::Shared::Database::Dal::UserDao::UserCallback;
+                                using callback = keycap::shared::database::dal::user_dao::user_callback;
                                 auto& db = GetLoginDatabase();
-                                auto dao = Keycap::Shared::Database::Dal::user_dao(db);
-                                dao->User(args[0], [&](std::optional<Keycap::Shared::Database::User> user) {
+                                auto dao = keycap::shared::database::dal::get_user_dao(db);
+                                dao->user(args[0], [&](std::optional<keycap::shared::database::user> user) {
                                     if (user)
                                         console->info("{}, {}, {}, {}, {}", user->id, user->accountName, user->email,
                                                       user->v, user->s);
@@ -241,7 +241,7 @@ int main()
                             "query"s});
     ////////////////////////*/
 
-    Keycap::Shared::Cli::RunCommandLine(consoleRole, running);
+    keycap::shared::cli::run_command_line(consoleRole, running);
 
     std::cout << "Hello, World!";
 }
