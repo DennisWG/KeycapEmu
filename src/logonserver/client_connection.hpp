@@ -31,7 +31,7 @@
 namespace keycap::logonserver
 {
     class client_connection : public keycap::root::network::connection<client_connection>,
-                       public keycap::root::network::message_handler
+                              public keycap::root::network::message_handler
     {
         using base_connection = keycap::root::network::connection<client_connection>;
 
@@ -43,7 +43,7 @@ namespace keycap::logonserver
         bool on_link(keycap::root::network::service_base& service, keycap::root::network::link_status status) override;
 
       private:
-        enum class StateResult
+        enum class state_result
         {
             // We've received the packet as intended and are ready to move on to the next state
             Ok,
@@ -53,57 +53,60 @@ namespace keycap::logonserver
             IncompleteData,
         };
 
-        struct ChallangedData
+        struct challanged_data
         {
             std::shared_ptr<keycap::root::network::srp6::server> server;
             Botan::BigInt v;
             keycap::root::network::srp6::compliance compliance;
 
             std::string username;
-            Botan::BigInt userSalt;
-            Botan::secure_vector<uint8_t> checksumSalt;
+            Botan::BigInt user_salt;
+            Botan::secure_vector<uint8_t> checksum_salt;
         };
 
         // Connection hasn't been established yet or has been terminated
-        struct Disconnected
+        struct disconnected
         {
-            StateResult OnData(client_connection& connection, keycap::root::network::service_base& service,
-                               keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
+                                keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
 
         // Connection was just established
-        struct JustConnected
+        struct just_connected
         {
-            StateResult OnData(client_connection& connection, keycap::root::network::service_base& service,
-                               keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
+                                keycap::root::network::memory_stream& stream);
 
             std::string name = "JustConnected";
         };
 
         // Auth Challange was send to client and we're waiting for a response
-        struct Challanged
+        struct challanged
         {
-            Challanged() = default;
-            explicit Challanged(ChallangedData const& data) : data{ data } {}
-            StateResult OnData(client_connection& connection, keycap::root::network::service_base& service,
-                               keycap::root::network::memory_stream& stream);
+            challanged() = default;
+            explicit challanged(challanged_data const& data)
+              : data{data}
+            {
+            }
+            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
+                                keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
-            ChallangedData data;
+            challanged_data data;
         };
 
         // Client send its Challange and is now authenticated
-        struct Authenticated
+        struct authenticated
         {
-            StateResult OnData(client_connection& connection, keycap::root::network::service_base& service,
-                               keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
+                                keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
         };
 
-        std::variant<Disconnected, JustConnected, Challanged, Authenticated> state_;
+        std::variant<disconnected, just_connected, challanged, authenticated> state_;
 
         keycap::root::network::memory_stream input_stream_;
     };

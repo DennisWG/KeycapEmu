@@ -27,9 +27,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 git_describe(GIT_BRANCH --all --tags --dirty=-d)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Utility/Version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp @ONLY)
-list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp)
-set(version_file ${CMAKE_CURRENT_BINARY_DIR}/Version.cpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Utility/version.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
+list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+set(version_file ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
 ################################
 # Boost

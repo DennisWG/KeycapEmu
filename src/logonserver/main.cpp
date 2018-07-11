@@ -175,8 +175,8 @@ int main()
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
-    console->info("Running KeycapEmu.Logonserver version {}/{}", keycap::logonserver::version::GIT_BRANCH,
-                  keycap::logonserver::version::GIT_HASH);
+    console->info("Running KeycapEmu.Logonserver version {}/{}", keycap::emu::version::GIT_BRANCH,
+                  keycap::emu::version::GIT_HASH);
 
     auto config = parse_config("config.json");
 
