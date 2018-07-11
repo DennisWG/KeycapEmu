@@ -56,7 +56,7 @@ namespace keycap::logonserver
 
     bool client_connection::on_data(net::service_base& service, std::vector<uint8_t> const& data)
     {
-        inputStream_.put(gsl::make_span(data));
+        input_stream_.put(gsl::make_span(data));
         // clang-format off
         return std::visit([&](auto state)
         {
@@ -65,7 +65,7 @@ namespace keycap::logonserver
 
             try
             {
-                return state.OnData(*this, service, inputStream_) != client_connection::StateResult::Abort;
+                return state.OnData(*this, service, input_stream_) != client_connection::StateResult::Abort;
             }
             catch (std::exception const& e)
             {

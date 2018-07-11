@@ -105,6 +105,6 @@ namespace keycap::logonserver
 
         std::variant<Disconnected, JustConnected, Challanged, Authenticated> state_;
 
-        keycap::root::network::memory_stream inputStream_;
+        keycap::root::network::memory_stream input_stream_;
     };
 }

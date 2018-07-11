@@ -25,8 +25,8 @@ namespace keycap::logonserver
     class logon_service : public keycap::root::network::service<client_connection>
     {
       public:
-        logon_service(int threadCount)
-          : service{keycap::root::network::service_mode::Server, threadCount}
+        logon_service(int thread_count)
+          : service{keycap::root::network::service_mode::Server, thread_count}
         {
         }
 

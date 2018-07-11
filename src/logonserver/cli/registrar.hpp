@@ -26,15 +26,15 @@ namespace keycap::logonserver::cli
 
     namespace impl
     {
-        void register_command(cli::command const& command, cli::command_map& commandMap)
+        void register_command(cli::command const& command, cli::command_map& command_map)
         {
-            commandMap[command.name] = command;
+            command_map[command.name] = command;
         }
     }
 
-    void register_commands(cli::command_map& commandMap)
+    void register_commands(cli::command_map& command_map)
     {
-        impl::register_command(register_help(), commandMap);
-        impl::register_command(register_account(), commandMap);
+        impl::register_command(register_help(), command_map);
+        impl::register_command(register_account(), command_map);
     }
 }
