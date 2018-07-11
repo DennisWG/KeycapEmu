@@ -178,7 +178,7 @@ int main()
     console->info("Running KeycapEmu.Logonserver version {}/{}", keycap::emu::version::GIT_BRANCH,
                   keycap::emu::version::GIT_HASH);
 
-    auto config = parse_config("config.json");
+    auto config = parse_config("logon.json");
 
     boost::asio::io_service::work db_work{get_db_service()};
     std::vector<std::thread> db_thread_pool;
