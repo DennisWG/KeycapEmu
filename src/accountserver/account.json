@@ -1,0 +1,15 @@
+{
+    "Network": {
+        "BindIp": "0.0.0.0",
+        "Port": 6660,
+        "Threads": 1
+    },
+    "Database": {
+        "Host": "127.0.0.1",
+        "Port": 3306,
+        "User": "test",
+        "Password": "test",
+        "Schema": "playground",
+        "Threads": 1
+    }
+}
