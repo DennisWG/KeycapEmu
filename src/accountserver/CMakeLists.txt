@@ -12,6 +12,23 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-add_subdirectory (accountserver)
-add_subdirectory (logonserver)
-add_subdirectory (shared)
+add_executable(accountserver
+    main.cpp
+    connection.cpp
+    ${version_file}
+)
+
+target_link_libraries(accountserver 
+    keycaproot
+    keycapemushared
+    boost
+    ${Boost_LIBRARIES}
+    ${Botan_LIBRARIES}
+    "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
+    "${MySQL_C_Connector_ROOT_DIR}/lib/vs14/mysqlclient.lib")
+
+target_include_directories(accountserver
+    PRIVATE
+        ${Botan_INCLUDE_DIR}
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+)

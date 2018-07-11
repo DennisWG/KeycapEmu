@@ -16,8 +16,7 @@
 
 #pragma once
 
-#include "logon.hpp"
-#include "logon_service.hpp"
+#include "account_service.hpp"
 
 #include <botan/bigint.h>
 
@@ -28,15 +27,15 @@
 
 #include <variant>
 
-namespace keycap::logonserver
+namespace keycap::accountserver
 {
-    class client_connection : public keycap::root::network::connection<client_connection>,
-                              public keycap::root::network::message_handler
+    class connection : public keycap::root::network::connection<connection>,
+                       public keycap::root::network::message_handler
     {
-        using base_connection = keycap::root::network::connection<client_connection>;
+        using base_connection = keycap::root::network::connection<connection>;
 
       public:
-        explicit client_connection(keycap::root::network::service_base& service);
+        explicit connection(keycap::root::network::service_base& service);
 
         bool on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data) override;
 
@@ -53,22 +52,11 @@ namespace keycap::logonserver
             IncompleteData,
         };
 
-        struct challanged_data
-        {
-            std::shared_ptr<keycap::root::network::srp6::server> server;
-            Botan::BigInt v;
-            keycap::root::network::srp6::compliance compliance;
-
-            std::string username;
-            Botan::BigInt user_salt;
-            Botan::secure_vector<uint8_t> checksum_salt;
-        };
-
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(connection& connection, keycap::root::network::service_base& service,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -76,8 +64,8 @@ namespace keycap::logonserver
         // Connection was just established
         struct just_connected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(connection& connection, keycap::root::network::service_base& service,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "JustConnected";
         };
@@ -85,23 +73,17 @@ namespace keycap::logonserver
         // Auth Challange was send to client and we're waiting for a response
         struct challanged
         {
-            challanged() = default;
-            explicit challanged(challanged_data const& data)
-              : data{data}
-            {
-            }
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(connection& connection, keycap::root::network::service_base& service,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
-            challanged_data data;
         };
 
         // Client send its Challange and is now authenticated
         struct authenticated
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(connection& connection, keycap::root::network::service_base& service,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
         };
