@@ -1,7 +1,11 @@
 {
-  "Network": {
-    "BindIp": "127.0.0.1",
-    "Port": 3724,
-    "Threads": 1
-  }
+    "Network": {
+        "BindIp": "0.0.0.0",
+        "Port": 3724,
+        "Threads": 1
+    },
+    "AccountService": {
+        "Host": "127.0.0.1",
+        "Port": 6660
+    }
 }
