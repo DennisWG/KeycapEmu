@@ -38,11 +38,8 @@ target_include_directories(logonserver
 
 include(FlatmessageCompile)
 
-flatmessage_compile_files(
-    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/hpp.template" 
-    EXTENSION "hpp"
-    FILES
-        "protocol/logon.msg"
-        "../shared/permissions.scm"
-
+flatmessage_compile_file(
+    "protocol/logon.msg"
+    "${PROJECT_SOURCE_DIR}/templates/hpp.template"
+    "hpp"
 )

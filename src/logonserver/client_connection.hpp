@@ -24,23 +24,30 @@
 #include <keycap/root/network/connection.hpp>
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/message_handler.hpp>
+#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/network/srp6/server.hpp>
 
 #include <variant>
 
 namespace keycap::logonserver
 {
-    class client_connection : public keycap::root::network::connection<client_connection>,
-                              public keycap::root::network::message_handler
+    class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
     {
-        using base_connection = keycap::root::network::connection<client_connection>;
+        using base_connection = keycap::root::network::connection;
 
       public:
-        explicit client_connection(keycap::root::network::service_base& service);
+        client_connection(keycap::root::network::service_base& service,
+                          keycap::root::network::service_locator& locator);
 
-        bool on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data) override;
+        bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
 
-        bool on_link(keycap::root::network::service_base& service, keycap::root::network::link_status status) override;
+        bool on_link(keycap::root::network::data_router const& router,
+                     keycap::root::network::link_status status) override;
+
+        keycap::root::network::service_locator& service_locator()
+        {
+            return locator_;
+        }
 
       private:
         enum class state_result
@@ -67,8 +74,8 @@ namespace keycap::logonserver
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -76,8 +83,11 @@ namespace keycap::logonserver
         // Connection was just established
         struct just_connected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
+
+            void on_account_reply(client_connection& connection, keycap::root::network::memory_stream& stream,
+                                  std::string const& account_name);
 
             std::string name = "JustConnected";
         };
@@ -90,8 +100,8 @@ namespace keycap::logonserver
               : data{data}
             {
             }
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
             challanged_data data;
@@ -100,8 +110,8 @@ namespace keycap::logonserver
         // Client send its Challange and is now authenticated
         struct authenticated
         {
-            state_result on_data(client_connection& connection, keycap::root::network::service_base& service,
-                                keycap::root::network::memory_stream& stream);
+            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
         };
@@ -109,5 +119,7 @@ namespace keycap::logonserver
         std::variant<disconnected, just_connected, challanged, authenticated> state_;
 
         keycap::root::network::memory_stream input_stream_;
+
+        keycap::root::network::service_locator& locator_;
     };
 }

@@ -14,18 +14,16 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
-#include "logon_service.hpp"
+#pragma once
 
-namespace keycap::logonserver
+#include <keycap/root/network/service_locator.hpp>
+#include <keycap/root/utility/enum.hpp>
+
+namespace keycap::shared::network
 {
-    bool logon_service::on_new_connection(SharedHandler handler)
-    {
-        return true;
-    }
+    keycap_enum(services, uint32,
+                // Account Service
+                account = 1, );
 
-    logon_service::SharedHandler logon_service::make_handler()
-    {
-        return std::make_shared<client_connection>(*this, locator_);
-    }
+    const static keycap::root::network::service_type account_service{services::account};
 }

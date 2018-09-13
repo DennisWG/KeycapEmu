@@ -17,20 +17,56 @@
 #pragma once
 
 #include <keycap/root/network/connection.hpp>
+#include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/message_handler.hpp>
+
+#include <variant>
 
 namespace keycap::logonserver
 {
-    class account_connection : public keycap::root::network::connection<account_connection>,
-                               public keycap::root::network::message_handler
+    class account_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
     {
-        using BaseConnection = keycap::root::network::connection<account_connection>;
+        using BaseConnection = keycap::root::network::connection;
 
       public:
         explicit account_connection(keycap::root::network::service_base& service);
 
-        bool on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data) override;
+        bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
 
-        bool on_link(keycap::root::network::service_base& service, keycap::root::network::link_status status) override;
+        bool on_link(keycap::root::network::data_router const& router,
+                     keycap::root::network::link_status status) override;
+
+      private:
+        enum class state_result
+        {
+            // We've received the packet as intended and are ready to move on to the next state
+            Ok,
+            // There was some kind of error in the received packet and we have to terminate the connection
+            Abort,
+            // We're still wating for more data to arrive from the client
+            IncompleteData,
+        };
+
+        // Connection hasn't been established yet or has been terminated
+        struct disconnected
+        {
+            state_result on_data(account_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
+
+            std::string name = "Disconnected";
+        };
+
+        // Connection was just established
+        struct connected
+        {
+            state_result on_data(account_connection& connection, keycap::root::network::data_router const& router,
+                                 keycap::root::network::memory_stream& stream);
+
+            std::string name = "Connected";
+        };
+
+        std::variant<disconnected, connected> state_;
+
+        keycap::root::network::memory_stream input_stream_;
     };
 }

@@ -14,12 +14,18 @@
     limitations under the License.
 */
 
+#include "account_connection.hpp"
+#include "account_service.hpp"
 #include "cli/registrar.hpp"
 #include "client_connection.hpp"
 #include "version.hpp"
 #include <cli/helpers.hpp>
 
+#include <network/services.hpp>
+
 #include <keycap/root/configuration/config_file.hpp>
+#include <keycap/root/network/data_router.hpp>
+#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/utility/meta.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/string.hpp>
@@ -47,11 +53,7 @@ struct config
     {
         std::string host;
         int16_t port;
-        std::string user;
-        std::string password;
-        std::string schema;
-        int threads;
-    } database;
+    } account_service;
 };
 
 keycap::shared::cli::command_map commands;
@@ -124,26 +126,6 @@ keycap::shared::database::database& get_login_database()
     return login_database;
 }
 
-void init_databases(std::vector<std::thread>& thread_pool, config const& config)
-{
-    get_login_database().connect(config.database.host, config.database.port, config.database.user,
-                                 config.database.password, config.database.schema);
-
-    auto& service = get_db_service();
-    for (int i = 0; i < config.database.threads; ++i)
-        thread_pool.emplace_back([&] { service.run(); });
-}
-
-void kill_databases(std::vector<std::thread>& thread_pool)
-{
-    get_db_service().stop();
-    for (auto& thread : thread_pool)
-    {
-        if (thread.joinable())
-            thread.join();
-    }
-}
-
 config parse_config(std::string config_file)
 {
     keycap::root::configuration::config_file cfg_file{config_file};
@@ -153,12 +135,8 @@ config parse_config(std::string config_file)
     conf.network.port = cfg_file.get_or_default<int16_t>("Network", "Port", 3724);
     conf.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
 
-    conf.database.host = cfg_file.get_or_default<std::string>("Database", "Host", "127.0.0.1");
-    conf.database.port = cfg_file.get_or_default<int16_t>("Database", "Port", 3306);
-    conf.database.user = cfg_file.get_or_default<std::string>("Database", "User", "root");
-    conf.database.password = cfg_file.get_or_default<std::string>("Database", "Password", "");
-    conf.database.schema = cfg_file.get_or_default<std::string>("Database", "Schema", "");
-    conf.database.threads = cfg_file.get_or_default<int>("Database", "Threads", 1);
+    conf.account_service.host = cfg_file.get_or_default<std::string>("AccountService", "Host", "127.0.0.1");
+    conf.account_service.port = cfg_file.get_or_default<int16_t>("AccountService", "Port", 3306);
 
     return conf;
 }
@@ -166,6 +144,8 @@ config parse_config(std::string config_file)
 int main()
 {
     namespace utility = keycap::root::utility;
+    namespace net = keycap::root::network;
+    namespace shared_net = keycap::shared::network;
 
     auto console_role = create_console_role();
 
@@ -180,20 +160,15 @@ int main()
 
     auto config = parse_config("logon.json");
 
-    boost::asio::io_service::work db_work{get_db_service()};
-    std::vector<std::thread> db_thread_pool;
-    init_databases(db_thread_pool, config);
-    SCOPE_EXIT(sc2, [&] { kill_databases(db_thread_pool); });
-
     bool running = true;
-
     keycap::logonserver::cli::register_commands(commands);
     register_default_commands(running);
 
-    keycap::logonserver::logon_service service{config.network.threads};
-    service.start(config.network.bind_ip, config.network.port);
+    net::service_locator service_locator;
+    service_locator.locate(shared_net::account_service, config.account_service.host, config.account_service.port);
 
-    // keycap::logonserver::
+    keycap::logonserver::logon_service service{config.network.threads, service_locator};
+    service.start(config.network.bind_ip, config.network.port);
 
     /////////////////////////
     using namespace std::string_literals;

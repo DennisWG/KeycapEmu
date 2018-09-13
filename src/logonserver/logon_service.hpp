@@ -17,6 +17,9 @@
 #pragma once
 
 #include <keycap/root/network/service.hpp>
+#include <keycap/root/network/service_locator.hpp>
+
+#include <memory>
 
 namespace keycap::logonserver
 {
@@ -25,11 +28,17 @@ namespace keycap::logonserver
     class logon_service : public keycap::root::network::service<client_connection>
     {
       public:
-        logon_service(int thread_count)
+        logon_service(int thread_count, keycap::root::network::service_locator& locator)
           : service{keycap::root::network::service_mode::Server, thread_count}
+          , locator_{locator}
         {
         }
 
         virtual bool on_new_connection(SharedHandler handler) override;
+
+        virtual SharedHandler make_handler() override;
+
+      private:
+        keycap::root::network::service_locator& locator_;
     };
 }

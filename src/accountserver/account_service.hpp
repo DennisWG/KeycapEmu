@@ -29,5 +29,11 @@ namespace keycap::accountserver
           : service{keycap::root::network::service_mode::Server, thread_count}
         {
         }
+
+      protected:
+        virtual SharedHandler make_handler() override
+        {
+            return std::make_shared<connection>(*this);
+        }
     };
 }

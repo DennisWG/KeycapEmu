@@ -18,14 +18,20 @@
 
 namespace keycap::logonserver
 {
-    class connection;
+    class account_connection;
 
-    class account_service : public keycap::root::network::service<connection>
+    class account_service final : public keycap::root::network::service<account_connection>
     {
       public:
         account_service()
-          : Service{keycap::root::network::service_mode::Client, 1}
+          : service{keycap::root::network::service_mode::Client, 1}
         {
+        }
+
+      protected:
+        virtual SharedHandler make_handler() override
+        {
+            return std::make_shared<account_connection>(*this);
         }
     };
 }

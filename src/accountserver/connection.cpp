@@ -16,21 +16,27 @@
 
 #include "connection.hpp"
 
+#include <protocol.hpp>
+
+#include <database/daos/user.hpp>
+
 #include <spdlog/spdlog.h>
 
 namespace net = keycap::root::network;
+namespace shared_net = keycap::shared::network;
+
+extern keycap::shared::database::database& get_login_database();
 
 namespace keycap::accountserver
 {
     connection::connection(net::service_base& service)
-      : base_connection{service}
+      : net::service_connection{service}
     {
         router_.configure_inbound(this);
     }
 
-    bool connection::on_data(net::service_base& service, std::vector<uint8_t> const& data)
+    bool connection::on_data(net::data_router const& router, uint64 sender, net::memory_stream& stream)
     {
-        input_stream_.put(gsl::make_span(data));
         // clang-format off
         return std::visit([&](auto state)
         {
@@ -39,7 +45,7 @@ namespace keycap::accountserver
 
             try
             {
-                return state.on_data(*this, service, input_stream_) != connection::state_result::Abort;
+                return state.on_data(*this, sender, /*input_stream_*/ stream) != connection::state_result::Abort;
             }
             catch (std::exception const& e)
             {
@@ -56,13 +62,13 @@ namespace keycap::accountserver
         // clang-format on
     }
 
-    bool connection::on_link(net::service_base& service, net::link_status status)
+    bool connection::on_link(net::data_router const& router, net::link_status status)
     {
         if (status == net::link_status::Up)
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
             logger->debug("New connection");
-            state_ = just_connected{};
+            state_ = connected{};
         }
         else
         {
@@ -74,7 +80,7 @@ namespace keycap::accountserver
         return true;
     }
 
-    connection::state_result connection::disconnected::on_data(connection& connection, net::service_base& service,
+    connection::state_result connection::disconnected::on_data(connection& connection, uint64 sender,
                                                                net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
@@ -82,21 +88,32 @@ namespace keycap::accountserver
         return connection::state_result::Abort;
     }
 
-    connection::state_result connection::just_connected::on_data(connection& connection, net::service_base& service,
-                                                                 net::memory_stream& stream)
+    connection::state_result connection::connected::on_data(connection& connection, uint64 sender,
+                                                            net::memory_stream& stream)
     {
-        return connection::state_result::Ok;
-    }
+        auto logger = keycap::root::utility::get_safe_logger("connections");
+        if (stream.peek<uint8>() != shared_net::protocol::request_account_data)
+        {
+            logger->error("User send invalid packet! {0}:{1}", __FUNCTION__, __LINE__);
+            return connection::state_result::Abort;
+        }
 
-    connection::state_result connection::challanged::on_data(connection& connection, net::service_base& service,
-                                                             net::memory_stream& stream)
-    {
-        return connection::state_result::Ok;
-    }
+        auto request = shared_net::request_account_data::decode(stream);
 
-    connection::state_result connection::authenticated::on_data(connection& connection, net::service_base& service,
-                                                                net::memory_stream& stream)
-    {
+        auto user_dao = shared::database::dal::get_user_dao(get_login_database());
+        user_dao->user(request.account_name, [&, sender](std::optional<shared::database::user> user) {
+            shared_net::reply_account_data reply;
+            if (user)
+            {
+                reply.verifier = user->v;
+                reply.salt = user->s;
+            }
+
+            net::memory_stream out_stream;
+            reply.encode(out_stream);
+            connection.send_answer(sender, out_stream);
+        });
+
         return connection::state_result::Ok;
     }
 }

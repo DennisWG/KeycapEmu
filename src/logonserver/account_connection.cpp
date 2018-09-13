@@ -16,21 +16,84 @@
 
 #include "account_connection.hpp"
 
+#include <botan/srp6.h>
+#include <spdlog/spdlog.h>
+
+namespace net = keycap::root::network;
+
 namespace keycap::logonserver
 {
     account_connection::account_connection(keycap::root::network::service_base& service)
       : BaseConnection{service}
     {
+        router_.configure_inbound(this);
     }
 
-    bool account_connection::on_data(keycap::root::network::service_base& service, std::vector<uint8_t> const& data)
+    bool account_connection::on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data)
     {
-        return false;
+        input_stream_.put(gsl::make_span(data));
+        // clang-format off
+        return std::visit([&](auto state)
+        {
+            auto logger = keycap::root::utility::get_safe_logger("connections");
+            logger->debug("Received data in state: {}", state.name);
+
+            try
+            {
+                return state.on_data(*this, router, input_stream_) != account_connection::state_result::Abort;
+            }
+            catch (std::exception const& e)
+            {
+                logger->error(e.what());
+                return false;
+            }
+            catch (...)
+            {
+                return false;
+            }
+
+            return false;
+        }, state_);
+        // clang-format on
     }
 
-    bool account_connection::on_link(keycap::root::network::service_base& service,
+    bool account_connection::on_link(keycap::root::network::data_router const& router,
                                      keycap::root::network::link_status status)
     {
+        auto logger = keycap::root::utility::get_safe_logger("connections");
+
+        if (status == net::link_status::Up)
+        {
+            logger->debug("New connection");
+            state_ = connected{};
+        }
+        else
+        {
+            logger->debug("Connection closed");
+            state_ = disconnected{};
+        }
+
         return false;
+    }
+
+    account_connection::state_result
+    account_connection::disconnected::on_data(account_connection& connection,
+                                              keycap::root::network::data_router const& router,
+                                              keycap::root::network::memory_stream& stream)
+    {
+        auto logger = keycap::root::utility::get_safe_logger("connections");
+        logger->error("Received data while disconnected. This is a bug. Do something!");
+        return state_result::Abort;
+    }
+
+    // lass dir was einfallen wie du nen callback für ne message implementierst. also ich schicke ne message, bekomme
+    // die antwort und der angegebene callback für diese message wird aufgerufen
+
+    account_connection::state_result
+    account_connection::connected::on_data(account_connection& connection,
+                                           keycap::root::network::data_router const& router,
+                                           keycap::root::network::memory_stream& stream)
+    {
+        return state_result::Ok;
     }
 }
