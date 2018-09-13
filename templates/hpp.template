@@ -23,6 +23,8 @@
 #include <keycap/root/types.hpp>
 #include <keycap/root/utility/utility.hpp>
 
+#include <boost/optional.hpp>
+
 #include <spdlog/fmt/fmt.h>
 ## if hasImports
 ## for imp in imports
@@ -77,11 +79,15 @@ for attrib in dat/attributes %}
             encoder.put({{ attrib/name }});
 ## endif 
 ## else if attrib/hasSpecifier
-## if attrib/specifier == "repeated"
+## if hasSpecifier(attrib, "repeated")
 {##}
             encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
             for(auto&& elem : {{ attrib/name }})
                 elem.encode(encoder);
+## else if hasSpecifier(attrib, "optional")
+{##}
+            if({{ attrib/name }})
+                encoder.put({{ attrib/name }});
 ## endif
 ## else
 ## if not hasAnnotation(attrib, "IsSize")
@@ -122,11 +128,15 @@ for attrib in dat/attributes %}
 ## endfor
 ## endif
 ## else if attrib/hasSpecifier
-## if attrib/specifier == "repeated"
+## if hasSpecifier(attrib, "repeated")
 {##}
             auto size_{{attrib/name}} = decoder.get<uint8>();
             for(int i = 0; i < size_{{attrib/name}}; ++i)
                 packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
+## else if hasSpecifier(attrib, "optional")
+{##}
+            if(decoder.size() >= sizeof({{ attrib/type }}))
+                packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
 ## endif
 ## else if attrib/hasArraySize
 {##}
@@ -195,11 +205,15 @@ endfor %}
             encoder.put({{ attrib/name }});
 ## endif 
 ## else if attrib/hasSpecifier
-## if attrib/specifier == "repeated"
+## if hasSpecifier(attrib, "repeated")
 {##}
             encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
             for(auto&& elem : {{ attrib/name }})
                 elem.encode(encoder);
+## else if hasSpecifier(attrib, "optional")
+{##}
+            if({{ attrib/name }})
+                encoder.put({{ attrib/name }});
 ## endif
 ## else
 ## if not hasAnnotation(attrib, "IsSize")
@@ -240,11 +254,15 @@ endfor %}
 ## endfor
 ## endif
 ## else if attrib/hasSpecifier
-## if attrib/specifier == "repeated"
+## if hasSpecifier(attrib, "repeated")
 {##}
             auto size_{{attrib/name}} = decoder.get<uint8>();
             for(int i = 0; i < size_{{attrib/name}}; ++i)
                 packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
+## else if hasSpecifier(attrib, "optional")
+{##}
+            if(decoder.size() >= sizeof({{ attrib/type }}))
+                packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
 ## endif
 ## else if attrib/hasArraySize
 {##}
@@ -271,7 +289,7 @@ endfor %}
             return packet;
         }
 
-        std::string ToString()
+        std::string to_string()
         {
             std::stringstream ss;
             ss << "Packet {{ msg/name }}\n";
@@ -281,7 +299,9 @@ endfor %}
 {##}
 
             if({{ attrib/name }})
-                ss << "    {{ attrib/name }} = " << *{{ attrib/name }};
+            {
+                ss << "    {{ attrib/name }}\n";
+            }
             else
                 ss << "    {{ attrib/name }} not set";
             ss << '\n';
