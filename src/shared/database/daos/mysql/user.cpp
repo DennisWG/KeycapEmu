@@ -31,14 +31,14 @@ namespace keycap::shared::database::dal
 
         void user(std::string const& username, user_callback callback) const override
         {
-            static auto statement = database_.prepare_statement("SELECT * FROM user WHERE accountName = ?");
+            static auto statement = database_.prepare_statement("SELECT * FROM user WHERE account_name = ?");
             statement.add_parameter(username);
 
             auto whenDone = [callback](std::unique_ptr<sql::ResultSet> result) {
                 if (!result || !result->next())
                     return callback(std::nullopt);
 
-                shared::database::user user{result->getUInt("id"), result->getString("accountName").c_str(),
+                shared::database::user user{result->getUInt("id"), result->getString("account_name").c_str(),
                                             result->getString("email").c_str(), result->getString("v").c_str(),
                                             result->getString("s").c_str()};
                 callback(user);
@@ -50,9 +50,9 @@ namespace keycap::shared::database::dal
         void create(shared::database::user const& user) const override
         {
             static auto statement
-                = database_.prepare_statement("INSERT INTO user(accountName, email, v, s) VALUES (?, ?, ?, ?)");
+                = database_.prepare_statement("INSERT INTO user(account_name, email, v, s) VALUES (?, ?, ?, ?)");
 
-            statement.add_parameter(user.accountName);
+            statement.add_parameter(user.account_name);
             statement.add_parameter(user.email);
             statement.add_parameter(user.v);
             statement.add_parameter(user.s);
