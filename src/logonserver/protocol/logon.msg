@@ -156,6 +156,13 @@ message server_logon_challange
     security_flag security_flags;
 }
 
+message server_logon_challange_error
+{
+    command cmd = "command::Challange";
+    error error_code = "error::Success";
+    auth_result result;
+}
+
 data telemetry_data
 {
     uint16 unk1;

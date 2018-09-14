@@ -49,6 +49,8 @@ namespace keycap::logonserver
             return locator_;
         }
 
+            void send_error(protocol::auth_result result);
+
       private:
         enum class state_result
         {

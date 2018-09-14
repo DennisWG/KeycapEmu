@@ -16,6 +16,7 @@
 
 #include "client_connection.hpp"
 
+#include <realm.hpp>
 #include <protocol.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
@@ -102,6 +103,16 @@ namespace keycap::logonserver
         return true;
     }
 
+    void client_connection::send_error(protocol::auth_result result)
+    {
+        protocol::server_logon_challange_error error;
+        error.result = result;
+
+        net::memory_stream buffer;
+        error.encode(buffer);
+        send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+    }
+
     client_connection::state_result client_connection::disconnected::on_data(client_connection& connection,
                                                                              net::data_router const& router,
                                                                              net::memory_stream& stream)
@@ -147,11 +158,13 @@ namespace keycap::logonserver
                                                              keycap::root::network::memory_stream& stream,
                                                              std::string const& account_name)
     {
+        auto logger = keycap::root::utility::get_safe_logger("connections");
         auto reply = shared_net::reply_account_data::decode(stream);
 
         if (reply.verifier.empty() || reply.salt.empty())
         {
-            connection.socket().close();
+            connection.send_error(protocol::auth_result::InvalidInfo);
+            logger->info("User {} tried to log in with incorrect login info!", account_name);
             return;
         }
 
@@ -213,8 +226,9 @@ namespace keycap::logonserver
 
         if (M1_S != M1)
         {
-            logger->error("User {} tried to log in with incorrect login info!", data.username);
-            return client_connection::state_result::Abort;
+            connection.send_error(protocol::auth_result::InvalidInfo);
+            logger->info("User {} tried to log in with incorrect login info!", data.username);
+            return client_connection::state_result::Ok;
         }
 
         protocol::server_logon_proof outPacket;
