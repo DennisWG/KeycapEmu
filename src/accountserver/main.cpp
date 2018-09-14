@@ -109,6 +109,11 @@ auto& get_command_map()
     return commands;
 }
 
+void register_command(keycap::shared::cli::command const& command)
+{
+    commands[command.name] = command;
+}
+
 keycap::shared::rbac::permission_set get_all_permissions()
 {
     auto const& perms = keycap::shared::permission::to_vector();
@@ -138,6 +143,17 @@ int main()
     SCOPE_EXIT(sc2, [&] { kill_databases(db_thread_pool); });
 
     bool running = true;
+
+    using namespace std::string_literals;
+    using keycap::shared::permission;
+    using keycap::shared::cli::command;
+    namespace rbac = keycap::shared::rbac;
+    register_command(command{"shutdown"s, permission::CommandShutdown,
+                             [&running](std::vector<std::string> const& args, rbac::role const& role) {
+                                 running = false;
+                                 return true;
+                             },
+                             "Shuts down the Server"s});
 
     keycap::accountserver::account_service service{config.network.threads};
     service.start(config.network.bind_ip, config.network.port);
