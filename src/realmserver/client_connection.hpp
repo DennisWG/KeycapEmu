@@ -16,18 +16,19 @@
 
 #pragma once
 
-#include <keycap/root/network/service_locator.hpp>
-#include <keycap/root/utility/enum.hpp>
+#include <keycap/root/network/connection.hpp>
+#include <keycap/root/network/message_handler.hpp>
 
-namespace keycap::shared::network
+namespace keycap::realmserver
 {
-    keycap_enum(services, uint32,
-                logon = 0,
-                account = 1,
-                realm = 2,
-        );
+    class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
+    {
+      public:
+        client_connection(keycap::root::network::service_base& service);
 
-    const static keycap::root::network::service_type logon_service{services::account};
-    const static keycap::root::network::service_type account_service{services::account};
-    const static keycap::root::network::service_type realm_service{services::account};
+        bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
+
+        bool on_link(keycap::root::network::data_router const& router,
+                     keycap::root::network::link_status status) override;
+    };
 }

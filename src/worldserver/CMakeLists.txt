@@ -12,8 +12,31 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-add_subdirectory (accountserver)
-add_subdirectory (logonserver)
-add_subdirectory (realmserver)
-add_subdirectory (worldserver)
-add_subdirectory (shared)
+add_executable (worldserver
+    client_connection.cpp
+    client_service.cpp
+    main.cpp
+    ${version_file}
+)
+
+target_link_libraries(worldserver
+    keycaproot
+    keycapemushared
+    boost
+    ${Boost_LIBRARIES}
+    ${Botan_LIBRARIES}
+)
+
+target_include_directories(worldserver
+    PRIVATE
+        ${Botan_INCLUDE_DIR}
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+)
+
+include(FlatmessageCompile)
+
+#flatmessage_compile_file(
+#    "protocol/logon.msg"
+#    "${PROJECT_SOURCE_DIR}/templates/hpp.template"
+#    "hpp"
+#)

@@ -14,20 +14,24 @@
     limitations under the License.
 */
 
-#pragma once
+#include "client_connection.hpp"
 
-#include <keycap/root/network/service_locator.hpp>
-#include <keycap/root/utility/enum.hpp>
-
-namespace keycap::shared::network
+namespace keycap::worldserver
 {
-    keycap_enum(services, uint32,
-                logon = 0,
-                account = 1,
-                realm = 2,
-        );
+    client_connection::client_connection(keycap::root::network::service_base& service)
+      : connection{service}
+    {
+    }
 
-    const static keycap::root::network::service_type logon_service{services::account};
-    const static keycap::root::network::service_type account_service{services::account};
-    const static keycap::root::network::service_type realm_service{services::account};
+    bool client_connection::on_data(keycap::root::network::data_router const& router,
+                                    std::vector<uint8_t> const& data)
+    {
+        return true;
+    }
+
+    bool client_connection::on_link(keycap::root::network::data_router const& router,
+                                    keycap::root::network::link_status status)
+    {
+        return true;
+    }
 }

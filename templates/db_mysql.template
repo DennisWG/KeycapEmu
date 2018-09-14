@@ -16,12 +16,14 @@
 
 # This file was generated. DO NOT EDIT!
 
-
 ## if hasData
 ## for dat in data
+
 DROP TABLE IF EXISTS `{{ dat/name }}`;
 CREATE TABLE `{{ dat/name }}` (
 ## for attrib in dat/attributes
+## if not hasSpecifier(attrib, "repeated")
+## if not hasSpecifier(attrib, "optional")
 {##}
     {{ attrib/name }} {{ attrib/mysqlType }}
 ## if attrib/hasAnnotations
@@ -32,8 +34,15 @@ CREATE TABLE `{{ dat/name }}` (
 ## if not loop/is_last
 ,
 ## endif
+## endif
+## endif
 ## endfor
+## if hasAnnotation(dat, "Keys")
+,{##}
+    PRIMARY KEY({{annotationValue(dat, "Keys")}})
+## endif
 {##}
 );
+
 ## endfor
 ## endif

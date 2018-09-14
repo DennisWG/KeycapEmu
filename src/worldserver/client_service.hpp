@@ -16,18 +16,24 @@
 
 #pragma once
 
-#include <keycap/root/network/service_locator.hpp>
-#include <keycap/root/utility/enum.hpp>
+#include <keycap/root/network/service.hpp>
 
-namespace keycap::shared::network
+#include <memory>
+
+namespace keycap::worldserver
 {
-    keycap_enum(services, uint32,
-                logon = 0,
-                account = 1,
-                realm = 2,
-        );
+    class client_connection;
 
-    const static keycap::root::network::service_type logon_service{services::account};
-    const static keycap::root::network::service_type account_service{services::account};
-    const static keycap::root::network::service_type realm_service{services::account};
+    class client_service : public keycap::root::network::service<client_connection>
+    {
+      public:
+        client_service(int thread_count)
+          : service{keycap::root::network::service_mode::Server, thread_count}
+        {
+        }
+
+        virtual bool on_new_connection(SharedHandler handler) override;
+
+        virtual SharedHandler make_handler() override;
+    };
 }

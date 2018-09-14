@@ -50,16 +50,20 @@ target_compile_definitions(${LIBRARY_NAME}
         _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 )
 
-flatmessage_compile_file(
-    "database/schemata/user.scm"
-    "${PROJECT_SOURCE_DIR}/templates/db_object.template"
-    "hpp"
+flatmessage_compile_files(
+    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/db_object.template"
+    EXTENSION "hpp"
+    FILES
+        "database/schemata/realm.scm"
+        "database/schemata/user.scm"
 )
 
-flatmessage_compile_file(
-    "database/schemata/user.scm"
-    "${PROJECT_SOURCE_DIR}/templates/db_mysql.template"
-    "sql"
+flatmessage_compile_files(
+    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/db_mysql.template"
+    EXTENSION "sql"
+    FILES
+        "database/schemata/realm.scm"
+        "database/schemata/user.scm"
 )
 
 flatmessage_compile_files(
