@@ -207,9 +207,9 @@ data realm_list_data
      realm_type type;
      uint8 locked;
      realm_flag realm_flags;
-     [ZeroTeminated=1]
+     [ZeroTeminated]
      string name;
-     [ZeroTeminated=1]
+     [ZeroTeminated]
      string ip;
      float population;
      uint8 num_characters;
@@ -220,7 +220,7 @@ data realm_list_data
 message ServerRealmList
 {
     command cmd = "command::RealmList";
-    [IsSize=1]
+    [IsSize]
     uint16 size;
 
     uint32 alwaysZero = 0;

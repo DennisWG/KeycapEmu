@@ -1,6 +1,6 @@
 data user
 {
-    [Index=1] [NotNull=1] [Increment=1]
+    [Index] [NotNull] [Increment]
     uint32 id;
     string accountName;
     string email;
