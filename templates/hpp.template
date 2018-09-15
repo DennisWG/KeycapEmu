@@ -41,7 +41,7 @@ namespace {% for i in modulePath %}{% if loop/is_first %}{{ i }}{% else %}::{{ i
 ## if hasEnums
 ## for enum in enums
 {##}
-    keycap_enum({{ enum/name }}, {% if enum/alignment == "byte" %}uint8{% else if enum/alignment == "word" %}uint16{% else if enum/alignment == "dword" %}uint32{% else if enum/alignment == "qword" %}uint64{% endif %},{%
+    keycap_enum{% if hasAnnotation(enum, "Flags") %}_flags{% endif %}({{ enum/name }}, {% if enum/alignment == "byte" %}uint8{% else if enum/alignment == "word" %}uint16{% else if enum/alignment == "dword" %}uint32{% else if enum/alignment == "qword" %}uint64{% endif %},{%
 for value in enum/values %}
         {{ value/name }} = {{ value/value }},{%
 endfor %}

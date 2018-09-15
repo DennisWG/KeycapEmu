@@ -54,10 +54,12 @@ enum auth_result : byte
     BadVersion = 9,
     DownloadFile = 10,
     Suspended = 12,
+    ParentalControl = 15,
     LockedEnforced = 16,
     Disconnected = 255,
 }
 
+[Flags]
 enum account_flag : dword
 {
     None = 0,
@@ -94,6 +96,7 @@ enum account_flag : dword
     DeathKnightOk = 1073741824,
 }
 
+[Flags]
 enum security_flag : byte
 {
     None = 0,
@@ -110,6 +113,7 @@ enum realm_type : byte
     RpPvp = 8,
 }
 
+[Flags]
 enum realm_flag : byte
 {
     None = 0,
@@ -121,6 +125,40 @@ enum realm_flag : byte
     Recommended = 32,
     New = 64,
     Full = 128,
+}
+
+enum realm_category : byte
+{
+    development = 1,
+    united_states = 2,
+    oceanic = 3,
+    latin_america = 4,
+    tournament = 5,
+    korea = 6,
+    tournament2 = 7,
+    english = 8,
+    german = 9,
+    french = 10,
+    spanish = 11,
+    russian = 12,
+    tournament3 = 13,
+    taiwan = 14,
+    tournament4 = 15,
+    china = 16,
+    cn1 = 17,
+    cn2 = 18,
+    cn3 = 19,
+    cn4 = 20,
+    cn5 = 21,
+    cn6 = 22,
+    cn7 = 23,
+    cn8 = 24,
+    tournament5 = 25,
+    test_server = 26,
+    qa_server = 27,
+    tournament6 = 28,
+    cn9 = 29,
+    test_server_2 = 30,
 }
 
 message client_logon_challange
@@ -213,7 +251,7 @@ data realm_list_data
      string ip;
      float population;
      uint8 num_characters;
-     uint8 category;
+     realm_category category;
      uint8 id;
 }
 

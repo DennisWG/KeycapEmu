@@ -163,6 +163,7 @@ namespace keycap::logonserver
             return;
 
         auto conn = connection.lock();
+
         auto logger = keycap::root::utility::get_safe_logger("connections");
         auto reply = shared_net::reply_account_data::decode(stream);
 
@@ -275,7 +276,7 @@ namespace keycap::logonserver
         data.ip = "127.0.0.1:8085";
         data.population = 0.f;
         data.num_characters = 0;
-        data.category = 5;
+        data.category = protocol::realm_category::tournament;
         data.id = 1;
 
         auto& data2 = outPacket.data.emplace_back(protocol::realm_list_data{});
@@ -286,7 +287,7 @@ namespace keycap::logonserver
         data2.ip = "127.0.0.1:8086";
         data2.population = 0.f;
         data2.num_characters = 0;
-        data2.category = 1;
+        data2.category = protocol::realm_category::test_server_2;
         data2.id = 2;
 
         outPacket.unk = 0xACAB;
