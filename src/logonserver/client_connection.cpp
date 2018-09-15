@@ -16,8 +16,8 @@
 
 #include "client_connection.hpp"
 
-#include <realm.hpp>
 #include <protocol.hpp>
+#include <realm.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
@@ -173,7 +173,7 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         auto reply = shared_net::reply_account_data::decode(stream);
 
-        if (reply.verifier.empty() || reply.salt.empty())
+        if (!reply.has_data)
         {
             conn->send_error(protocol::auth_result::InvalidInfo);
             logger->info("User {} tried to log in with incorrect login info!", account_name);
@@ -183,8 +183,8 @@ namespace keycap::logonserver
         constexpr auto compliance = net::srp6::compliance::Wow;
         auto parameter = net::srp6::get_parameters(net::srp6::group_parameters::_256);
 
-        Botan::BigInt verifier{reply.verifier};
-        Botan::BigInt salt{reply.salt};
+        Botan::BigInt verifier{reply.data->verifier};
+        Botan::BigInt salt{reply.data->salt};
 
         challanged_data challanged_data;
         challanged_data.server = std::make_shared<net::srp6::server>(parameter, verifier, compliance);
@@ -192,6 +192,7 @@ namespace keycap::logonserver
         challanged_data.username = account_name;
         challanged_data.user_salt = salt;
         challanged_data.checksum_salt = Botan::AutoSeeded_RNG().random_vec(16);
+        challanged_data.account_flags = static_cast<protocol::account_flag>(reply.data->flags);
 
         protocol::server_logon_challange outPacket{};
         outPacket.cmd = protocol::command::Challange;
@@ -203,7 +204,7 @@ namespace keycap::logonserver
         outPacket.N_length = 32;
         outPacket.N = net::srp6::to_array<32>(Botan::BigInt{parameter.N}, compliance);
         outPacket.s = net::srp6::to_array<32>(salt, compliance);
-        outPacket.security_flags = protocol::security_flag::None;
+        outPacket.security_flags = protocol::security_flag{reply.data->security_options};
         std::copy(std::begin(challanged_data.checksum_salt), std::end(challanged_data.checksum_salt),
                   std::begin(outPacket.checksum_salt));
 
@@ -250,7 +251,7 @@ namespace keycap::logonserver
         outPacket.cmd = protocol::command::Proof;
         outPacket.error_code = protocol::error::Success;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, sessionKey), data.server->compliance_mode());
-        outPacket.account_flags = protocol::account_flag::ProPass;
+        outPacket.account_flags = data.account_flags;
 
         net::memory_stream buffer;
         outPacket.encode(buffer);

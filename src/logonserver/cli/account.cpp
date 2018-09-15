@@ -68,7 +68,7 @@ namespace keycap::logonserver::cli
         dao->user(username, [=](std::optional<keycap::shared::database::user> user) {
             auto dao = db::dal::get_user_dao(get_login_database());
             if (!user)
-                dao->create(db::user{0, username, email, hex_v, hex_salt});
+                dao->create(db::user{0, username, email, 0, 0, hex_v, hex_salt});
         });
 
         return true;

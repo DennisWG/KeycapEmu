@@ -71,6 +71,7 @@ namespace keycap::logonserver
             std::string username;
             Botan::BigInt user_salt;
             Botan::secure_vector<uint8_t> checksum_salt;
+            protocol::account_flag account_flags;
         };
 
         // Connection hasn't been established yet or has been terminated

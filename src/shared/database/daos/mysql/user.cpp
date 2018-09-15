@@ -38,8 +38,12 @@ namespace keycap::shared::database::dal
                 if (!result || !result->next())
                     return callback(std::nullopt);
 
-                shared::database::user user{result->getUInt("id"), result->getString("account_name").c_str(),
-                                            result->getString("email").c_str(), result->getString("v").c_str(),
+                shared::database::user user{result->getUInt("id"),
+                                            result->getString("account_name").c_str(),
+                                            result->getString("email").c_str(),
+                                            static_cast<uint8>(result->getUInt("security_options")),
+                                            result->getUInt("flags"),
+                                            result->getString("v").c_str(),
                                             result->getString("s").c_str()};
                 callback(user);
             };

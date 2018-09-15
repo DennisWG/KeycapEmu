@@ -14,9 +14,17 @@ message request_account_data
     string account_name;
 }
 
+data account_data
+{
+    string verifier;
+    string salt;
+    uint8 security_options;
+    uint32 flags;
+}
+
 message reply_account_data
 {
     protocol cmd = "protocol::reply_account_data";
-    string verifier;
-    string salt;
+    bool has_data;
+    optional account_data data;
 }

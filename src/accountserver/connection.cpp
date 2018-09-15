@@ -103,11 +103,10 @@ namespace keycap::accountserver
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->user(request.account_name, [&, sender](std::optional<shared::database::user> user) {
             shared_net::reply_account_data reply;
+
+            reply.has_data = user.has_value();
             if (user)
-            {
-                reply.verifier = user->v;
-                reply.salt = user->s;
-            }
+                reply.data = shared_net::account_data{user->v, user->s, user->security_options, user->flags};
 
             net::memory_stream out_stream;
             reply.encode(out_stream);
