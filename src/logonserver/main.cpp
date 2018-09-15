@@ -170,50 +170,6 @@ int main()
     keycap::logonserver::logon_service service{config.network.threads, service_locator};
     service.start(config.network.bind_ip, config.network.port);
 
-    /////////////////////////
-    using namespace std::string_literals;
-    using keycap::shared::cli::command;
-    using keycap::shared::permission;
-    namespace rbac = keycap::shared::rbac;
-
-    register_command(command{"db"s, permission::CommandShutdown,
-                             [&](std::vector<std::string> const& args, rbac::role const& role) {
-                                 console->info("Connected: {}", get_login_database().is_connected());
-                                 return true;
-                             },
-                             "db"s});
-
-    register_command(command{"query"s, permission::CommandShutdown,
-                             [&](std::vector<std::string> const& args, rbac::role const& role) {
-                                 /*
-                                 auto statement = db.PrepareStatement("SELECT * FROM user");
-
-                                 auto result = statement.Query();
-
-                                 while (result->next())
-                                 {
-                                     console->info("{}, {}, {}, {}, {}", result->getInt("id"),
-                                                   result->getString("accountName").c_str(),
-                                                   result->getString("email").c_str(), result->getString("v").c_str(),
-                                                   result->getString("s").c_str());
-                                 }
-                                 */
-
-                                 using callback = keycap::shared::database::dal::user_dao::user_callback;
-                                 auto& db = get_login_database();
-                                 auto dao = keycap::shared::database::dal::get_user_dao(db);
-                                 dao->user(args[0], [&](std::optional<keycap::shared::database::user> user) {
-                                     if (user)
-                                         console->info("{}, {}, {}, {}, {}", user->id, user->accountName, user->email,
-                                                       user->v, user->s);
-                                     else
-                                         console->info("User couldn't be found!");
-                                 });
-                                 return true;
-                             },
-                             "query"s});
-    ////////////////////////*/
-
     keycap::shared::cli::run_command_line(console_role, running);
 
     std::cout << "Hello, World!";
