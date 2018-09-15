@@ -1,0 +1,11 @@
+        template <typename T1, typename T2>
+        static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
+        {
+            if (v1 != v2)
+                throw std::exception(fmt::format("Attribute '{}'({}) was expected to be {}", name, std::to_string(v1), std::to_string(v2)).c_str());
+        }
+
+        template <typename T>
+        static void ensure(std::string const& name, std::vector<T> const& v1,  std::vector<T> const& v2)
+        {
+        }

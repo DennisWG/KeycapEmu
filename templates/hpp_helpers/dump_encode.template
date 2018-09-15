@@ -1,0 +1,46 @@
+## if attrib/type == "string"
+## if hasAnnotation(attrib, "ZeroTeminated")
+{##}
+            encoder.put({{ attrib/name }});
+            encoder.put<uint8>(0);
+## else
+{##}
+            encoder.put(static_cast<uint8>({{ attrib/name }}.size()));
+            encoder.put({{ attrib/name }});
+## endif 
+## else if attrib/hasSpecifier
+## if hasSpecifier(attrib, "repeated")
+{##}
+            encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
+            for (auto&& elem : {{ attrib/name }})
+
+## if isUserDefinedData(attrib/type)
+                elem.encode(encoder);
+## else
+                encoder.put(elem);
+## endif
+## else if hasSpecifier(attrib, "optional")
+{##}
+            if ({{ attrib/name }})
+## if isUserDefinedData(attrib/type)
+{##}
+                {{ attrib/name }}->encode(encoder);
+##else
+                encoder.put({{ attrib/name }});
+## endif
+## endif
+## else
+## if isUserDefinedData(attrib/type)
+{##}
+            {{attrib/name}}.encode(encoder); // {{isUserDefinedData(attrib/type)}}
+## else
+## if not hasAnnotation(attrib, "IsSize")
+{##}
+            encoder.put({{attrib/name}});
+## else
+{##}
+            auto position_{{ attrib/name }} = static_cast<{{ attrib/type }}>(encoder.size());
+            encoder.put<{{ attrib/type }}>(0);
+## endif
+## endif
+## endif

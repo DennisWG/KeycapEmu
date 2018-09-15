@@ -1,0 +1,31 @@
+## if not hasAnnotation(attrib, "IsSize")
+## if attrib/hasSpecifier
+## if attrib/specifier == "optional"
+{##}
+
+            if ({{ attrib/name }})
+            {
+                ss << "    {{ attrib/name }}\n";
+            }
+            else
+                ss << "    {{ attrib/name }} not set";
+            ss << '\n';
+## else
+{##}
+
+            ss << "    {{ attrib/name }}[" << {{ attrib/name }}.size() << "]\n";
+            
+            if constexpr (!std::is_class_v<{{ attrib/type }}>)
+                keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
+## endif
+## else if attrib/hasArraySize
+{##}
+
+            ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n";
+            if constexpr (!std::is_class_v<{{ attrib/type }}>)
+                keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
+## else
+{##}
+            ss << "    {{ attrib/name }} = " << {{ attrib/name }} << '\n';
+## endif
+## endif

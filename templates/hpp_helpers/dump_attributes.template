@@ -1,0 +1,4 @@
+## if not hasAnnotation(attrib, "IsSize")
+
+        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};
+## endif

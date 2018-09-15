@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <keycap/root/utility/enum.hpp>
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/types.hpp>
+#include <keycap/root/utility/enum.hpp>
 #include <keycap/root/utility/utility.hpp>
 
 #include <boost/optional.hpp>
@@ -57,59 +57,27 @@ endfor %}
 {##}
     struct {{ dat/name }}
     {
-    public:{%
+      public:{%
 for attrib in dat/attributes %}
-## if not hasAnnotation(attrib, "IsSize")
-
-        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};
-## endif
+## include "hpp_helpers/dump_attributes.template"
 {% endfor %}
-
 ## if hasAnnotation(dat, "ExpectedSize")
+
         static constexpr size_t expected_size = {{annotationValue(dat, "ExpectedSize")}};
 ## endif
+
 
         void encode(keycap::root::network::memory_stream& encoder)
         {
 ## for attrib in dat/attributes
-## if attrib/type == "string"
-## if hasAnnotation(attrib, "ZeroTeminated")
-{##}
-            encoder.put({{ attrib/name }});
-            encoder.put<uint8>(0);
-## else
-{##}
-            encoder.put(static_cast<uint8>({{ attrib/name }}.size()));
-            encoder.put({{ attrib/name }});
-## endif 
-## else if attrib/hasSpecifier
-## if hasSpecifier(attrib, "repeated")
-{##}
-            encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
-            for(auto&& elem : {{ attrib/name }})
-                elem.encode(encoder);
-## else if hasSpecifier(attrib, "optional")
-{##}
-            if({{ attrib/name }})
-                encoder.put({{ attrib/name }});
-## endif
-## else
-## if not hasAnnotation(attrib, "IsSize")
-{##}
-            encoder.put({{attrib/name}});
-## else
-{##}
-            auto position_{{ attrib/name }} = static_cast<{{ attrib/type }}>(encoder.size());
-            encoder.put<{{ attrib/type }}>(0);
-## endif
-## endif
+## include "hpp_helpers/dump_encode.template"
 ## endfor
 {##}
 ## for attrib in dat/attributes
 ## if hasAnnotation(attrib, "IsSize")
 {##}
 
-            encoder.override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
+{% include "hpp_helpers/dump_encode_issize.template" %}
 ## endif
 ## endfor
 {##}
@@ -119,67 +87,14 @@ for attrib in dat/attributes %}
         {
             {{ dat/name }} packet;
 ## for attrib in dat/attributes
-## if attrib/type == "string"
-{##}
-            auto size_{{ attrib/name }} = decoder.get<uint8>();
-            packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
-{##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotation/value}}");
-## endif
-## endfor
-## endif
-## else if attrib/hasSpecifier
-## if hasSpecifier(attrib, "repeated")
-{##}
-            auto size_{{attrib/name}} = decoder.get<uint8>();
-            for(int i = 0; i < size_{{attrib/name}}; ++i)
-                packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
-## else if hasSpecifier(attrib, "optional")
-{##}
-            if(decoder.size() >= sizeof({{ attrib/type }}))
-                packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
-## endif
-## else if attrib/hasArraySize
-{##}
-            packet.{{attrib/name}} = decoder.get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else if not hasAnnotation(attrib, "IsSize")
-{##}
-            packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
-## endif
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
-{##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
-
-## else if annotation/name == "Reverse"
-{##}
-            std::reverse(std::begin(packet.{{attrib/name}}), std::end(packet.{{attrib/name}}));
-
-## endif
-## endfor
-## endif
+{% include "hpp_helpers/dump_decode.template" %}
 ## endfor
 {##}
             return packet;
         }
 
-    private:
-        template <typename T1, typename T2>
-        static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
-        {
-            if(v1 != v2)
-                throw std::exception(fmt::format("Attribute '{}'({}) was expected to be {}", name, std::to_string(v1), std::to_string(v2)).c_str());
-        }
-
-        template <typename T>
-        static void ensure(std::string const& name, std::vector<T> const& v1,  std::vector<T> const& v2)
-        {
-            
-        }
+      private:
+{% include "hpp_helpers/dump_helpers.template" %}
     };
 
 ## endfor
@@ -190,10 +105,10 @@ for attrib in dat/attributes %}
 {##}
     class {{ msg/name }} final
     {
-    public:{%
+      public:{%
 for attrib in msg/attributes %}
-        {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};{%
-endfor %}
+## include "hpp_helpers/dump_attributes.template"
+{% endfor %}
 
 ## if hasAnnotation(msg, "ExpectedSize")
 
@@ -204,44 +119,14 @@ endfor %}
         void encode(keycap::root::network::memory_stream& encoder)
         {
 ## for attrib in msg/attributes
-## if attrib/type == "string"
-## if hasAnnotation(attrib, "ZeroTeminated")
-{##}
-            encoder.put({{ attrib/name }});
-            encoder.put<uint8>(0);
-## else
-{##}
-            encoder.put(static_cast<uint8>({{ attrib/name }}.size()));
-            encoder.put({{ attrib/name }});
-## endif 
-## else if attrib/hasSpecifier
-## if hasSpecifier(attrib, "repeated")
-{##}
-            encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
-            for(auto&& elem : {{ attrib/name }})
-                elem.encode(encoder);
-## else if hasSpecifier(attrib, "optional")
-{##}
-            if({{ attrib/name }})
-                encoder.put({{ attrib/name }});
-## endif
-## else
-## if not hasAnnotation(attrib, "IsSize")
-{##}
-            encoder.put({{attrib/name}});
-## else
-{##}
-            auto position_{{ attrib/name }} = static_cast<{{ attrib/type }}>(encoder.size());
-            encoder.put<{{ attrib/type }}>(0);
-## endif
-## endif
+## include "hpp_helpers/dump_encode.template"
 ## endfor
 {##}
 ## for attrib in msg/attributes
 ## if hasAnnotation(attrib, "IsSize")
 {##}
 
-            encoder.override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
+{% include "hpp_helpers/dump_encode_issize.template" %}
 ## endif
 ## endfor
 {##}
@@ -251,49 +136,7 @@ endfor %}
         {
             {{ msg/name }} packet;
 ## for attrib in msg/attributes
-## if attrib/type == "string"
-{##}
-            auto size_{{ attrib/name }} = decoder.get<uint8>();
-            packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
-{##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotation/value}}");
-## endif
-## endfor
-## endif
-## else if attrib/hasSpecifier
-## if hasSpecifier(attrib, "repeated")
-{##}
-            auto size_{{attrib/name}} = decoder.get<uint8>();
-            for(int i = 0; i < size_{{attrib/name}}; ++i)
-                packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
-## else if hasSpecifier(attrib, "optional")
-{##}
-            if(decoder.size() >= sizeof({{ attrib/type }}))
-                packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
-## endif
-## else if attrib/hasArraySize
-{##}
-            packet.{{attrib/name}} = decoder.get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else if not hasAnnotation(attrib, "IsSize")
-{##}
-            packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
-## endif
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
-{##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
-
-## else if annotation/name == "Reverse"
-{##}
-            std::reverse(std::begin(packet.{{attrib/name}}), std::end(packet.{{attrib/name}}));
-
-## endif
-## endfor
-## endif
+{% include "hpp_helpers/dump_decode.template" %}
 ## endfor
 {##}
             return packet;
@@ -304,54 +147,15 @@ endfor %}
             std::stringstream ss;
             ss << "Packet {{ msg/name }}\n";
 ## for attrib in msg/attributes
-## if attrib/hasSpecifier
-## if attrib/specifier == "optional"
-{##}
-
-            if({{ attrib/name }})
-            {
-                ss << "    {{ attrib/name }}\n";
-            }
-            else
-                ss << "    {{ attrib/name }} not set";
-            ss << '\n';
-## else
-{##}
-
-            ss << "    {{ attrib/name }}[" << {{ attrib/name }}.size() << "]\n";
-            
-            if constexpr(!std::is_class_v<{{ attrib/type }}>)
-                keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
-## endif
-## else if attrib/hasArraySize
-{##}
-
-            ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n";
-            if constexpr(!std::is_class_v<{{ attrib/type }}>)
-                keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
-## else
-{##}
-            ss << "    {{ attrib/name }} = " << {{ attrib/name }} << '\n';
-## endif
+## include "hpp_helpers/dump_to_string.template"
 ## endfor
 {##}
 
             return ss.str();
         }
 
-    private:
-        template <typename T1, typename T2>
-        static void ensure(std::string const& name, T1 const& v1, T2 const& v2)
-        {
-            if(v1 != v2)
-                throw std::exception(fmt::format("Attribute '{}'({}) was expected to be {}", name, std::to_string(v1), std::to_string(v2)).c_str());
-        }
-
-        template <typename T>
-        static void ensure(std::string const& name, std::vector<T> const& v1,  std::vector<T> const& v2)
-        {
-            
-        }
+      private:
+{% include "hpp_helpers/dump_helpers.template" %}
     };
 
 ## endfor

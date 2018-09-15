@@ -1,0 +1,1 @@
+            encoder.override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
