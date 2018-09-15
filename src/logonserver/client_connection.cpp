@@ -147,23 +147,28 @@ namespace keycap::logonserver
         connection.service_locator().send_registered(
             shared_net::account_service, stream2,
             [&, account_name = packet.account_name ](net::service_type sender, net::memory_stream data) {
-                on_account_reply(connection, data, account_name);
+                auto self = std::static_pointer_cast<client_connection>(connection.shared_from_this());
+                on_account_reply(self, data, account_name);
                 return true;
             });
 
         return client_connection::state_result::Ok;
     }
 
-    void client_connection::just_connected::on_account_reply(client_connection& connection,
+    void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
                                                              keycap::root::network::memory_stream& stream,
                                                              std::string const& account_name)
     {
+        if (connection.expired())
+            return;
+
+        auto conn = connection.lock();
         auto logger = keycap::root::utility::get_safe_logger("connections");
         auto reply = shared_net::reply_account_data::decode(stream);
 
         if (reply.verifier.empty() || reply.salt.empty())
         {
-            connection.send_error(protocol::auth_result::InvalidInfo);
+            conn->send_error(protocol::auth_result::InvalidInfo);
             logger->info("User {} tried to log in with incorrect login info!", account_name);
             return;
         }
@@ -198,9 +203,9 @@ namespace keycap::logonserver
         net::memory_stream buffer;
         outPacket.encode(buffer);
 
-        connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+        conn->send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
 
-        connection.state_ = challanged{challanged_data};
+        conn->state_ = challanged{challanged_data};
     }
 
     client_connection::state_result client_connection::challanged::on_data(client_connection& connection,

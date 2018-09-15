@@ -88,7 +88,8 @@ namespace keycap::logonserver
             state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
                                  keycap::root::network::memory_stream& stream);
 
-            void on_account_reply(client_connection& connection, keycap::root::network::memory_stream& stream,
+            void on_account_reply(std::weak_ptr<client_connection> connection,
+                                  keycap::root::network::memory_stream& stream,
                                   std::string const& account_name);
 
             std::string name = "JustConnected";
