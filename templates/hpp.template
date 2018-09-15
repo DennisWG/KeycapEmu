@@ -65,6 +65,10 @@ for attrib in dat/attributes %}
 ## endif
 {% endfor %}
 
+## if hasAnnotation(dat, "ExpectedSize")
+        static constexpr size_t expected_size = {{annotationValue(dat, "ExpectedSize")}};
+## endif
+
         void encode(keycap::root::network::memory_stream& encoder)
         {
 ## for attrib in dat/attributes
@@ -190,6 +194,12 @@ for attrib in dat/attributes %}
 for attrib in msg/attributes %}
         {% if attrib/hasArraySize %}std::array<{% endif %}{% if attrib/hasSpecifier %}{% if attrib/specifier == "optional" %}boost::optional<{% else %}std::vector<{% endif %}{% endif %}{{ attrib/type }}{% if attrib/hasSpecifier %}>{% endif %}{% if attrib/hasArraySize %}, {{ attrib/arraySize }}>{% endif %} {{ attrib/name }}{% if attrib/hasDefaultValue %} = {{ attrib/defaultValue }}{% endif %};{%
 endfor %}
+
+## if hasAnnotation(msg, "ExpectedSize")
+
+        static constexpr size_t expected_size = {{annotationValue(msg, "ExpectedSize")}};
+
+## endif
 
         void encode(keycap::root::network::memory_stream& encoder)
         {

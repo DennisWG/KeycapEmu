@@ -209,6 +209,7 @@ data telemetry_data
     uint8[20] checksum;
 }
 
+[ExpectedSize=75]
 message client_logon_proof
 {
     [Expects="command::Proof"]
@@ -232,6 +233,7 @@ message server_logon_proof
     uint16 num_account_messages = 0;
 }
 
+[ExpectedSize=5]
 message client_realm_list
 {
     [Expects="command::RealmList"]

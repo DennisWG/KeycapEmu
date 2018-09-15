@@ -126,6 +126,12 @@ namespace keycap::logonserver
                                                                                net::data_router const& router,
                                                                                net::memory_stream& stream)
     {
+        constexpr auto header_size = sizeof(byte) + sizeof(byte) + sizeof(uint16);
+        constexpr auto error_position = sizeof(byte) + sizeof(byte);
+
+        if (stream.size() < header_size || stream.peek<uint16>(error_position) > (stream.size() - header_size))
+            return client_connection::state_result::IncompleteData;
+
         if (stream.peek<protocol::command>() != protocol::command::Challange)
             return client_connection::state_result::Abort;
 
@@ -213,6 +219,9 @@ namespace keycap::logonserver
                                                                            net::data_router const& router,
                                                                            net::memory_stream& stream)
     {
+        if (stream.size() < protocol::client_logon_proof::expected_size)
+            return client_connection::state_result::IncompleteData;
+
         if (stream.peek<protocol::command>() != protocol::command::Proof)
             return client_connection::state_result::Abort;
 
@@ -256,6 +265,9 @@ namespace keycap::logonserver
                                                                               net::data_router const& router,
                                                                               net::memory_stream& stream)
     {
+        if (stream.size() < protocol::client_realm_list::expected_size)
+            return client_connection::state_result::IncompleteData;
+
         if (stream.peek<protocol::command>() != protocol::command::RealmList)
             return client_connection::state_result::Abort;
 
