@@ -19,7 +19,12 @@
 ## else if hasSpecifier(attrib, "optional")
 {##}
             if (decoder.size() >= sizeof({{ attrib/type }}))
+
+## if isUserDefinedData(attrib/type)
+                packet.{{attrib/name}} = {{ attrib/type }}::decode(decoder);
+## else
                 packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
+## endif
 ## endif
 ## else if attrib/hasArraySize
 {##}
