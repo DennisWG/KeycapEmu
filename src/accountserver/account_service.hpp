@@ -25,7 +25,7 @@ namespace keycap::accountserver
     class account_service : public keycap::root::network::service<connection>
     {
       public:
-        account_service(int thread_count)
+        explicit account_service(int thread_count)
           : service{keycap::root::network::service_mode::Server, thread_count}
         {
         }

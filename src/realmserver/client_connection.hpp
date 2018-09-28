@@ -24,7 +24,7 @@ namespace keycap::realmserver
     class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
     {
       public:
-        client_connection(keycap::root::network::service_base& service);
+        explicit client_connection(keycap::root::network::service_base& service);
 
         bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
 

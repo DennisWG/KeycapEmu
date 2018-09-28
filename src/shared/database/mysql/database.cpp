@@ -32,9 +32,9 @@ namespace keycap::shared::database
         connection_->setSchema(schema.c_str());
     }
 
-    prepared_statement database::prepare_statement(std::string const& query)
+    prepared_statement database::prepare_statement(std::string const& statement)
     {
-        return prepared_statement(connection_->prepareStatement(query.c_str()), work_service_);
+        return prepared_statement(connection_->prepareStatement(statement.c_str()), work_service_);
     }
 
     bool database::is_connected() const
@@ -42,10 +42,10 @@ namespace keycap::shared::database
         return connection_ != nullptr && !connection_->isClosed();
     }
 
-    bool database::execute(std::string const& query) const
+    bool database::execute(std::string const& statement) const
     {
-        std::unique_ptr<sql::Statement> statement{connection_->createStatement()};
+        std::unique_ptr<sql::Statement> stmt{connection_->createStatement()};
 
-        return statement->execute(query.c_str());
+        return stmt->execute(statement.c_str());
     }
 }

@@ -27,7 +27,7 @@ namespace keycap::worldserver
     class client_service : public keycap::root::network::service<client_connection>
     {
       public:
-        client_service(int thread_count)
+        explicit client_service(int thread_count)
           : service{keycap::root::network::service_mode::Server, thread_count}
         {
         }
