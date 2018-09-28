@@ -262,7 +262,6 @@ message ServerRealmList
     command cmd = "command::RealmList";
     [IsSize]
     uint16 size;
-
     uint32 alwaysZero = 0;
     [SizeType="uint16"]
     repeated realm_list_data data;

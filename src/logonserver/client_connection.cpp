@@ -108,9 +108,7 @@ namespace keycap::logonserver
         protocol::server_logon_challange_error error;
         error.result = result;
 
-        net::memory_stream buffer;
-        error.encode(buffer);
-        send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+        send(error.encode());
     }
 
     client_connection::state_result client_connection::disconnected::on_data(client_connection& connection,
@@ -147,11 +145,8 @@ namespace keycap::logonserver
         shared_net::request_account_data request;
         request.account_name = packet.account_name;
 
-        net::memory_stream stream2;
-        request.encode(stream2);
-
         connection.service_locator().send_registered(
-            shared_net::account_service, stream2,
+            shared_net::account_service, request.encode(),
             [&, account_name = packet.account_name ](net::service_type sender, net::memory_stream data) {
                 auto self = std::static_pointer_cast<client_connection>(connection.shared_from_this());
                 on_account_reply(self, data, account_name);
@@ -194,6 +189,16 @@ namespace keycap::logonserver
         challanged_data.checksum_salt = Botan::AutoSeeded_RNG().random_vec(16);
         challanged_data.account_flags = static_cast<protocol::account_flag>(reply.data->flags);
 
+        send_server_challange(conn, challanged_data, compliance, parameter, salt, reply.data->security_options);
+        conn->state_ = challanged{challanged_data};
+    }
+
+    void client_connection::just_connected::send_server_challange(std::shared_ptr<client_connection> conn,
+                                                                  challanged_data const& challanged_data,
+                                                                  net::srp6::compliance compliance,
+                                                                  net::srp6::group_parameter const& parameter,
+                                                                  Botan::BigInt const& salt, uint8 security_options)
+    {
         protocol::server_logon_challange outPacket{};
         outPacket.cmd = protocol::command::Challange;
         outPacket.error_code = protocol::error::Success;
@@ -204,16 +209,19 @@ namespace keycap::logonserver
         outPacket.N_length = 32;
         outPacket.N = net::srp6::to_array<32>(Botan::BigInt{parameter.N}, compliance);
         outPacket.s = net::srp6::to_array<32>(salt, compliance);
-        outPacket.security_flags = protocol::security_flag{reply.data->security_options};
+        outPacket.security_flags = protocol::security_flag{security_options};
         std::copy(std::begin(challanged_data.checksum_salt), std::end(challanged_data.checksum_salt),
                   std::begin(outPacket.checksum_salt));
 
-        net::memory_stream buffer;
-        outPacket.encode(buffer);
+        conn->send(outPacket.encode());
+    }
 
-        conn->send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+    void update_session_key(client_connection& connection, std::vector<uint8> session_key)
+    {
+        shared_net::update_session_key update;
+        update.session_key = keycap::root::utility::to_hex_string(session_key.begin(), session_key.end());
 
-        conn->state_ = challanged{challanged_data};
+        connection.service_locator().send_to(shared_net::account_service, update.encode());
     }
 
     client_connection::state_result client_connection::challanged::on_data(client_connection& connection,
@@ -232,13 +240,7 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
 
-        Botan::BigInt A{packet.A.data(), 32};
-        Botan::BigInt M1{packet.M1.data(), 20};
-        auto sessionKey = data.server->session_key(A);
-
-        auto M1_S = net::srp6::generate_client_proof(data.server->prime(), data.server->generator(), data.user_salt,
-                                                     data.username, A, data.server->public_ephemeral_value(),
-                                                     sessionKey, data.server->compliance_mode());
+        auto[session_key, M1, M1_S] = generate_session_key_and_server_proof(packet);
 
         if (M1_S != M1)
         {
@@ -247,19 +249,38 @@ namespace keycap::logonserver
             return client_connection::state_result::Ok;
         }
 
-        protocol::server_logon_proof outPacket;
-        outPacket.cmd = protocol::command::Proof;
-        outPacket.error_code = protocol::error::Success;
-        outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, sessionKey), data.server->compliance_mode());
-        outPacket.account_flags = data.account_flags;
+        update_session_key(connection, session_key);
 
-        net::memory_stream buffer;
-        outPacket.encode(buffer);
-
-        connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+        send_proof_success(connection, session_key, M1_S);
 
         connection.state_ = authenticated{};
         return client_connection::state_result::Ok;
+    }
+
+    std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
+    client_connection::challanged::generate_session_key_and_server_proof(protocol::client_logon_proof const& packet)
+    {
+        Botan::BigInt A{packet.A.data(), 32};
+        Botan::BigInt M1{packet.M1.data(), 20};
+        auto session_key = data.server->session_key(A);
+
+        auto M1_S = net::srp6::generate_client_proof(data.server->prime(), data.server->generator(), data.user_salt,
+                                                     data.username, A, data.server->public_ephemeral_value(),
+                                                     session_key, data.server->compliance_mode());
+
+        return std::make_tuple(std::move(session_key), std::move(M1), std::move(M1_S));
+    }
+
+    void client_connection::challanged::send_proof_success(client_connection& connection,
+                                                           std::vector<uint8_t> session_key, Botan::BigInt M1_S)
+    {
+        protocol::server_logon_proof outPacket;
+        outPacket.cmd = protocol::command::Proof;
+        outPacket.error_code = protocol::error::Success;
+        outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
+        outPacket.account_flags = data.account_flags;
+
+        connection.send(outPacket.encode());
     }
 
     client_connection::state_result client_connection::authenticated::on_data(client_connection& connection,
@@ -274,8 +295,6 @@ namespace keycap::logonserver
 
         auto packet{protocol::client_realm_list::decode(stream)};
         stream.shrink();
-
-        stream.put(stream);
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
@@ -297,24 +316,13 @@ namespace keycap::logonserver
         data2.locked = 0;
         data2.realm_flags = protocol::realm_flag::New;
         data2.name = "KeycapEmu Testrealm 2";
-        data2.ip = "127.0.0.1:8086";
+        data2.ip = "127.0.0.1:8085";
         data2.population = 0.f;
         data2.num_characters = 0;
         data2.category = protocol::realm_category::test_server_2;
         data2.id = 2;
 
-        outPacket.unk = 0xACAB;
-
-        net::memory_stream buffer;
-        outPacket.encode(buffer);
-
-        auto begin = buffer.data();
-        auto end = begin + buffer.size();
-        std::stringstream ss;
-        keycap::root::utility::dump_as_hex(begin, end, ss);
-        logger->debug(ss.str());
-
-        connection.send(std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size()));
+        connection.send(outPacket.encode());
 
         return client_connection::state_result::Ok;
     }

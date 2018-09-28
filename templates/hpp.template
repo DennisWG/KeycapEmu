@@ -83,6 +83,24 @@ for attrib in dat/attributes %}
 {##}
         }
 
+        keycap::root::network::memory_stream encode()
+        {
+            keycap::root::network::memory_stream encoder;
+## for attrib in dat/attributes
+## include "hpp_helpers/dump_encode.template"
+## endfor
+{##}
+## for attrib in dat/attributes
+## if hasAnnotation(attrib, "IsSize")
+{##}
+
+{% include "hpp_helpers/dump_encode_issize.template" %}
+## endif
+## endfor
+{##}
+            return encoder;
+        }
+
         static {{ dat/name }} decode(keycap::root::network::memory_stream& decoder)
         {
             {{ dat/name }} packet;
@@ -130,6 +148,24 @@ for attrib in msg/attributes %}
 ## endif
 ## endfor
 {##}
+        }
+
+        keycap::root::network::memory_stream encode()
+        {
+            keycap::root::network::memory_stream encoder;
+## for attrib in msg/attributes
+## include "hpp_helpers/dump_encode.template"
+## endfor
+{##}
+## for attrib in msg/attributes
+## if hasAnnotation(attrib, "IsSize")
+{##}
+
+{% include "hpp_helpers/dump_encode_issize.template" %}
+## endif
+## endfor
+{##}
+            return encoder;
         }
 
         static {{ msg/name }} decode(keycap::root::network::memory_stream& decoder)

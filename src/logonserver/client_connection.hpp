@@ -49,7 +49,7 @@ namespace keycap::logonserver
             return locator_;
         }
 
-            void send_error(protocol::auth_result result);
+        void send_error(protocol::auth_result result);
 
       private:
         enum class state_result
@@ -90,10 +90,15 @@ namespace keycap::logonserver
                                  keycap::root::network::memory_stream& stream);
 
             void on_account_reply(std::weak_ptr<client_connection> connection,
-                                  keycap::root::network::memory_stream& stream,
-                                  std::string const& account_name);
+                                  keycap::root::network::memory_stream& stream, std::string const& account_name);
 
             std::string name = "JustConnected";
+
+          private:
+            void send_server_challange(std::shared_ptr<client_connection> conn, challanged_data const& challanged_data,
+                                       keycap::root::network::srp6::compliance compliance,
+                                       keycap::root::network::srp6::group_parameter const& parameter,
+                                       Botan::BigInt const& salt, uint8 security_options);
         };
 
         // Auth Challange was send to client and we're waiting for a response
@@ -109,6 +114,13 @@ namespace keycap::logonserver
 
             std::string name = "Challanged";
             challanged_data data;
+
+          private:
+            std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
+            generate_session_key_and_server_proof(protocol::client_logon_proof const& packet);
+
+            void send_proof_success(client_connection& connection, std::vector<uint8_t> session_key,
+                                    Botan::BigInt M1_S);
         };
 
         // Client send its Challange and is now authenticated
