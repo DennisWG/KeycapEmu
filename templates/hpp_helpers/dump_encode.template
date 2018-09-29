@@ -1,5 +1,5 @@
 ## if attrib/type == "string"
-## if hasAnnotation(attrib, "ZeroTeminated")
+## if hasAnnotation(attrib, "zero_teminated")
 {##}
             encoder.put({{ attrib/name }});
             encoder.put<uint8>(0);
@@ -11,7 +11,7 @@
 ## else if attrib/hasSpecifier
 ## if hasSpecifier(attrib, "repeated")
 {##}
-            encoder.put(static_cast<{% if hasAnnotation(attrib, "SizeType") %}{{annotationValue(attrib, "SizeType")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
+            encoder.put(static_cast<{% if hasAnnotation(attrib, "size_type") %}{{annotationValue(attrib, "size_type")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
             for (auto&& elem : {{ attrib/name }})
 
 ## if isUserDefinedData(attrib/type)
@@ -34,7 +34,7 @@
 {##}
             {{attrib/name}}.encode(encoder); // {{isUserDefinedData(attrib/type)}}
 ## else
-## if not hasAnnotation(attrib, "IsSize")
+## if not hasAnnotation(attrib, "is_size")
 {##}
             encoder.put({{attrib/name}});
 ## else

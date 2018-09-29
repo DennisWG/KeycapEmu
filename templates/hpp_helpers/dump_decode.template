@@ -2,13 +2,9 @@
 {##}
             auto size_{{ attrib/name }} = decoder.get<uint8>();
             packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
+## if hasAnnotation(attrib, "expects")
 {##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotation/value}}");
-## endif
-## endfor
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotationValue(attrib, "expects")}}");
 ## endif
 ## else if attrib/hasSpecifier
 ## if hasSpecifier(attrib, "repeated")
@@ -29,20 +25,16 @@
 ## else if attrib/hasArraySize
 {##}
             packet.{{attrib/name}} = decoder.get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else if not hasAnnotation(attrib, "IsSize")
+## else if not hasAnnotation(attrib, "is_size")
 {##}
             packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
 ## endif
-## if attrib/hasAnnotations
-## for annotation in attrib/annotations
-## if annotation/name == "Expects"
+## if hasAnnotation(attrib, "expects")
 {##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotation/value}});
+            ensure("{{attrib/name}}", packet.{{attrib/name}}, {{annotationValue(attrib, "expects")}});
 
-## else if annotation/name == "Reverse"
+## else if hasAnnotation(attrib, "reverse")
 {##}
             std::reverse(std::begin(packet.{{attrib/name}}), std::end(packet.{{attrib/name}}));
 
-## endif
-## endfor
 ## endif

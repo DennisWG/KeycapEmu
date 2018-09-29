@@ -1,1 +1,2 @@
-            encoder.override(std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.size() - sizeof({{ attrib/type }}) - 1)), position_{{ attrib/name }});
+            auto position_{{ attrib/name }}_value = std::max<{{ attrib/type }}>(0, static_cast<{{ attrib/type }}>(encoder.size() - sizeof({{ attrib/type }}) - position_{{ attrib/name }}));
+            encoder.override({%if hasAnnotation(attrib, "endian_reverse")%}boost::endian::endian_reverse(position_{{ attrib/name }}_value){%else%}position_{{ attrib/name }}_value{%endif%}, position_{{ attrib/name }});

@@ -23,6 +23,7 @@
 #include <keycap/root/utility/enum.hpp>
 #include <keycap/root/utility/utility.hpp>
 
+#include <boost/endian/conversion.hpp>
 #include <boost/optional.hpp>
 
 #include <spdlog/fmt/fmt.h>
@@ -41,7 +42,7 @@ namespace {% for i in modulePath %}{% if loop/is_first %}{{ i }}{% else %}::{{ i
 ## if hasEnums
 ## for enum in enums
 {##}
-    keycap_enum{% if hasAnnotation(enum, "Flags") %}_flags{% endif %}({{ enum/name }}, {% if enum/alignment == "byte" %}uint8{% else if enum/alignment == "word" %}uint16{% else if enum/alignment == "dword" %}uint32{% else if enum/alignment == "qword" %}uint64{% endif %},{%
+    keycap_enum{% if hasAnnotation(enum, "flags") %}_flags{% endif %}({{ enum/name }}, {% if enum/alignment == "byte" %}uint8{% else if enum/alignment == "word" %}uint16{% else if enum/alignment == "dword" %}uint32{% else if enum/alignment == "qword" %}uint64{% endif %},{%
 for value in enum/values %}
         {{ value/name }} = {{ value/value }},{%
 endfor %}
@@ -61,9 +62,9 @@ endfor %}
 for attrib in dat/attributes %}
 ## include "hpp_helpers/dump_attributes.template"
 {% endfor %}
-## if hasAnnotation(dat, "ExpectedSize")
+## if hasAnnotation(dat, "expected_size")
 
-        static constexpr size_t expected_size = {{annotationValue(dat, "ExpectedSize")}};
+        static constexpr size_t expected_size = {{annotationValue(dat, "expected_size")}};
 ## endif
 
 
@@ -74,7 +75,7 @@ for attrib in dat/attributes %}
 ## endfor
 {##}
 ## for attrib in dat/attributes
-## if hasAnnotation(attrib, "IsSize")
+## if hasAnnotation(attrib, "is_size")
 {##}
 
 {% include "hpp_helpers/dump_encode_issize.template" %}
@@ -91,7 +92,7 @@ for attrib in dat/attributes %}
 ## endfor
 {##}
 ## for attrib in dat/attributes
-## if hasAnnotation(attrib, "IsSize")
+## if hasAnnotation(attrib, "is_size")
 {##}
 
 {% include "hpp_helpers/dump_encode_issize.template" %}
@@ -128,9 +129,9 @@ for attrib in msg/attributes %}
 ## include "hpp_helpers/dump_attributes.template"
 {% endfor %}
 
-## if hasAnnotation(msg, "ExpectedSize")
+## if hasAnnotation(msg, "expected_size")
 
-        static constexpr size_t expected_size = {{annotationValue(msg, "ExpectedSize")}};
+        static constexpr size_t expected_size = {{annotationValue(msg, "expected_size")}};
 
 ## endif
 
@@ -141,7 +142,7 @@ for attrib in msg/attributes %}
 ## endfor
 {##}
 ## for attrib in msg/attributes
-## if hasAnnotation(attrib, "IsSize")
+## if hasAnnotation(attrib, "is_size")
 {##}
 
 {% include "hpp_helpers/dump_encode_issize.template" %}
@@ -158,7 +159,7 @@ for attrib in msg/attributes %}
 ## endfor
 {##}
 ## for attrib in msg/attributes
-## if hasAnnotation(attrib, "IsSize")
+## if hasAnnotation(attrib, "is_size")
 {##}
 
 {% include "hpp_helpers/dump_encode_issize.template" %}

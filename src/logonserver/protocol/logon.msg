@@ -4,127 +4,127 @@ protocol logon;
 
 enum command : byte
 {
-    Challange = 0,
-    Proof = 1,
-    ReconnectChallange = 2,
-    ReconnectProof = 3,
-    SurveyResult = 4,
-    RealmList = 16,
-    XferInitiate = 48,
-    XferData = 49,
+    challange = 0,
+    proof = 1,
+    reconnect_challange = 2,
+    reconnect_proof = 3,
+    survey_result = 4,
+    realm_list = 16,
+    xfer_initiate = 48,
+    xfer_data = 49,
 
-    GruntAuthChallange = 0,
-    GruntAuthVerify = 2,
-    GruntConnPing = 16,
-    GruntConnPong = 17,
-    GruntHello = 32,
-    GruntProveSession = 33,
-    GruntKick = 36,
-    GruntPcWarning = 41,
+    grunt_auth_challange = 0,
+    grunt_auth_verify = 2,
+    grunt_conn_ping = 16,
+    grunt_conn_pong = 17,
+    grunt_hello = 32,
+    grunt_prove_session = 33,
+    grunt_kick = 36,
+    grunt_pc_warning = 41,
 }
 
 enum error : byte
 {
-    Success = 0,
-    Unk1 = 1,
-    Unk2 = 2,
-    Banned = 3,
-    UnknownAccount = 4,
-    IncorrectPassword = 5,
-    AlreadyOnline = 6,
-    NoTime = 7,
-    DbBusy = 8,
-    VersionInvalid = 9,
-    VersionUpdate = 10,
-    InvalidServer = 11,
-    Suspended = 12,
-    NoAccess = 13,
-    SuccessSurvey = 14,
-    ParentalControl = 15,
+    success = 0,
+    unk1 = 1,
+    unk2 = 2,
+    banned = 3,
+    unknown_account = 4,
+    incorrect_password = 5,
+    already_online = 6,
+    no_time = 7,
+    db_busy = 8,
+    version_invalid = 9,
+    version_update = 10,
+    invalid_server = 11,
+    suspended = 12,
+    no_access = 13,
+    success_survey = 14,
+    parental_control = 15,
 }
 
 enum auth_result : byte
 {
-    Ok = 0,
-    Banned = 3,
-    InvalidInfo = 4,
-    AlreadyOnline = 6,
-    NoTime = 7,
-    DbBusy = 8,
-    BadVersion = 9,
-    DownloadFile = 10,
-    Suspended = 12,
-    ParentalControl = 15,
-    LockedEnforced = 16,
-    Disconnected = 255,
+    ok = 0,
+    banned = 3,
+    invalid_info = 4,
+    already_online = 6,
+    no_time = 7,
+    db_busy = 8,
+    bad_version = 9,
+    download_file = 10,
+    suspended = 12,
+    parental_control = 15,
+    locked_enforced = 16,
+    disconnected = 255,
 }
 
 [Flags]
 enum account_flag : dword
 {
-    None = 0,
-    GameMaster = 1,
-    NoKick = 2,
-    Collector = 4,
-    WowTrial = 8,
-    Cancelled = 16,
-    Igr = 32,
-    Wholesaler = 64,
-    Privileged = 128,
-    EuForbidElv = 256,
-    EuForbidBilling = 512,
-    WowRestricted = 1024,
-    ParentalControl = 2048,
-    Referral = 4096,
-    Blizzard = 8192,
-    RecurringBilling = 16384,
-    NoElectUp = 32768,
-    KrCertificate = 65536,
-    ExpansionCollector = 131072,
-    DisableVoice = 262144,
-    DisableVoiceSpeak = 524288,
-    ReferralResurrect = 1048576,
-    EuForbidCc = 2097152,
-    OpenBetaDell = 4194304,
-    ProPass = 8388608,
-    ProPassLock = 16777216,
-    PendingUpgrade = 33554432,
-    RetailFromTrial = 67108864,
-    Expansion2Collector = 134217728,
-    OvermindLinked = 268435456,
-    Demos = 536870912,
-    DeathKnightOk = 1073741824,
+    none = 0,
+    game_master = 1,
+    no_kick = 2,
+    collector = 4,
+    wow_trial = 8,
+    cancelled = 16,
+    igr = 32,
+    wholesaler = 64,
+    privileged = 128,
+    eu_forbid_elv = 256,
+    eu_forbid_billing = 512,
+    wow_restricted = 1024,
+    parental_control = 2048,
+    referral = 4096,
+    blizzard = 8192,
+    recurring_billing = 16384,
+    no_elect_up = 32768,
+    kr_certificate = 65536,
+    expansion_collector = 131072,
+    disable_voice = 262144,
+    disable_voice_speak = 524288,
+    referral_resurrect = 1048576,
+    eu_forbid_cc = 2097152,
+    open_beta_dell = 4194304,
+    pro_pass = 8388608,
+    pro_pass_lock = 16777216,
+    pending_upgrade = 33554432,
+    retail_from_trial = 67108864,
+    expansion2_collector = 134217728,
+    overmind_linked = 268435456,
+    demos = 536870912,
+    death_knight_ok = 1073741824,
 }
 
 [Flags]
 enum security_flag : byte
 {
-    None = 0,
-    Pin = 1,
-    Matrix = 2,
-    Token = 4,
+    none = 0,
+    pin = 1,
+    matrix = 2,
+    token = 4,
 }
 
 enum realm_type : byte
 {
-    PvE = 0,
-    PvP = 1,
-    Rp = 6,
-    RpPvp = 8,
+    pve = 0,
+    pvp = 1,
+    rp = 6,
+    rppvp = 8,
 }
 
 [Flags]
 enum realm_flag : byte
 {
-    None = 0,
-    Invalid = 1,
-    Offline = 2,
-    SpecifyBuild = 4,
-    Unk1 = 8,
-    Unk2 = 16,
-    Recommended = 32,
-    New = 64,
-    Full = 128,
+    none = 0,
+    invalid = 1,
+    offline = 2,
+    specify_build = 4,
+    unk1 = 8,
+    unk2 = 16,
+    recommended = 32,
+    new_ = 64,
+    full = 128,
 }
 
 enum realm_category : byte
@@ -163,9 +163,9 @@ enum realm_category : byte
 
 message client_logon_challange
 {
-    [Expects="command::Challange"]
+    [expects="command::challange"]
     command cmd;
-    [Expects="error::DbBusy"]
+    [expects="error::db_busy"]
     error unk_error_maybe;
     uint16 size;
     char[4] game;
@@ -181,8 +181,8 @@ message client_logon_challange
 
 message server_logon_challange
 {
-    command cmd = "command::Challange";
-    error error_code = "error::Success";
+    command cmd = "command::challange";
+    error error_code = "error::success";
     auth_result result;
     uint8[32] B;
     uint8 g_length;
@@ -196,8 +196,8 @@ message server_logon_challange
 
 message server_logon_challange_error
 {
-    command cmd = "command::Challange";
-    error error_code = "error::Success";
+    command cmd = "command::challange";
+    error error_code = "error::success";
     auth_result result;
 }
 
@@ -209,14 +209,14 @@ data telemetry_data
     uint8[20] checksum;
 }
 
-[ExpectedSize=75]
+[expected_size=75]
 message client_logon_proof
 {
-    [Expects="command::Proof"]
+    [expects="command::proof"]
     command cmd;
-    [Reverse=1]
+    [reverse=1]
     uint8[32] A;
-    [Reverse=1]
+    [reverse=1]
     uint8[20] M1;
     uint8[20] checksum;
     repeated telemetry_data data;
@@ -225,20 +225,20 @@ message client_logon_proof
 
 message server_logon_proof
 {
-    command cmd = "command::Proof";
-    error error_code = "error::Success";
+    command cmd = "command::proof";
+    error error_code = "error::success";
     uint8[20] M2;
     account_flag account_flags;
     uint32 survey_id = 0;
     uint16 num_account_messages = 0;
 }
 
-[ExpectedSize=5]
+[expected_size=5]
 message client_realm_list
 {
-    [Expects="command::RealmList"]
+    [expects="command::realm_list"]
     command cmd;
-    [Expects="0"]
+    [expects="0"]
     uint32 always_zero;
 }
 
@@ -247,9 +247,9 @@ data realm_list_data
      realm_type type;
      uint8 locked;
      realm_flag realm_flags;
-     [ZeroTeminated]
+     [zero_teminated]
      string name;
-     [ZeroTeminated]
+     [zero_teminated]
      string ip;
      float population;
      uint8 num_characters;
@@ -257,13 +257,13 @@ data realm_list_data
      uint8 id;
 }
 
-message ServerRealmList
+message server_realm_list
 {
-    command cmd = "command::RealmList";
-    [IsSize]
+    command cmd = "command::realm_list";
+    [is_size]
     uint16 size;
     uint32 alwaysZero = 0;
-    [SizeType="uint16"]
+    [size_type="uint16"]
     repeated realm_list_data data;
     
      uint16 unk = 0;

@@ -28,7 +28,7 @@ CREATE TABLE `{{ dat/name }}` (
     {{ attrib/name }} {{ attrib/mysqlType }}
 ## if attrib/hasAnnotations
 ## for annotation in attrib/annotations
-{% if annotation/name == "Index" %} PRIMARY KEY{% endif %}{% if annotation/name == "NotNull" %} NOT NULL{% endif %}{% if annotation/name == "Increment" %} AUTO_INCREMENT{% endif %}
+{% if annotation/name == "index" %} PRIMARY KEY{% endif %}{% if annotation/name == "not_null" %} NOT NULL{% endif %}{% if annotation/name == "increment" %} AUTO_INCREMENT{% endif %}
 ## endfor
 ## endif
 ## if not loop/is_last
@@ -37,9 +37,9 @@ CREATE TABLE `{{ dat/name }}` (
 ## endif
 ## endif
 ## endfor
-## if hasAnnotation(dat, "Keys")
+## if hasAnnotation(dat, "keys")
 ,{##}
-    PRIMARY KEY({{annotationValue(dat, "Keys")}})
+    PRIMARY KEY({{annotationValue(dat, "keys")}})
 ## endif
 {##}
 );

@@ -1,4 +1,4 @@
-## if not hasAnnotation(attrib, "IsSize")
+## if not hasAnnotation(attrib, "is_size")
 ## if attrib/hasSpecifier
 ## if attrib/specifier == "optional"
 {##}

@@ -55,11 +55,11 @@ namespace keycap::logonserver
         enum class state_result
         {
             // We've received the packet as intended and are ready to move on to the next state
-            Ok,
+            ok,
             // There was some kind of error in the received packet and we have to terminate the connection
-            Abort,
+            abort,
             // We're still wating for more data to arrive from the client
-            IncompleteData,
+            incomplete_data,
         };
 
         struct challanged_data

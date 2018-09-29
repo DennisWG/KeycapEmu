@@ -68,7 +68,7 @@ namespace keycap::logonserver
 
             try
             {
-                return state.on_data(*this, router, input_stream_) != client_connection::state_result::Abort;
+                return state.on_data(*this, router, input_stream_) != client_connection::state_result::abort;
             }
             catch (std::exception const& e)
             {
@@ -117,7 +117,7 @@ namespace keycap::logonserver
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("defuq???");
-        return client_connection::state_result::Abort;
+        return client_connection::state_result::abort;
     }
 
     client_connection::state_result client_connection::just_connected::on_data(client_connection& connection,
@@ -128,10 +128,10 @@ namespace keycap::logonserver
         constexpr auto error_position = sizeof(byte) + sizeof(byte);
 
         if (stream.size() < header_size || stream.peek<uint16>(error_position) > (stream.size() - header_size))
-            return client_connection::state_result::IncompleteData;
+            return client_connection::state_result::incomplete_data;
 
-        if (stream.peek<protocol::command>() != protocol::command::Challange)
-            return client_connection::state_result::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::challange)
+            return client_connection::state_result::abort;
 
         auto packet{protocol::client_logon_challange::decode(stream)};
         stream.shrink();
@@ -139,8 +139,8 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
 
-        if (packet.cmd != protocol::command::Challange)
-            return client_connection::state_result::Abort;
+        if (packet.cmd != protocol::command::challange)
+            return client_connection::state_result::abort;
 
         shared_net::request_account_data request;
         request.account_name = packet.account_name;
@@ -153,7 +153,7 @@ namespace keycap::logonserver
                 return true;
             });
 
-        return client_connection::state_result::Ok;
+        return client_connection::state_result::ok;
     }
 
     void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
@@ -170,7 +170,7 @@ namespace keycap::logonserver
 
         if (!reply.has_data)
         {
-            conn->send_error(protocol::auth_result::InvalidInfo);
+            conn->send_error(protocol::auth_result::invalid_info);
             logger->info("User {} tried to log in with incorrect login info!", account_name);
             return;
         }
@@ -200,9 +200,8 @@ namespace keycap::logonserver
                                                                   Botan::BigInt const& salt, uint8 security_options)
     {
         protocol::server_logon_challange outPacket{};
-        outPacket.cmd = protocol::command::Challange;
-        outPacket.error_code = protocol::error::Success;
-        outPacket.result = protocol::auth_result::Ok;
+        outPacket.error_code = protocol::error::success;
+        outPacket.result = protocol::auth_result::ok;
         outPacket.B = net::srp6::to_array<32>(challanged_data.server->public_ephemeral_value(), compliance);
         outPacket.g_length = 1;
         outPacket.g = static_cast<uint8_t>(parameter.g);
@@ -230,10 +229,10 @@ namespace keycap::logonserver
                                                                            net::memory_stream& stream)
     {
         if (stream.size() < protocol::client_logon_proof::expected_size)
-            return client_connection::state_result::IncompleteData;
+            return client_connection::state_result::incomplete_data;
 
-        if (stream.peek<protocol::command>() != protocol::command::Proof)
-            return client_connection::state_result::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::proof)
+            return client_connection::state_result::abort;
 
         auto packet{protocol::client_logon_proof::decode(stream)};
         stream.shrink();
@@ -245,9 +244,9 @@ namespace keycap::logonserver
 
         if (M1_S != M1)
         {
-            connection.send_error(protocol::auth_result::InvalidInfo);
+            connection.send_error(protocol::auth_result::invalid_info);
             logger->info("User {} tried to log in with incorrect login info!", data.username);
-            return client_connection::state_result::Ok;
+            return client_connection::state_result::ok;
         }
 
         update_session_key(connection, data.username, session_key);
@@ -255,7 +254,7 @@ namespace keycap::logonserver
         send_proof_success(connection, session_key, M1_S);
 
         connection.state_ = authenticated{};
-        return client_connection::state_result::Ok;
+        return client_connection::state_result::ok;
     }
 
     std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
@@ -276,8 +275,7 @@ namespace keycap::logonserver
                                                            std::vector<uint8_t> session_key, Botan::BigInt M1_S)
     {
         protocol::server_logon_proof outPacket;
-        outPacket.cmd = protocol::command::Proof;
-        outPacket.error_code = protocol::error::Success;
+        outPacket.error_code = protocol::error::success;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
         outPacket.account_flags = data.account_flags;
 
@@ -289,10 +287,10 @@ namespace keycap::logonserver
                                                                               net::memory_stream& stream)
     {
         if (stream.size() < protocol::client_realm_list::expected_size)
-            return client_connection::state_result::IncompleteData;
+            return client_connection::state_result::incomplete_data;
 
-        if (stream.peek<protocol::command>() != protocol::command::RealmList)
-            return client_connection::state_result::Abort;
+        if (stream.peek<protocol::command>() != protocol::command::realm_list)
+            return client_connection::state_result::abort;
 
         auto packet{protocol::client_realm_list::decode(stream)};
         stream.shrink();
@@ -300,11 +298,11 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
 
-        protocol::ServerRealmList outPacket;
+        protocol::server_realm_list outPacket;
         auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
-        data.type = protocol::realm_type::PvE;
+        data.type = protocol::realm_type::pve;
         data.locked = 0;
-        data.realm_flags = protocol::realm_flag::Recommended;
+        data.realm_flags = protocol::realm_flag::recommended;
         data.name = "KeycapEmu Testrealm";
         data.ip = "127.0.0.1:8086";
         data.population = 0.f;
@@ -313,9 +311,9 @@ namespace keycap::logonserver
         data.id = 1;
 
         auto& data2 = outPacket.data.emplace_back(protocol::realm_list_data{});
-        data2.type = protocol::realm_type::PvE;
+        data2.type = protocol::realm_type::pve;
         data2.locked = 0;
-        data2.realm_flags = protocol::realm_flag::New;
+        data2.realm_flags = protocol::realm_flag::new_;
         data2.name = "KeycapEmu Testrealm 2";
         data2.ip = "127.0.0.1:8085";
         data2.population = 0.f;
@@ -327,6 +325,6 @@ namespace keycap::logonserver
 
         connection.send(outPacket.encode());
 
-        return client_connection::state_result::Ok;
+        return client_connection::state_result::ok;
     }
 }
