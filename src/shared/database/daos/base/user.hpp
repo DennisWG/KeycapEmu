@@ -35,5 +35,8 @@ namespace keycap::shared::database::dal
 
         // Creates a new user in the database from the given user
         virtual void create(shared::database::user const& user) const = 0;
+
+        // Sets the user's session key to the given one
+        virtual void update_session_key(std::string const& account_name, std::string const& session_key) const = 0;
     };
 }

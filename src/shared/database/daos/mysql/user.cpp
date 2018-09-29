@@ -66,6 +66,16 @@ namespace keycap::shared::database::dal
             statement.execute_async();
         }
 
+        virtual void update_session_key(std::string const& account_name, std::string const& session_key) const override
+        {
+            static auto statement = database_.prepare_statement("UPDATE user SET session_key = ? WHERE account_name = ?");
+
+            statement.add_parameter(session_key);
+            statement.add_parameter(account_name);
+
+            statement.execute_async();
+        }
+
       private:
         database& database_;
     };

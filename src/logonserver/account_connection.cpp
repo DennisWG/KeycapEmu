@@ -86,9 +86,6 @@ namespace keycap::logonserver
         return state_result::Abort;
     }
 
-    // lass dir was einfallen wie du nen callback für ne message implementierst. also ich schicke ne message, bekomme
-    // die antwort und der angegebene callback für diese message wird aufgerufen
-
     account_connection::state_result
     account_connection::connected::on_data(account_connection& connection,
                                            keycap::root::network::data_router const& router,

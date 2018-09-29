@@ -28,6 +28,12 @@
 
 #include <variant>
 
+namespace keycap::shared::network
+{
+    class request_account_data;
+    class update_session_key;
+}
+
 namespace keycap::accountserver
 {
     class connection : public keycap::root::network::service_connection
@@ -66,6 +72,13 @@ namespace keycap::accountserver
             state_result on_data(connection& connection, uint64 sender, keycap::root::network::memory_stream& stream);
 
             std::string name = "JustConnected";
+
+          private:
+            state_result on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                 uint64 sender, shared::network::request_account_data& packet);
+
+            state_result on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                               shared::network::update_session_key& packet);
         };
 
         std::variant<disconnected, connected> state_;

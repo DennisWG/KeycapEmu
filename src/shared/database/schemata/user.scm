@@ -8,4 +8,5 @@ data user
     uint32 flags;
     string verifier;
     string salt;
+    string session_key;
 }

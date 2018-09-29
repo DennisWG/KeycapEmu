@@ -216,10 +216,11 @@ namespace keycap::logonserver
         conn->send(outPacket.encode());
     }
 
-    void update_session_key(client_connection& connection, std::vector<uint8> session_key)
+    void update_session_key(client_connection& connection, std::string const& account_name, std::vector<uint8> const& session_key)
     {
         shared_net::update_session_key update;
-        update.session_key = keycap::root::utility::to_hex_string(session_key.begin(), session_key.end());
+        update.account_name = account_name;
+        update.session_key = keycap::root::utility::to_hex_string(session_key.begin(), session_key.end(), true);
 
         connection.service_locator().send_to(shared_net::account_service, update.encode());
     }
@@ -249,7 +250,7 @@ namespace keycap::logonserver
             return client_connection::state_result::Ok;
         }
 
-        update_session_key(connection, session_key);
+        update_session_key(connection, data.username, session_key);
 
         send_proof_success(connection, session_key, M1_S);
 
@@ -305,7 +306,7 @@ namespace keycap::logonserver
         data.locked = 0;
         data.realm_flags = protocol::realm_flag::Recommended;
         data.name = "KeycapEmu Testrealm";
-        data.ip = "127.0.0.1:8085";
+        data.ip = "127.0.0.1:8086";
         data.population = 0.f;
         data.num_characters = 0;
         data.category = protocol::realm_category::tournament;
@@ -321,6 +322,8 @@ namespace keycap::logonserver
         data2.num_characters = 0;
         data2.category = protocol::realm_category::test_server_2;
         data2.id = 2;
+
+        outPacket.unk = 16;
 
         connection.send(outPacket.encode());
 
