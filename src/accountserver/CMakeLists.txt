@@ -14,6 +14,8 @@
 
 add_executable(accountserver
     main.cpp
+    cli/account.cpp
+    cli/help.cpp
     connection.cpp
     ${version_file}
 )

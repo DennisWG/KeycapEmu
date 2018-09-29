@@ -1,10 +1,11 @@
+#include "cli/registrar.hpp"
 #include "connection.hpp"
 
 #include <cli/helpers.hpp>
-#include <rbac/role.hpp>
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/utility.hpp>
+#include <rbac/role.hpp>
 
 #include <database/database.hpp>
 #include <version.hpp>
@@ -143,10 +144,11 @@ int main()
     SCOPE_EXIT(sc2, [&] { kill_databases(db_thread_pool); });
 
     bool running = true;
+    keycap::accountserver::cli::register_commands(commands);
 
     using namespace std::string_literals;
-    using keycap::shared::permission;
     using keycap::shared::cli::command;
+    using keycap::shared::permission;
     namespace rbac = keycap::shared::rbac;
     register_command(command{"shutdown"s, permission::CommandShutdown,
                              [&running](std::vector<std::string> const& args, rbac::role const& role) {

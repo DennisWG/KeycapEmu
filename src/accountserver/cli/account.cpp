@@ -42,7 +42,7 @@ namespace rbac = keycap::shared::rbac;
 
 extern keycap::shared::database::database& get_login_database();
 
-namespace keycap::logonserver::cli
+namespace keycap::accountserver::cli
 {
     bool create_command(std::vector<std::string> const& args, rbac::role const& role)
     {
@@ -61,8 +61,8 @@ namespace keycap::logonserver::cli
         Botan::BigInt salt = Botan::BigInt::decode({rnd_salt});
         auto v = Botan::BigInt::encode(net::srp6::generate_verifier(username, password, parameter, salt, compliance));
 
-        auto hex_v = keycap::root::utility::to_hex_string(v.begin(), v.end());
-        auto hex_salt = keycap::root::utility::to_hex_string(rnd_salt.begin(), rnd_salt.end());
+        auto hex_v = keycap::root::utility::to_hex_string(v.begin(), v.end(), true);
+        auto hex_salt = keycap::root::utility::to_hex_string(rnd_salt.begin(), rnd_salt.end(), true);
 
         auto dao = db::dal::get_user_dao(get_login_database());
         dao->user(username, [=](std::optional<keycap::shared::database::user> user) {

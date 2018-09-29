@@ -18,7 +18,7 @@
 
 #include <cli/command.hpp>
 
-namespace keycap::logonserver::cli
+namespace keycap::accountserver::cli
 {
     namespace cli = keycap::shared::cli;
     extern cli::command register_help();
@@ -35,5 +35,6 @@ namespace keycap::logonserver::cli
     void register_commands(cli::command_map& command_map)
     {
         impl::register_command(register_help(), command_map);
+        impl::register_command(register_account(), command_map);
     }
 }
