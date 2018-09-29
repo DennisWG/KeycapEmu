@@ -6,6 +6,6 @@ data user
     string email;
     uint8 security_options;
     uint32 flags;
-    string v;
-    string s;
+    string verifier;
+    string salt;
 }

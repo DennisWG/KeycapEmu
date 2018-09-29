@@ -43,8 +43,8 @@ namespace keycap::shared::database::dal
                                             result->getString("email").c_str(),
                                             static_cast<uint8>(result->getUInt("security_options")),
                                             result->getUInt("flags"),
-                                            result->getString("v").c_str(),
-                                            result->getString("s").c_str()};
+                                            result->getString("verifier").c_str(),
+                                            result->getString("salt").c_str()};
                 callback(user);
             };
 
@@ -54,12 +54,14 @@ namespace keycap::shared::database::dal
         void create(shared::database::user const& user) const override
         {
             static auto statement
-                = database_.prepare_statement("INSERT INTO user(account_name, email, v, s) VALUES (?, ?, ?, ?)");
+                = database_.prepare_statement("INSERT INTO user(account_name, email, security_options, flags, verifier, salt) VALUES (?, ?, ?, ?, ?, ?)");
 
             statement.add_parameter(user.account_name);
             statement.add_parameter(user.email);
-            statement.add_parameter(user.v);
-            statement.add_parameter(user.s);
+            statement.add_parameter(user.security_options);
+            statement.add_parameter(user.flags);
+            statement.add_parameter(user.verifier);
+            statement.add_parameter(user.salt);
 
             statement.execute_async();
         }
