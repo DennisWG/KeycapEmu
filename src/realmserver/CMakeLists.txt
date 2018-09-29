@@ -32,11 +32,3 @@ target_include_directories(realmserver
         ${Botan_INCLUDE_DIR}
         ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
 )
-
-include(FlatmessageCompile)
-
-#flatmessage_compile_file(
-#    "protocol/logon.msg"
-#    "${PROJECT_SOURCE_DIR}/templates/hpp.template"
-#    "hpp"
-#)

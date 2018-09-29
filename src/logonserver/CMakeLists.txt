@@ -17,7 +17,6 @@ add_executable (logonserver
     client_connection.cpp
     logon_service.cpp
     main.cpp
-    cli/account.cpp
     cli/help.cpp
     ${version_file}
 )
@@ -34,12 +33,4 @@ target_include_directories(logonserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
         ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
-)
-
-include(FlatmessageCompile)
-
-flatmessage_compile_file(
-    "protocol/logon.msg"
-    "${PROJECT_SOURCE_DIR}/templates/hpp.template"
-    "hpp"
 )

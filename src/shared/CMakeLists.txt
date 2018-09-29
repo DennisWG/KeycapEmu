@@ -49,27 +49,3 @@ target_compile_definitions(${LIBRARY_NAME}
         _HAS_AUTO_PTR_ETC=1
         _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 )
-
-flatmessage_compile_files(
-    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/db_object.template"
-    EXTENSION "hpp"
-    FILES
-        "database/schemata/realm.scm"
-        "database/schemata/user.scm"
-)
-
-flatmessage_compile_files(
-    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/db_mysql.template"
-    EXTENSION "sql"
-    FILES
-        "database/schemata/realm.scm"
-        "database/schemata/user.scm"
-)
-
-flatmessage_compile_files(
-    TEMPLATE "${PROJECT_SOURCE_DIR}/templates/hpp.template" 
-    EXTENSION "hpp"
-    FILES
-        "network/protocol.msg"
-        "permissions.scm"
-)
