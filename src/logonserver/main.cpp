@@ -120,12 +120,6 @@ boost::asio::io_service& get_db_service()
     return db_service;
 }
 
-keycap::shared::database::database& get_login_database()
-{
-    static keycap::shared::database::database login_database{get_db_service()};
-    return login_database;
-}
-
 config parse_config(std::string config_file)
 {
     keycap::root::configuration::config_file cfg_file{config_file};
