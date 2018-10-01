@@ -45,7 +45,7 @@ namespace keycap::accountserver
 
             try
             {
-                return state.on_data(*this, sender, /*input_stream_*/ stream) != connection::state_result::Abort;
+                return state.on_data(*this, sender, /*input_stream_*/ stream) != shared::network::state_result::abort;
             }
             catch (std::exception const& e)
             {
@@ -80,15 +80,15 @@ namespace keycap::accountserver
         return true;
     }
 
-    connection::state_result connection::disconnected::on_data(connection& connection, uint64 sender,
+    shared::network::state_result connection::disconnected::on_data(connection& connection, uint64 sender,
                                                                net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("defuq???");
-        return connection::state_result::Abort;
+        return shared::network::state_result::abort;
     }
 
-    connection::state_result connection::connected::on_data(connection& connection, uint64 sender,
+    shared::network::state_result connection::connected::on_data(connection& connection, uint64 sender,
                                                             net::memory_stream& stream)
     {
         auto protocol = stream.peek<shared_net::protocol>();
@@ -104,7 +104,7 @@ namespace keycap::accountserver
             default:
             {
                 logger->error("Received unkown protocol {}", protocol);
-                return state_result::Abort;
+                return shared::network::state_result::abort;
             }
             case shared_net::protocol::request_account_data:
             {
@@ -119,7 +119,7 @@ namespace keycap::accountserver
         }
     }
 
-    connection::state_result
+    shared::network::state_result
     connection::connected::on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr,
                                                    uint64 sender, shared::network::request_account_data& packet)
     {
@@ -138,16 +138,16 @@ namespace keycap::accountserver
                 connection.lock()->send_answer(sender, reply.encode());
             });
 
-        return connection::state_result::Ok;
+        return shared::network::state_result::ok;
     }
 
-    connection::state_result
+    shared::network::state_result
     connection::connected::on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr,
                                                  uint64 sender, shared::network::update_session_key& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->update_session_key(packet.account_name, packet.session_key);
 
-        return connection::state_result::Ok;
+        return shared::network::state_result::ok;
     }
 }

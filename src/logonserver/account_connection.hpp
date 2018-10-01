@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <network/state_result.hpp>
+
 #include <keycap/root/network/connection.hpp>
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/message_handler.hpp>
@@ -37,21 +39,12 @@ namespace keycap::logonserver
                      keycap::root::network::link_status status) override;
 
       private:
-        enum class state_result
-        {
-            // We've received the packet as intended and are ready to move on to the next state
-            Ok,
-            // There was some kind of error in the received packet and we have to terminate the connection
-            Abort,
-            // We're still wating for more data to arrive from the client
-            IncompleteData,
-        };
-
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            state_result on_data(account_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(account_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -59,8 +52,9 @@ namespace keycap::logonserver
         // Connection was just established
         struct connected
         {
-            state_result on_data(account_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(account_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Connected";
         };

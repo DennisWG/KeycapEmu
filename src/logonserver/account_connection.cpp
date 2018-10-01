@@ -40,7 +40,7 @@ namespace keycap::logonserver
 
             try
             {
-                return state.on_data(*this, router, input_stream_) != account_connection::state_result::Abort;
+                return state.on_data(*this, router, input_stream_) != shared::network::state_result::abort;
             }
             catch (std::exception const& e)
             {
@@ -76,21 +76,21 @@ namespace keycap::logonserver
         return false;
     }
 
-    account_connection::state_result
+    shared::network::state_result
     account_connection::disconnected::on_data(account_connection& connection,
                                               keycap::root::network::data_router const& router,
                                               keycap::root::network::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("Received data while disconnected. This is a bug. Do something!");
-        return state_result::Abort;
+        return shared::network::state_result::abort;
     }
 
-    account_connection::state_result
+    shared::network::state_result
     account_connection::connected::on_data(account_connection& connection,
                                            keycap::root::network::data_router const& router,
                                            keycap::root::network::memory_stream& stream)
     {
-        return state_result::Ok;
+        return shared::network::state_result::ok;
     }
 }

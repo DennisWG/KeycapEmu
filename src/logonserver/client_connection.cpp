@@ -68,7 +68,7 @@ namespace keycap::logonserver
 
             try
             {
-                return state.on_data(*this, router, input_stream_) != client_connection::state_result::abort;
+                return state.on_data(*this, router, input_stream_) != shared::network::state_result::abort;
             }
             catch (std::exception const& e)
             {
@@ -111,27 +111,27 @@ namespace keycap::logonserver
         send(error.encode());
     }
 
-    client_connection::state_result client_connection::disconnected::on_data(client_connection& connection,
-                                                                             net::data_router const& router,
-                                                                             net::memory_stream& stream)
+    shared::network::state_result client_connection::disconnected::on_data(client_connection& connection,
+                                                                           net::data_router const& router,
+                                                                           net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("defuq???");
-        return client_connection::state_result::abort;
+        return shared::network::state_result::abort;
     }
 
-    client_connection::state_result client_connection::just_connected::on_data(client_connection& connection,
-                                                                               net::data_router const& router,
-                                                                               net::memory_stream& stream)
+    shared::network::state_result client_connection::just_connected::on_data(client_connection& connection,
+                                                                             net::data_router const& router,
+                                                                             net::memory_stream& stream)
     {
         constexpr auto header_size = sizeof(byte) + sizeof(byte) + sizeof(uint16);
         constexpr auto error_position = sizeof(byte) + sizeof(byte);
 
         if (stream.size() < header_size || stream.peek<uint16>(error_position) > (stream.size() - header_size))
-            return client_connection::state_result::incomplete_data;
+            return shared::network::state_result::incomplete_data;
 
         if (stream.peek<protocol::command>() != protocol::command::challange)
-            return client_connection::state_result::abort;
+            return shared::network::state_result::abort;
 
         auto packet{protocol::client_logon_challange::decode(stream)};
         stream.shrink();
@@ -140,7 +140,7 @@ namespace keycap::logonserver
         logger->debug(packet.to_string());
 
         if (packet.cmd != protocol::command::challange)
-            return client_connection::state_result::abort;
+            return shared::network::state_result::abort;
 
         shared_net::request_account_data request;
         request.account_name = packet.account_name;
@@ -153,7 +153,7 @@ namespace keycap::logonserver
                 return true;
             });
 
-        return client_connection::state_result::ok;
+        return shared::network::state_result::ok;
     }
 
     void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
@@ -224,15 +224,15 @@ namespace keycap::logonserver
         connection.service_locator().send_to(shared_net::account_service, update.encode());
     }
 
-    client_connection::state_result client_connection::challanged::on_data(client_connection& connection,
-                                                                           net::data_router const& router,
-                                                                           net::memory_stream& stream)
+    shared::network::state_result client_connection::challanged::on_data(client_connection& connection,
+                                                                         net::data_router const& router,
+                                                                         net::memory_stream& stream)
     {
         if (stream.size() < protocol::client_logon_proof::expected_size)
-            return client_connection::state_result::incomplete_data;
+            return shared::network::state_result::incomplete_data;
 
         if (stream.peek<protocol::command>() != protocol::command::proof)
-            return client_connection::state_result::abort;
+            return shared::network::state_result::abort;
 
         auto packet{protocol::client_logon_proof::decode(stream)};
         stream.shrink();
@@ -246,7 +246,7 @@ namespace keycap::logonserver
         {
             connection.send_error(protocol::auth_result::invalid_info);
             logger->info("User {} tried to log in with incorrect login info!", data.username);
-            return client_connection::state_result::ok;
+            return shared::network::state_result::ok;
         }
 
         update_session_key(connection, data.username, session_key);
@@ -254,7 +254,7 @@ namespace keycap::logonserver
         send_proof_success(connection, session_key, M1_S);
 
         connection.state_ = authenticated{};
-        return client_connection::state_result::ok;
+        return shared::network::state_result::ok;
     }
 
     std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
@@ -282,15 +282,15 @@ namespace keycap::logonserver
         connection.send(outPacket.encode());
     }
 
-    client_connection::state_result client_connection::authenticated::on_data(client_connection& connection,
-                                                                              net::data_router const& router,
-                                                                              net::memory_stream& stream)
+    shared::network::state_result client_connection::authenticated::on_data(client_connection& connection,
+                                                                            net::data_router const& router,
+                                                                            net::memory_stream& stream)
     {
         if (stream.size() < protocol::client_realm_list::expected_size)
-            return client_connection::state_result::incomplete_data;
+            return shared::network::state_result::incomplete_data;
 
         if (stream.peek<protocol::command>() != protocol::command::realm_list)
-            return client_connection::state_result::abort;
+            return shared::network::state_result::abort;
 
         auto packet{protocol::client_realm_list::decode(stream)};
         stream.shrink();
@@ -325,6 +325,6 @@ namespace keycap::logonserver
 
         connection.send(outPacket.encode());
 
-        return client_connection::state_result::ok;
+        return shared::network::state_result::ok;
     }
 }

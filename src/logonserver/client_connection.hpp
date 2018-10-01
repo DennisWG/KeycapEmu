@@ -52,15 +52,6 @@ namespace keycap::logonserver
         void send_error(protocol::auth_result result);
 
       private:
-        enum class state_result
-        {
-            // We've received the packet as intended and are ready to move on to the next state
-            ok,
-            // There was some kind of error in the received packet and we have to terminate the connection
-            abort,
-            // We're still wating for more data to arrive from the client
-            incomplete_data,
-        };
 
         struct challanged_data
         {
@@ -77,8 +68,9 @@ namespace keycap::logonserver
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(client_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -86,8 +78,9 @@ namespace keycap::logonserver
         // Connection was just established
         struct just_connected
         {
-            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(client_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             void on_account_reply(std::weak_ptr<client_connection> connection,
                                   keycap::root::network::memory_stream& stream, std::string const& account_name);
@@ -109,8 +102,9 @@ namespace keycap::logonserver
               : data{data}
             {
             }
-            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(client_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
             challanged_data data;
@@ -126,8 +120,9 @@ namespace keycap::logonserver
         // Client send its Challange and is now authenticated
         struct authenticated
         {
-            state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,
-                                 keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(client_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
         };

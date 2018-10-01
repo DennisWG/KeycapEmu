@@ -18,6 +18,8 @@
 
 #include "account_service.hpp"
 
+#include <network/state_result.hpp>
+
 #include <botan/bigint.h>
 
 #include <keycap/root/network/data_router.hpp>
@@ -48,20 +50,11 @@ namespace keycap::accountserver
                      keycap::root::network::link_status status) override;
 
       private:
-        enum class state_result
-        {
-            // We've received the packet as intended and are ready to move on to the next state
-            Ok,
-            // There was some kind of error in the received packet and we have to terminate the connection
-            Abort,
-            // We're still wating for more data to arrive from the client
-            IncompleteData,
-        };
-
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            state_result on_data(connection& connection, uint64 sender, keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(connection& connection, uint64 sender,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
@@ -69,16 +62,19 @@ namespace keycap::accountserver
         // Connection was just established
         struct connected
         {
-            state_result on_data(connection& connection, uint64 sender, keycap::root::network::memory_stream& stream);
+            shared::network::state_result on_data(connection& connection, uint64 sender,
+                                                  keycap::root::network::memory_stream& stream);
 
             std::string name = "JustConnected";
 
           private:
-            state_result on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr,
-                                                 uint64 sender, shared::network::request_account_data& packet);
+            shared::network::state_result
+            on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                    shared::network::request_account_data& packet);
 
-            state_result on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
-                                               shared::network::update_session_key& packet);
+            shared::network::state_result
+            on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                  shared::network::update_session_key& packet);
         };
 
         std::variant<disconnected, connected> state_;

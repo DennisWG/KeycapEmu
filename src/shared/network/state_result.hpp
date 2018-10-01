@@ -16,18 +16,16 @@
 
 #pragma once
 
-#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/utility/enum.hpp>
 
 namespace keycap::shared::network
 {
-    keycap_enum(services, uint32,
-                logon = 0,
-                account = 1,
-                realm = 2,
+    keycap_enum(state_result, uint32_t,
+                // We've received the packet as intended and are ready to move on to the next state
+                ok = 0,
+                // There was some kind of error in the received packet and we have to terminate the connection
+                abort = 1,
+                // We're still wating for more data to arrive from the client
+                incomplete_data = 2,
     );
-
-    const static keycap::root::network::service_type logon_service{services::logon};
-    const static keycap::root::network::service_type account_service{services::account};
-    const static keycap::root::network::service_type realm_service{services::realm};
 }
