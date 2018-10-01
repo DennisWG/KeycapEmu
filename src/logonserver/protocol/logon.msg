@@ -23,7 +23,7 @@ enum command : byte
     grunt_pc_warning = 41,
 }
 
-enum error : byte
+enum grunt_result : byte
 {
     success = 0,
     unk1 = 1,
@@ -41,25 +41,11 @@ enum error : byte
     no_access = 13,
     success_survey = 14,
     parental_control = 15,
-}
-
-enum auth_result : byte
-{
-    ok = 0,
-    banned = 3,
-    invalid_info = 4,
-    already_online = 6,
-    no_time = 7,
-    db_busy = 8,
-    bad_version = 9,
-    download_file = 10,
-    suspended = 12,
-    parental_control = 15,
     locked_enforced = 16,
     disconnected = 255,
 }
 
-[Flags]
+[flags]
 enum account_flag : dword
 {
     none = 0,
@@ -96,7 +82,7 @@ enum account_flag : dword
     death_knight_ok = 1073741824,
 }
 
-[Flags]
+[flags]
 enum security_flag : byte
 {
     none = 0,
@@ -113,7 +99,7 @@ enum realm_type : byte
     rppvp = 8,
 }
 
-[Flags]
+[flags]
 enum realm_flag : byte
 {
     none = 0,
@@ -165,8 +151,8 @@ message client_logon_challange
 {
     [expects="command::challange"]
     command cmd;
-    [expects="error::db_busy"]
-    error unk_error_maybe;
+    [expects="grunt_result::db_busy"]
+    grunt_result result;
     uint16 size;
     char[4] game;
     byte[3] version;
@@ -179,11 +165,31 @@ message client_logon_challange
     string account_name;
 }
 
+data pin
+{
+    uint32 pin_value;
+    uint8[16] pin_salt;
+}
+
+data matrix
+{
+    uint8 unk1;
+    uint8 unk2;
+    uint8 unk3;
+    uint8 unk4;
+    uint64 unk5;
+}
+
+data token
+{
+    uint8 unk;
+}
+
 message server_logon_challange
 {
     command cmd = "command::challange";
-    error error_code = "error::success";
-    auth_result result;
+    grunt_result result = "grunt_result::success";
+    grunt_result error;
     uint8[32] B;
     uint8 g_length;
     uint8 g;
@@ -192,13 +198,28 @@ message server_logon_challange
     uint8[32] s;
     uint8[16] checksum_salt;
     security_flag security_flags;
+
+    [requires="security_flags.test_flag(security_flag::pin)"]
+    optional pin pin;
+
+    [requires="security_flags.test_flag(security_flag::matrix)"]
+    optional matrix matrix;
+
+    [requires="security_flags.test_flag(security_flag::token)"]
+    optional token token;
 }
 
-message server_logon_challange_error
+message server_logon_error
 {
     command cmd = "command::challange";
-    error error_code = "error::success";
-    auth_result result;
+    grunt_result result;
+}
+
+message server_logon_unknown_account
+{
+    command cmd = "command::challange";
+    grunt_result result = "grunt_result::unknown_account";
+    uint16 unk = 0;
 }
 
 data telemetry_data
@@ -226,7 +247,7 @@ message client_logon_proof
 message server_logon_proof
 {
     command cmd = "command::proof";
-    error error_code = "error::success";
+    grunt_result result = "grunt_result::success";
     uint8[20] M2;
     account_flag account_flags;
     uint32 survey_id = 0;

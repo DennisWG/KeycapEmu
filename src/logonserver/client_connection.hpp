@@ -19,6 +19,8 @@
 #include "logon.hpp"
 #include "logon_service.hpp"
 
+#include <network/state_result.hpp>
+
 #include <botan/bigint.h>
 
 #include <keycap/root/network/connection.hpp>
@@ -49,7 +51,7 @@ namespace keycap::logonserver
             return locator_;
         }
 
-        void send_error(protocol::auth_result result);
+        void send_error(protocol::grunt_result result);
 
       private:
 

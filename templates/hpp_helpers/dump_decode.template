@@ -1,10 +1,15 @@
 ## if attrib/type == "string"
+## if hasAnnotation(attrib, "zero_terminated")
+{##}
+            packet.{{attrib/name}} = decoder.get_string();
+## else
 {##}
             auto size_{{ attrib/name }} = decoder.get<uint8>();
             packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
 ## if hasAnnotation(attrib, "expects")
 {##}
             ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotationValue(attrib, "expects")}}");
+## endif
 ## endif
 ## else if attrib/hasSpecifier
 ## if hasSpecifier(attrib, "repeated")
@@ -13,9 +18,15 @@
             for (int i = 0; i < size_{{attrib/name}}; ++i)
                 packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
 ## else if hasSpecifier(attrib, "optional")
+## if hasAnnotation(attrib, "requires")
+{##}
+            if (packet.{{annotationValue(attrib, "requires")}})
+
+## else
 {##}
             if (decoder.size() >= sizeof({{ attrib/type }}))
 
+## endif
 ## if isUserDefinedData(attrib/type)
                 packet.{{attrib/name}} = {{ attrib/type }}::decode(decoder);
 ## else
@@ -25,9 +36,9 @@
 ## else if attrib/hasArraySize
 {##}
             packet.{{attrib/name}} = decoder.get<{{ attrib/type }}, {{ attrib/arraySize }}>();
-## else if not hasAnnotation(attrib, "is_size")
+## else
 {##}
-            packet.{{attrib/name}} = decoder.get<{{ attrib/type }}>();
+            {%if not hasAnnotation(attrib, "is_size")%}packet.{{attrib/name}} = {%endif%}{%if hasAnnotation(attrib, "endian_reverse")%}boost::endian::endian_reverse(decoder.get<{{ attrib/type }}>()){%else%}decoder.get<{{ attrib/type }}>(){%endif%};
 ## endif
 ## if hasAnnotation(attrib, "expects")
 {##}

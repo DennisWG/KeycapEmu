@@ -103,12 +103,19 @@ namespace keycap::logonserver
         return true;
     }
 
-    void client_connection::send_error(protocol::auth_result result)
+    void client_connection::send_error(protocol::grunt_result result)
     {
-        protocol::server_logon_challange_error error;
-        error.result = result;
-
-        send(error.encode());
+        if (result == protocol::grunt_result::unknown_account)
+        {
+            protocol::server_logon_unknown_account error;
+            send(error.encode());
+        }
+        else
+        {
+            protocol::server_logon_error error;
+            error.result = result;
+            send(error.encode());
+        }
     }
 
     shared::network::state_result client_connection::disconnected::on_data(client_connection& connection,
@@ -170,7 +177,7 @@ namespace keycap::logonserver
 
         if (!reply.has_data)
         {
-            conn->send_error(protocol::auth_result::invalid_info);
+            conn->send_error(protocol::grunt_result::unknown_account);
             logger->info("User {} tried to log in with incorrect login info!", account_name);
             return;
         }
@@ -200,8 +207,8 @@ namespace keycap::logonserver
                                                                   Botan::BigInt const& salt, uint8 security_options)
     {
         protocol::server_logon_challange outPacket{};
-        outPacket.error_code = protocol::error::success;
-        outPacket.result = protocol::auth_result::ok;
+        outPacket.result = protocol::grunt_result::success;
+        outPacket.error = protocol::grunt_result::success;
         outPacket.B = net::srp6::to_array<32>(challanged_data.server->public_ephemeral_value(), compliance);
         outPacket.g_length = 1;
         outPacket.g = static_cast<uint8_t>(parameter.g);
@@ -212,10 +219,27 @@ namespace keycap::logonserver
         std::copy(std::begin(challanged_data.checksum_salt), std::end(challanged_data.checksum_salt),
                   std::begin(outPacket.checksum_salt));
 
+        if (outPacket.security_flags.test_flag(protocol::security_flag::pin))
+        {
+            protocol::pin pin;
+            outPacket.pin = pin;
+        }
+        if (outPacket.security_flags.test_flag(protocol::security_flag::matrix))
+        {
+            protocol::matrix matrix;
+            outPacket.matrix = matrix;
+        }
+        if (outPacket.security_flags.test_flag(protocol::security_flag::token))
+        {
+            protocol::token token;
+            outPacket.token = token;
+        }
+
         conn->send(outPacket.encode());
     }
 
-    void update_session_key(client_connection& connection, std::string const& account_name, std::vector<uint8> const& session_key)
+    void update_session_key(client_connection& connection, std::string const& account_name,
+                            std::vector<uint8> const& session_key)
     {
         shared_net::update_session_key update;
         update.account_name = account_name;
@@ -244,7 +268,7 @@ namespace keycap::logonserver
 
         if (M1_S != M1)
         {
-            connection.send_error(protocol::auth_result::invalid_info);
+            connection.send_error(protocol::grunt_result::unknown_account);
             logger->info("User {} tried to log in with incorrect login info!", data.username);
             return shared::network::state_result::ok;
         }
@@ -275,7 +299,6 @@ namespace keycap::logonserver
                                                            std::vector<uint8_t> session_key, Botan::BigInt M1_S)
     {
         protocol::server_logon_proof outPacket;
-        outPacket.error_code = protocol::error::success;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
         outPacket.account_flags = data.account_flags;
 
