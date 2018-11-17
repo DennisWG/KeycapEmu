@@ -17,10 +17,16 @@
 #include "handler.hpp"
 #include "../rbac/role.hpp"
 
+#include <keycap/root/utility/utility.hpp>
+#include <keycap/root/utility/string.hpp>
+
 #include <spdlog/fmt/fmt.h>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <iostream>
+
+namespace utility = keycap::root::utility;
 
 bool is_child(std::vector<std::string> const& arguments, keycap::shared::cli::command const& command)
 {
@@ -39,6 +45,9 @@ namespace keycap::shared::cli
 {
     handler_result do_command(command const& command, std::vector<std::string> const& arguments, rbac::role const& role)
     {
+        auto logger = utility::get_safe_logger("command");
+        logger->info("User {} used command '{}' with arguments '{}'.", role.name, command.name, utility::join(arguments));
+
         if (!role.has(command.permission))
             return handler_result::InsufficientPermissions;
 

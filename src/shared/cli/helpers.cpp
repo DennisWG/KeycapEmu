@@ -74,4 +74,9 @@ namespace keycap::shared::cli
                 break;
         }
     }
+
+    void run_command_line(keycap::shared::rbac::role&& consoleRole, bool& running)
+    {
+        run_command_line(consoleRole, running);
+    }
 }

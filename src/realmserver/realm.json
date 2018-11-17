@@ -1,18 +1,43 @@
 {
+    "Logging": {
+        "OutputDirectory": "./Logs",
+        "Loggers": [
+            {
+                "Name": "console",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "command",
+                "ToConsole": false,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "connections",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "database",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            }
+        ]
+    },
     "Network": {
         "BindIp": "0.0.0.0",
         "Port": 6661,
         "Threads": 1
     },
-    "Database": {
+    "AccountService": {
         "Host": "127.0.0.1",
-        "Port": 3306,
-        "User": "test",
-        "Password": "test",
-        "Schema": "playground",
-        "Threads": 1
+        "Port": 6660
     },
     "Realm": {
-        "Id":  1
+        "Id": 1
     }
 }

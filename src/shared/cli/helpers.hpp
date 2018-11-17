@@ -30,6 +30,7 @@ namespace keycap::shared::cli
                                        std::vector<std::string>& outArgs);
 
     void print_handler_result(keycap::shared::cli::handler_result result, std::string const& command);
-
+    
     void run_command_line(keycap::shared::rbac::role& consoleRole, bool& running);
+    void run_command_line(keycap::shared::rbac::role&& consoleRole, bool& running);
 }

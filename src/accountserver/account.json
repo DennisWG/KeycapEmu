@@ -1,4 +1,33 @@
 {
+    "Logging": {
+        "OutputDirectory": "./Logs",
+        "Loggers": [
+            {
+                "Name": "console",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "command",
+                "ToConsole": false,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "connections",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            },
+            {
+                "Name": "database",
+                "ToConsole": true,
+                "ToFile": true,
+                "Level": 1
+            }
+        ]
+    },
     "Network": {
         "BindIp": "0.0.0.0",
         "Port": 6660,

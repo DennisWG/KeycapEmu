@@ -5,35 +5,20 @@
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/utility.hpp>
-#include <rbac/role.hpp>
+#include <logging/utility.hpp>
+#include <rbac/rbac.hpp>
 
 #include <database/database.hpp>
 #include <version.hpp>
 
 #include <spdlog/spdlog.h>
 
-void create_logger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
-{
-    std::vector<spdlog::sink_ptr> sinks;
-    if (console)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::stdout_sink_mt>()));
-    if (file)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::daily_file_sink_mt>(name, 23, 59)));
-    auto combined_logger = std::make_shared<spdlog::logger>(name, std::begin(sinks), std::end(sinks));
-    combined_logger->set_level(level);
-    spdlog::register_logger(combined_logger);
-}
-
-void create_loggers()
-{
-    create_logger("console", true, true, spdlog::level::debug);
-    create_logger("command", false, true, spdlog::level::debug);
-    create_logger("connections", true, true, spdlog::level::debug);
-    create_logger("database", true, true, spdlog::level::debug);
-}
+namespace logging = keycap::shared::logging;
 
 struct config
 {
+    logging::logging_entry logging;
+
     struct
     {
         std::string bind_ip;
@@ -54,19 +39,21 @@ struct config
 
 config parse_config(std::string configFile)
 {
-    keycap::root::configuration::config_file cfgFile{configFile};
+    keycap::root::configuration::config_file cfg_file{configFile};
 
     config conf;
-    conf.network.bind_ip = cfgFile.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
-    conf.network.port = cfgFile.get_or_default<int16_t>("Network", "Port", 3724);
-    conf.network.threads = cfgFile.get_or_default<int>("Network", "Threads", 1);
+    conf.logging = logging::from_config_file(cfg_file);
 
-    conf.database.host = cfgFile.get_or_default<std::string>("Database", "Host", "127.0.0.1");
-    conf.database.port = cfgFile.get_or_default<int16_t>("Database", "Port", 3306);
-    conf.database.user = cfgFile.get_or_default<std::string>("Database", "User", "root");
-    conf.database.password = cfgFile.get_or_default<std::string>("Database", "Password", "");
-    conf.database.schema = cfgFile.get_or_default<std::string>("Database", "Schema", "");
-    conf.database.threads = cfgFile.get_or_default<int>("Database", "Threads", 1);
+    conf.network.bind_ip = cfg_file.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
+    conf.network.port = cfg_file.get_or_default<int16_t>("Network", "Port", 3724);
+    conf.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
+
+    conf.database.host = cfg_file.get_or_default<std::string>("Database", "Host", "127.0.0.1");
+    conf.database.port = cfg_file.get_or_default<int16_t>("Database", "Port", 3306);
+    conf.database.user = cfg_file.get_or_default<std::string>("Database", "User", "root");
+    conf.database.password = cfg_file.get_or_default<std::string>("Database", "Password", "");
+    conf.database.schema = cfg_file.get_or_default<std::string>("Database", "Schema", "");
+    conf.database.threads = cfg_file.get_or_default<int>("Database", "Threads", 1);
 
     return conf;
 }
@@ -115,25 +102,19 @@ void register_command(keycap::shared::cli::command const& command)
     commands[command.name] = command;
 }
 
-keycap::shared::rbac::permission_set get_all_permissions()
-{
-    auto const& perms = keycap::shared::permission::to_vector();
-    return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
-}
-
 int main()
 {
     namespace utility = keycap::root::utility;
 
     utility::set_console_title("Accountserver");
-
-    create_loggers();
+    
+    auto config = parse_config("account.json");
+    logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
     console->info("Running KeycapEmu.Accountserver version {}/{}", keycap::emu::version::GIT_BRANCH,
                   keycap::emu::version::GIT_HASH);
-    auto config = parse_config("account.json");
 
     console->info("Listening to {} on port {} with {} thread(s).", config.network.bind_ip, config.network.port,
                   config.network.threads);
@@ -160,5 +141,5 @@ int main()
     keycap::accountserver::account_service service{config.network.threads};
     service.start(config.network.bind_ip, config.network.port);
 
-    keycap::shared::cli::run_command_line(keycap::shared::rbac::role{0, "Console", get_all_permissions()}, running);
+    keycap::shared::cli::run_command_line(keycap::shared::rbac::role{0, "console", keycap::shared::rbac::get_all_permissions()}, running);
 }

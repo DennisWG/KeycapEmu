@@ -19,9 +19,11 @@
 #include "cli/registrar.hpp"
 #include "client_connection.hpp"
 #include "version.hpp"
-#include <cli/helpers.hpp>
 
+#include <cli/helpers.hpp>
+#include <logging/utility.hpp>
 #include <network/services.hpp>
+#include <rbac/rbac.hpp>
 
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/network/data_router.hpp>
@@ -40,8 +42,12 @@
 
 #include <iostream>
 
+namespace logging = keycap::shared::logging;
+
 struct config
 {
+    logging::logging_entry logging;
+
     struct
     {
         std::string bind_ip;
@@ -83,37 +89,6 @@ auto& get_command_map()
     return commands;
 }
 
-void create_logger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
-{
-    std::vector<spdlog::sink_ptr> sinks;
-    if (console)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::stdout_sink_mt>()));
-    if (file)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::daily_file_sink_mt>(name, 23, 59)));
-    auto combined_logger = std::make_shared<spdlog::logger>(name, std::begin(sinks), std::end(sinks));
-    combined_logger->set_level(level);
-    spdlog::register_logger(combined_logger);
-}
-
-void create_loggers()
-{
-    create_logger("console", true, true, spdlog::level::debug);
-    create_logger("command", false, true, spdlog::level::debug);
-    create_logger("connections", true, true, spdlog::level::debug);
-    create_logger("database", true, true, spdlog::level::debug);
-}
-
-keycap::shared::rbac::permission_set get_all_permissions()
-{
-    auto const& perms = keycap::shared::permission::to_vector();
-    return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
-}
-
-keycap::shared::rbac::role create_console_role()
-{
-    return keycap::shared::rbac::role{0, "Console", get_all_permissions()};
-}
-
 boost::asio::io_service& get_db_service()
 {
     static boost::asio::io_service db_service;
@@ -125,6 +100,8 @@ config parse_config(std::string config_file)
     keycap::root::configuration::config_file cfg_file{config_file};
 
     config conf;
+    conf.logging = logging::from_config_file(cfg_file);
+
     conf.network.bind_ip = cfg_file.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
     conf.network.port = cfg_file.get_or_default<int16_t>("Network", "Port", 3724);
     conf.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
@@ -141,18 +118,18 @@ int main()
     namespace net = keycap::root::network;
     namespace shared_net = keycap::shared::network;
 
-    auto console_role = create_console_role();
+    auto console_role = keycap::shared::rbac::role{0, "Console", keycap::shared::rbac::get_all_permissions()};
 
     utility::set_console_title("Logonserver");
 
-    create_loggers();
+    auto config = parse_config("logon.json");
+    
+    logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
     console->info("Running KeycapEmu.Logonserver version {}/{}", keycap::emu::version::GIT_BRANCH,
                   keycap::emu::version::GIT_HASH);
-
-    auto config = parse_config("logon.json");
 
     bool running = true;
     keycap::logonserver::cli::register_commands(commands);

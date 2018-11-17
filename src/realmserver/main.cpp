@@ -14,41 +14,34 @@
     limitations under the License.
 */
 
-//#include "connection.hpp"
+#include "client_connection.hpp"
+#include "client_service.hpp"
 
 #include <cli/helpers.hpp>
+#include <logging/utility.hpp>
+#include <network/services.hpp>
+#include <rbac/rbac.hpp>
+
 #include <keycap/root/configuration/config_file.hpp>
+#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/utility.hpp>
-#include <rbac/role.hpp>
 
 #include <database/database.hpp>
 #include <version.hpp>
 
 #include <spdlog/spdlog.h>
 
-void create_logger(std::string const& name, bool console, bool file, spdlog::level::level_enum level)
-{
-    std::vector<spdlog::sink_ptr> sinks;
-    if (console)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::stdout_sink_mt>()));
-    if (file)
-        sinks.emplace_back(std::move(std::make_shared<spdlog::sinks::daily_file_sink_mt>(name, 23, 59)));
-    auto combined_logger = std::make_shared<spdlog::logger>(name, std::begin(sinks), std::end(sinks));
-    combined_logger->set_level(level);
-    spdlog::register_logger(combined_logger);
-}
+#include <botan/bigint.h>
+#include <cryptography/packet_scrambler.hpp>
+#include <keycap/root/network/srp6/utility.hpp>
 
-void create_loggers()
-{
-    create_logger("console", true, true, spdlog::level::debug);
-    create_logger("command", false, true, spdlog::level::debug);
-    create_logger("connections", true, true, spdlog::level::debug);
-    create_logger("database", true, true, spdlog::level::debug);
-}
+namespace logging = keycap::shared::logging;
 
 struct config
 {
+    logging::logging_entry logging;
+
     struct
     {
         std::string bind_ip;
@@ -60,11 +53,7 @@ struct config
     {
         std::string host;
         int16_t port;
-        std::string user;
-        std::string password;
-        std::string schema;
-        int threads;
-    } database;
+    } account_service;
 
     struct
     {
@@ -72,57 +61,24 @@ struct config
     } realm;
 };
 
-config parse_config(std::string configFile)
+config parse_config(std::string config_file)
 {
-    keycap::root::configuration::config_file cfgFile{configFile};
+    namespace conf = keycap::root::configuration;
+    conf::config_file cfg_file{config_file};
 
-    config conf;
-    conf.network.bind_ip = cfgFile.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
-    conf.network.port = cfgFile.get_or_default<int16_t>("Network", "Port", 3724);
-    conf.network.threads = cfgFile.get_or_default<int>("Network", "Threads", 1);
+    config cfg;
+    cfg.logging = logging::from_config_file(cfg_file);
 
-    conf.database.host = cfgFile.get_or_default<std::string>("Database", "Host", "127.0.0.1");
-    conf.database.port = cfgFile.get_or_default<int16_t>("Database", "Port", 3306);
-    conf.database.user = cfgFile.get_or_default<std::string>("Database", "User", "root");
-    conf.database.password = cfgFile.get_or_default<std::string>("Database", "Password", "");
-    conf.database.schema = cfgFile.get_or_default<std::string>("Database", "Schema", "");
-    conf.database.threads = cfgFile.get_or_default<int>("Database", "Threads", 1);
+    cfg.network.bind_ip = cfg_file.get_or_default<std::string>("Network", "BindIp", "127.0.0.1");
+    cfg.network.port = cfg_file.get_or_default<int16_t>("Network", "Port", 3724);
+    cfg.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
 
-    conf.realm.id = cfgFile.get_or_default<uint32>("Realm", "Id", 1);
+    cfg.account_service.host = cfg_file.get_or_default<std::string>("AccountService", "Host", "127.0.0.1");
+    cfg.account_service.port = cfg_file.get_or_default<int16_t>("AccountService", "Port", 6660);
 
-    return conf;
-}
+    cfg.realm.id = cfg_file.get_or_default<uint32>("Realm", "Id", 1);
 
-boost::asio::io_service& get_db_service()
-{
-    static boost::asio::io_service db_service;
-    return db_service;
-}
-
-keycap::shared::database::database& get_login_database()
-{
-    static keycap::shared::database::database login_database{get_db_service()};
-    return login_database;
-}
-
-void init_databases(std::vector<std::thread>& thread_pool, config const& config)
-{
-    get_login_database().connect(config.database.host, config.database.port, config.database.user,
-                                 config.database.password, config.database.schema);
-
-    auto& service = get_db_service();
-    for (int i = 0; i < config.database.threads; ++i)
-        thread_pool.emplace_back([&] { service.run(); });
-}
-
-void kill_databases(std::vector<std::thread>& thread_pool)
-{
-    get_db_service().stop();
-    for (auto& thread : thread_pool)
-    {
-        if (thread.joinable())
-            thread.join();
-    }
+    return cfg;
 }
 
 keycap::shared::cli::command_map commands;
@@ -137,39 +93,28 @@ void register_command(keycap::shared::cli::command const& command)
     commands[command.name] = command;
 }
 
-keycap::shared::rbac::permission_set get_all_permissions()
-{
-    auto const& perms = keycap::shared::permission::to_vector();
-    return keycap::shared::rbac::permission_set{std::begin(perms), std::end(perms)};
-}
-
 int main()
 {
     namespace utility = keycap::root::utility;
 
     utility::set_console_title("Realmserver");
 
-    create_loggers();
+    auto config = parse_config("realm.json");
+    logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
     auto console = utility::get_safe_logger("console");
     console->info("Running KeycapEmu.Realmserver version {}/{}", keycap::emu::version::GIT_BRANCH,
                   keycap::emu::version::GIT_HASH);
-    auto config = parse_config("realm.json");
 
     console->info("Listening to {} on port {} with {} thread(s).", config.network.bind_ip, config.network.port,
                   config.network.threads);
 
-    boost::asio::io_service::work db_work{get_db_service()};
-    std::vector<std::thread> db_thread_pool;
-    init_databases(db_thread_pool, config);
-    SCOPE_EXIT(sc2, [&] { kill_databases(db_thread_pool); });
-
     bool running = true;
 
     using namespace std::string_literals;
-    using keycap::shared::permission;
     using keycap::shared::cli::command;
+    using keycap::shared::permission;
     namespace rbac = keycap::shared::rbac;
     register_command(command{"shutdown"s, permission::CommandShutdown,
                              [&running](std::vector<std::string> const& args, rbac::role const& role) {
@@ -178,10 +123,29 @@ int main()
                              },
                              "Shuts down the Server"s});
 
-    //get_db_service()
+    Botan::BigInt s{"0x98C41BA178C741A8D86881615BE4B09552175E80D65CB88D59589EF0B14D54C3"};
 
-    //keycap::accountserver::account_service service{config.network.threads};
-    //service.start(config.network.bind_ip, config.network.port);
+    auto dump = [](std::vector<uint8> const& v) {
+        for (auto&& n : v)
+            printf("%d ", n);
+        printf("\n");
+    };
 
-    keycap::shared::cli::run_command_line(keycap::shared::rbac::role{0, "Console", get_all_permissions()}, running);
+    // auto sv = Botan::BigInt::encode(s);
+    auto sv = keycap::root::network::srp6::encode_flip(s);
+    keycap::shared::cryptography::packet_scrambler scrambler{sv};
+
+    std::vector<uint8> data{1, 2, 3, 4, 5, 6, 7};
+
+    scrambler.encrypt(data.data(), 4);
+    dump(data);
+
+    keycap::root::network::service_locator locator;
+    locator.locate(keycap::shared::network::account_service, config.account_service.host, config.account_service.port);
+
+    keycap::realmserver::client_service service{locator, config.network.threads};
+    service.start(config.network.bind_ip, config.network.port);
+
+    keycap::shared::cli::run_command_line(
+        keycap::shared::rbac::role{0, "Console", keycap::shared::rbac::get_all_permissions()}, running);
 }
