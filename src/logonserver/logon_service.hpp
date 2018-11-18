@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <network/services.hpp>
+
 #include <keycap/root/network/service.hpp>
 #include <keycap/root/network/service_locator.hpp>
 
@@ -29,7 +31,7 @@ namespace keycap::logonserver
     {
       public:
         logon_service(int thread_count, keycap::root::network::service_locator& locator)
-          : service{keycap::root::network::service_mode::Server, thread_count}
+          : service{keycap::root::network::service_mode::Server, shared::network::logon_service, thread_count}
           , locator_{locator}
         {
         }

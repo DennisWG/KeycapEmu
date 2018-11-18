@@ -18,19 +18,19 @@
 
 namespace keycap::realmserver
 {
-    client_connection::client_connection(keycap::root::network::service_base& service)
+    client_connection::client_connection(keycap::root::network::service_base& service,
+                                         keycap::root::network::service_locator& locator)
       : connection{service}
     {
     }
 
-    bool client_connection::on_data(keycap::root::network::data_router const& router,
+    bool client_connection::on_data(net::data_router const& router, net::service_type service,
                                     std::vector<uint8_t> const& data)
     {
         return true;
     }
 
-    bool client_connection::on_link(keycap::root::network::data_router const& router,
-                                    keycap::root::network::link_status status)
+    bool client_connection::on_link(net::data_router const& router, net::service_type service, net::link_status status)
     {
         return true;
     }

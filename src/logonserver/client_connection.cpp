@@ -1,3 +1,4 @@
+#include "..\realmserver\client_connection.hpp"
 /*
     Copyright 2018 KeycapEmu
 
@@ -57,7 +58,8 @@ namespace keycap::logonserver
         router_.configure_inbound(this);
     }
 
-    bool client_connection::on_data(net::data_router const& router, std::vector<uint8_t> const& data)
+    bool client_connection::on_data(net::data_router const& router, net::service_type service,
+                                    std::vector<uint8_t> const& data)
     {
         input_stream_.put(gsl::make_span(data));
         // clang-format off
@@ -85,7 +87,7 @@ namespace keycap::logonserver
         // clang-format on
     }
 
-    bool client_connection::on_link(net::data_router const& router, net::link_status status)
+    bool client_connection::on_link(net::data_router const& router, net::service_type service, net::link_status status)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
 
@@ -155,8 +157,10 @@ namespace keycap::logonserver
         connection.service_locator().send_registered(
             shared_net::account_service, request.encode(),
             [&, account_name = packet.account_name ](net::service_type sender, net::memory_stream data) {
-                auto self = std::static_pointer_cast<client_connection>(connection.shared_from_this());
-                on_account_reply(self, data, account_name);
+                auto self = std::static_pointer_cast<client_connection>(
+                    connection.shared_from_this()); // TODO: move up. dangling reference!
+                auto reply = shared_net::reply_account_data::decode(data);
+                on_account_reply(self, reply, account_name);
                 return true;
             });
 
@@ -164,7 +168,7 @@ namespace keycap::logonserver
     }
 
     void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
-                                                             keycap::root::network::memory_stream& stream,
+                                                             shared_net::reply_account_data& reply,
                                                              std::string const& account_name)
     {
         if (connection.expired())
@@ -173,9 +177,8 @@ namespace keycap::logonserver
         auto conn = connection.lock();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
-        auto reply = shared_net::reply_account_data::decode(stream);
 
-        if (!reply.has_data)
+        if (!reply.data)
         {
             conn->send_error(protocol::grunt_result::unknown_account);
             logger->info("User {} tried to log in with incorrect login info!", account_name);

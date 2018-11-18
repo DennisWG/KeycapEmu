@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+#include <network/services.hpp>
+
 #include <keycap/root/network/service.hpp>
 
 namespace keycap::logonserver
@@ -24,7 +26,7 @@ namespace keycap::logonserver
     {
       public:
         account_service()
-          : service{keycap::root::network::service_mode::Client, 1}
+          : service{keycap::root::network::service_mode::Client, shared::network::account_service, 1}
         {
         }
 

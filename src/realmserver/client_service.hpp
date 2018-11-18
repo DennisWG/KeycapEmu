@@ -16,9 +16,16 @@
 
 #pragma once
 
+#include <network/services.hpp>
+
 #include <keycap/root/network/service.hpp>
 
 #include <memory>
+
+namespace keycap::root::network
+{
+    class service_locator;
+}
 
 namespace keycap::realmserver
 {
@@ -27,13 +34,17 @@ namespace keycap::realmserver
     class client_service : public keycap::root::network::service<client_connection>
     {
       public:
-        client_service(int thread_count)
-          : service{keycap::root::network::service_mode::Server, thread_count}
+        explicit client_service(root::network::service_locator& locator, int thread_count)
+          : service{keycap::root::network::service_mode::Server, shared::network::realm_service, thread_count}
+          , locator_{locator}
         {
         }
 
         virtual bool on_new_connection(SharedHandler handler) override;
 
         virtual SharedHandler make_handler() override;
+
+      private:
+        root::network::service_locator& locator_;
     };
 }

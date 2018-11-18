@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <network/services.hpp>
+
 #include <keycap/root/network/service.hpp>
 
 namespace keycap::accountserver
@@ -26,7 +28,7 @@ namespace keycap::accountserver
     {
       public:
         explicit account_service(int thread_count)
-          : service{keycap::root::network::service_mode::Server, thread_count}
+          : service{keycap::root::network::service_mode::Server, shared::network::account_service, thread_count}
         {
         }
 

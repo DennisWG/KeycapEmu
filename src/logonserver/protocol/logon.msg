@@ -235,9 +235,9 @@ message client_logon_proof
 {
     [expects="command::proof"]
     command cmd;
-    [reverse=1]
+    [reverse]
     uint8[32] A;
-    [reverse=1]
+    [reverse]
     uint8[20] M1;
     uint8[20] checksum;
     repeated telemetry_data data;
@@ -287,5 +287,5 @@ message server_realm_list
     [size_type="uint16"]
     repeated realm_list_data data;
     
-     uint16 unk = 0;
+    uint16 unk = 0;
 }

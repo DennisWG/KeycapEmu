@@ -29,7 +29,8 @@ namespace keycap::logonserver
         router_.configure_inbound(this);
     }
 
-    bool account_connection::on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data)
+    bool account_connection::on_data(net::data_router const& router, net::service_type service,
+                                     std::vector<uint8_t> const& data)
     {
         input_stream_.put(gsl::make_span(data));
         // clang-format off
@@ -57,8 +58,7 @@ namespace keycap::logonserver
         // clang-format on
     }
 
-    bool account_connection::on_link(keycap::root::network::data_router const& router,
-                                     keycap::root::network::link_status status)
+    bool account_connection::on_link(net::data_router const& router, net::service_type service, net::link_status status)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
 

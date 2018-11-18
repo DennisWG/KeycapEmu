@@ -26,6 +26,6 @@ namespace keycap::realmserver
 
     client_service::SharedHandler client_service::make_handler()
     {
-        return std::make_shared<client_connection>(*this);
+        return std::make_shared<client_connection>(*this, locator_);
     }
 }

@@ -35,7 +35,7 @@ namespace keycap::accountserver
         router_.configure_inbound(this);
     }
 
-    bool connection::on_data(net::data_router const& router, uint64 sender, net::memory_stream& stream)
+    bool connection::on_data(net::data_router const& router,  net::service_type service, uint64 sender, net::memory_stream& stream)
     {
         // clang-format off
         return std::visit([&](auto state)
@@ -62,7 +62,7 @@ namespace keycap::accountserver
         // clang-format on
     }
 
-    bool connection::on_link(net::data_router const& router, net::link_status status)
+    bool connection::on_link(net::data_router const& router, net::service_type service, net::link_status status)
     {
         if (status == net::link_status::Up)
         {
@@ -81,7 +81,7 @@ namespace keycap::accountserver
     }
 
     shared::network::state_result connection::disconnected::on_data(connection& connection, uint64 sender,
-                                                               net::memory_stream& stream)
+                                                                    net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->error("defuq???");
@@ -89,7 +89,7 @@ namespace keycap::accountserver
     }
 
     shared::network::state_result connection::connected::on_data(connection& connection, uint64 sender,
-                                                            net::memory_stream& stream)
+                                                                 net::memory_stream& stream)
     {
         auto protocol = stream.peek<shared_net::protocol>();
         auto logger = keycap::root::utility::get_safe_logger("connections");
@@ -116,6 +116,11 @@ namespace keycap::accountserver
                 auto packet = shared_net::update_session_key::decode(stream);
                 return on_update_session_key(connection_ptr, sender, packet);
             }
+            case shared_net::protocol::request_session_key:
+            {
+                auto packet = shared_net::request_session_key::decode(stream);
+                return on_session_key_request(connection_ptr, sender, packet);
+            }
         }
     }
 
@@ -124,19 +129,18 @@ namespace keycap::accountserver
                                                    uint64 sender, shared::network::request_account_data& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
-        user_dao->user(
-            packet.account_name, [ sender, connection = connection_ptr ](std::optional<shared::database::user> user) {
-                if (connection.expired())
-                    return;
+        user_dao->user(packet.account_name, [ sender, connection =
+                                                          connection_ptr ](std::optional<shared::database::user> user) {
+            if (connection.expired())
+                return;
 
-                shared_net::reply_account_data reply;
+            shared_net::reply_account_data reply;
 
-                reply.has_data = user.has_value();
-                if (user)
-                    reply.data = shared_net::account_data{user->verifier, user->salt, user->security_options, user->flags};
+            if (user)
+                reply.data = shared_net::account_data{user->verifier, user->salt, user->security_options, user->flags};
 
-                connection.lock()->send_answer(sender, reply.encode());
-            });
+            connection.lock()->send_answer(sender, reply.encode());
+        });
 
         return shared::network::state_result::ok;
     }
@@ -147,6 +151,27 @@ namespace keycap::accountserver
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->update_session_key(packet.account_name, packet.session_key);
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_session_key_request(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                  uint64 sender, shared::network::request_session_key& packet)
+    {
+        auto user_dao = shared::database::dal::get_user_dao(get_login_database());
+        user_dao->user(packet.account_name,
+                       [ sender, connection = connection_ptr ](std::optional<shared::database::user> user) {
+                           if (connection.expired())
+                               return;
+
+                           shared_net::reply_session_key reply;
+
+                           if (user)
+                               reply.session_key = user->session_key;
+
+                           connection.lock()->send_answer(sender, reply.encode());
+                       });
 
         return shared::network::state_result::ok;
     }

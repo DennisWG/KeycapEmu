@@ -26,6 +26,7 @@
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/message_handler.hpp>
 #include <keycap/root/network/service_connection.hpp>
+#include <keycap/root/network/service_type.hpp>
 #include <keycap/root/network/srp6/server.hpp>
 
 #include <variant>
@@ -34,6 +35,8 @@ namespace keycap::shared::network
 {
     class request_account_data;
     class update_session_key;
+
+    class request_session_key;
 }
 
 namespace keycap::accountserver
@@ -43,10 +46,10 @@ namespace keycap::accountserver
       public:
         explicit connection(keycap::root::network::service_base& service);
 
-        bool on_data(keycap::root::network::data_router const& router, uint64 sender,
-                     keycap::root::network::memory_stream& stream) override;
+        bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
+                     uint64 sender, keycap::root::network::memory_stream& stream) override;
 
-        bool on_link(keycap::root::network::data_router const& router,
+        bool on_link(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      keycap::root::network::link_status status) override;
 
       private:
@@ -75,6 +78,10 @@ namespace keycap::accountserver
             shared::network::state_result
             on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
                                   shared::network::update_session_key& packet);
+
+            shared::network::state_result
+            on_session_key_request(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                   shared::network::request_session_key& packet);
         };
 
         std::variant<disconnected, connected> state_;

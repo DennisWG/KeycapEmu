@@ -31,6 +31,11 @@
 
 #include <variant>
 
+namespace keycap::shared::network
+{
+    class reply_account_data;
+}
+
 namespace keycap::logonserver
 {
     class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
@@ -41,9 +46,10 @@ namespace keycap::logonserver
         client_connection(keycap::root::network::service_base& service,
                           keycap::root::network::service_locator& locator);
 
-        bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
+        bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
+                     std::vector<uint8_t> const& data) override;
 
-        bool on_link(keycap::root::network::data_router const& router,
+        bool on_link(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      keycap::root::network::link_status status) override;
 
         keycap::root::network::service_locator& service_locator()
@@ -54,7 +60,6 @@ namespace keycap::logonserver
         void send_error(protocol::grunt_result result);
 
       private:
-
         struct challanged_data
         {
             std::shared_ptr<keycap::root::network::srp6::server> server;
@@ -85,7 +90,7 @@ namespace keycap::logonserver
                                                   keycap::root::network::memory_stream& stream);
 
             void on_account_reply(std::weak_ptr<client_connection> connection,
-                                  keycap::root::network::memory_stream& stream, std::string const& account_name);
+                                  shared::network::reply_account_data& reply, std::string const& account_name);
 
             std::string name = "JustConnected";
 
