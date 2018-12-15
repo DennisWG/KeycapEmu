@@ -14,10 +14,10 @@
     limitations under the License.
 */
 
-#include "account_connection.hpp"
-#include "account_service.hpp"
 #include "cli/registrar.hpp"
-#include "client_connection.hpp"
+#include "network/client_connection.hpp"
+#include "network/realm_service.hpp"
+#include "realm_manager.hpp"
 #include "version.hpp"
 
 #include <cli/helpers.hpp>
@@ -60,6 +60,12 @@ struct config
         std::string host;
         int16_t port;
     } account_service;
+
+    struct
+    {
+        std::string host;
+        int16_t port;
+    } realm_service;
 };
 
 keycap::shared::cli::command_map commands;
@@ -107,7 +113,10 @@ config parse_config(std::string config_file)
     conf.network.threads = cfg_file.get_or_default<int>("Network", "Threads", 1);
 
     conf.account_service.host = cfg_file.get_or_default<std::string>("AccountService", "Host", "127.0.0.1");
-    conf.account_service.port = cfg_file.get_or_default<int16_t>("AccountService", "Port", 3306);
+    conf.account_service.port = cfg_file.get_or_default<int16_t>("AccountService", "Port", 6660);
+
+    conf.realm_service.host = cfg_file.get_or_default<std::string>("RealmService", "Host", "127.0.0.1");
+    conf.realm_service.port = cfg_file.get_or_default<int16_t>("RealmService", "Port", 6662);
 
     return conf;
 }
@@ -123,7 +132,7 @@ int main()
     utility::set_console_title("Logonserver");
 
     auto config = parse_config("logon.json");
-    
+
     logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
@@ -134,6 +143,10 @@ int main()
     bool running = true;
     keycap::logonserver::cli::register_commands(commands);
     register_default_commands(running);
+
+    keycap::logonserver::realm_manager realm_manager;
+    keycap::logonserver::realm_service realm_service{1, realm_manager};
+    realm_service.start(config.realm_service.host, config.realm_service.port);
 
     net::service_locator service_locator;
     service_locator.locate(shared_net::account_service, config.account_service.host, config.account_service.port);

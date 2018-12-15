@@ -1,5 +1,5 @@
 #include "cli/registrar.hpp"
-#include "connection.hpp"
+#include "network/connection.hpp"
 
 #include <cli/helpers.hpp>
 #include <keycap/root/configuration/config_file.hpp>

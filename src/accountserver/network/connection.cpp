@@ -35,13 +35,14 @@ namespace keycap::accountserver
         router_.configure_inbound(this);
     }
 
-    bool connection::on_data(net::data_router const& router,  net::service_type service, uint64 sender, net::memory_stream& stream)
+    bool connection::on_data(net::data_router const& router, net::service_type service, uint64 sender,
+                             net::memory_stream& stream)
     {
         // clang-format off
         return std::visit([&](auto state)
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
-            logger->debug("Received data in state: {}", state.name);
+            logger->debug("[connection] Received data in state: {}", state.name);
 
             try
             {
@@ -67,13 +68,13 @@ namespace keycap::accountserver
         if (status == net::link_status::Up)
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
-            logger->debug("New connection");
+            logger->debug("[connection] New connection");
             state_ = connected{};
         }
         else
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
-            logger->debug("Connection closed");
+            logger->debug("[connection] Connection closed");
             state_ = disconnected{};
         }
 
@@ -84,7 +85,7 @@ namespace keycap::accountserver
                                                                     net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
-        logger->error("defuq???");
+        logger->error("[connection] defuq???");
         return shared::network::state_result::abort;
     }
 
@@ -97,13 +98,13 @@ namespace keycap::accountserver
         std::weak_ptr<accountserver::connection> connection_ptr{
             std::static_pointer_cast<accountserver::connection>(connection.shared_from_this())};
 
-        logger->debug("Received {} from {}", protocol.to_string(), sender);
+        logger->debug("[connection] Received {} from {}", protocol.to_string(), sender);
 
         switch (protocol)
         {
             default:
             {
-                logger->error("Received unkown protocol {}", protocol);
+                logger->error("[connection] Received unkown protocol {}", protocol);
                 return shared::network::state_result::abort;
             }
             case shared_net::protocol::request_account_data:

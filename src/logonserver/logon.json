@@ -36,5 +36,9 @@
     "AccountService": {
         "Host": "127.0.0.1",
         "Port": 6660
+    },
+    "RealmService": {
+        "Host": "127.0.0.1",
+        "Port": 6662
     }
 }

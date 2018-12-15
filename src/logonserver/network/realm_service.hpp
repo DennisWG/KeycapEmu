@@ -14,26 +14,28 @@
     limitations under the License.
 */
 
+#pragma once
+
+#include "realm_connection.hpp"
+
 #include <network/services.hpp>
 
 #include <keycap/root/network/service.hpp>
 
 namespace keycap::logonserver
 {
-    class account_connection;
+    class realm_manager;
 
-    class account_service final : public keycap::root::network::service<account_connection>
+    class realm_service : public keycap::root::network::service<realm_connection>
     {
       public:
-        account_service()
-          : service{keycap::root::network::service_mode::Client, shared::network::account_service, 1}
-        {
-        }
+        realm_service(int thread_count, realm_manager& realm_manager);
 
-      protected:
-        virtual SharedHandler make_handler() override
-        {
-            return std::make_shared<account_connection>(*this);
-        }
+        virtual bool on_new_connection(SharedHandler handler) override;
+
+        virtual SharedHandler make_handler() override;
+
+      private:
+        realm_manager& realm_manager_;
     };
 }

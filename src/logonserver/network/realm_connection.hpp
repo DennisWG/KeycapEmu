@@ -16,26 +16,23 @@
 
 #pragma once
 
+#include "../realm_manager.hpp"
+
 #include <network/state_result.hpp>
 
-#include <keycap/root/network/connection.hpp>
-#include <keycap/root/network/memory_stream.hpp>
-#include <keycap/root/network/message_handler.hpp>
-#include <keycap/root/network/service_type.hpp>
+#include <keycap/root/network/service_connection.hpp>
 
 #include <variant>
 
 namespace keycap::logonserver
 {
-    class account_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
+    class realm_connection : public keycap::root::network::service_connection
     {
-        using BaseConnection = keycap::root::network::connection;
-
       public:
-        explicit account_connection(keycap::root::network::service_base& service);
+        explicit realm_connection(keycap::root::network::service_base& service, realm_manager& realm_manager);
 
         bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
-                     std::vector<uint8_t> const& data) override;
+                     uint64 sender, keycap::root::network::memory_stream& stream) override;
 
         bool on_link(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      keycap::root::network::link_status status) override;
@@ -44,8 +41,7 @@ namespace keycap::logonserver
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
-            shared::network::state_result on_data(account_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(realm_connection& connection, uint64 sender,
                                                   keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
@@ -54,15 +50,19 @@ namespace keycap::logonserver
         // Connection was just established
         struct connected
         {
-            shared::network::state_result on_data(account_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(realm_connection& connection, uint64 sender,
                                                   keycap::root::network::memory_stream& stream);
 
-            std::string name = "Connected";
+            std::string name = "JustConnected";
+
+          private:
         };
+        friend struct connected;
 
         std::variant<disconnected, connected> state_;
 
-        keycap::root::network::memory_stream input_stream_;
+        realm_manager& realm_manager_;
+
+        uint8_t realm_id_ = 0;
     };
-}
+} // namespace keycap::logonserver

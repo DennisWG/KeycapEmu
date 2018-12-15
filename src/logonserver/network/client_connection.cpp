@@ -1,4 +1,3 @@
-#include "..\realmserver\client_connection.hpp"
 /*
     Copyright 2018 KeycapEmu
 
@@ -66,7 +65,7 @@ namespace keycap::logonserver
         return std::visit([&](auto state)
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
-            logger->debug("Received data in state: {}", state.name);
+            logger->debug("[client_connection] Received data in state: {}", state.name);
 
             try
             {
@@ -93,12 +92,12 @@ namespace keycap::logonserver
 
         if (status == net::link_status::Up)
         {
-            logger->debug("New connection");
+            logger->debug("[client_connection] New connection");
             state_ = just_connected{};
         }
         else
         {
-            logger->debug("Connection closed");
+            logger->debug("[client_connection] Connection closed");
             state_ = disconnected{};
         }
 
@@ -143,10 +142,9 @@ namespace keycap::logonserver
             return shared::network::state_result::abort;
 
         auto packet{protocol::client_logon_challange::decode(stream)};
-        stream.shrink();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
-        logger->debug(packet.to_string());
+        logger->debug("[client_connection] {}", packet.to_string());
 
         if (packet.cmd != protocol::command::challange)
             return shared::network::state_result::abort;
@@ -156,9 +154,8 @@ namespace keycap::logonserver
 
         connection.service_locator().send_registered(
             shared_net::account_service, request.encode(),
-            [&, account_name = packet.account_name ](net::service_type sender, net::memory_stream data) {
-                auto self = std::static_pointer_cast<client_connection>(
-                    connection.shared_from_this()); // TODO: move up. dangling reference!
+            [&, account_name = packet.account_name, self = std::static_pointer_cast<client_connection>(
+                    connection.shared_from_this()) ](net::service_type sender, net::memory_stream data) {
                 auto reply = shared_net::reply_account_data::decode(data);
                 on_account_reply(self, reply, account_name);
                 return true;
@@ -225,6 +222,8 @@ namespace keycap::logonserver
         if (outPacket.security_flags.test_flag(protocol::security_flag::pin))
         {
             protocol::pin pin;
+            pin.pin_value = 1234;
+            // pin.pin_salt
             outPacket.pin = pin;
         }
         if (outPacket.security_flags.test_flag(protocol::security_flag::matrix))
@@ -242,11 +241,15 @@ namespace keycap::logonserver
     }
 
     void update_session_key(client_connection& connection, std::string const& account_name,
-                            std::vector<uint8> const& session_key)
+                            Botan::BigInt const& session_key)
     {
         shared_net::update_session_key update;
         update.account_name = account_name;
-        update.session_key = keycap::root::utility::to_hex_string(session_key.begin(), session_key.end(), true);
+        auto key = Botan::BigInt::encode(session_key);
+        update.session_key = keycap::root::utility::to_hex_string(key.begin(), key.end(), true);
+
+        auto logger = keycap::root::utility::get_safe_logger("connections");
+        logger->debug("[client_connection] Updating session key of {} to {}", update.account_name, update.session_key);
 
         connection.service_locator().send_to(shared_net::account_service, update.encode());
     }
@@ -262,10 +265,15 @@ namespace keycap::logonserver
             return shared::network::state_result::abort;
 
         auto packet{protocol::client_logon_proof::decode(stream)};
-        stream.shrink();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
+
+        auto B = data.server->public_ephemeral_value();
+        auto B_en = Botan::BigInt::encode(B);
+        auto flipped = net::srp6::encode_flip(B);
+        auto a = keycap::root::utility::to_hex_string(B_en.begin(), B_en.end());
+        auto b = keycap::root::utility::to_hex_string(flipped.begin(), flipped.end());
 
         auto[session_key, M1, M1_S] = generate_session_key_and_server_proof(packet);
 
@@ -284,7 +292,7 @@ namespace keycap::logonserver
         return shared::network::state_result::ok;
     }
 
-    std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
+    std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
     client_connection::challanged::generate_session_key_and_server_proof(protocol::client_logon_proof const& packet)
     {
         Botan::BigInt A{packet.A.data(), 32};
@@ -298,12 +306,13 @@ namespace keycap::logonserver
         return std::make_tuple(std::move(session_key), std::move(M1), std::move(M1_S));
     }
 
-    void client_connection::challanged::send_proof_success(client_connection& connection,
-                                                           std::vector<uint8_t> session_key, Botan::BigInt M1_S)
+    void client_connection::challanged::send_proof_success(client_connection& connection, Botan::BigInt session_key,
+                                                           Botan::BigInt M1_S)
     {
         protocol::server_logon_proof outPacket;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
         outPacket.account_flags = data.account_flags;
+        outPacket.num_account_messages = 1;
 
         connection.send(outPacket.encode());
     }
@@ -319,10 +328,9 @@ namespace keycap::logonserver
             return shared::network::state_result::abort;
 
         auto packet{protocol::client_realm_list::decode(stream)};
-        stream.shrink();
 
         auto logger = keycap::root::utility::get_safe_logger("connections");
-        logger->debug(packet.to_string());
+        logger->debug("[client_connection] {}", packet.to_string());
 
         protocol::server_realm_list outPacket;
         auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
@@ -330,7 +338,7 @@ namespace keycap::logonserver
         data.locked = 0;
         data.realm_flags = protocol::realm_flag::recommended;
         data.name = "KeycapEmu Testrealm";
-        data.ip = "127.0.0.1:8086";
+        data.ip = "127.0.0.1:8085";
         data.population = 0.f;
         data.num_characters = 0;
         data.category = protocol::realm_category::tournament;
@@ -347,7 +355,7 @@ namespace keycap::logonserver
         data2.category = protocol::realm_category::test_server_2;
         data2.id = 2;
 
-        outPacket.unk = 16;
+        outPacket.unk = 12345;
 
         connection.send(outPacket.encode());
 

@@ -117,10 +117,10 @@ namespace keycap::logonserver
             challanged_data data;
 
           private:
-            std::tuple<std::vector<uint8_t>, Botan::BigInt, Botan::BigInt>
+            std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
             generate_session_key_and_server_proof(protocol::client_logon_proof const& packet);
 
-            void send_proof_success(client_connection& connection, std::vector<uint8_t> session_key,
+            void send_proof_success(client_connection& connection, Botan::BigInt session_key,
                                     Botan::BigInt M1_S);
         };
 

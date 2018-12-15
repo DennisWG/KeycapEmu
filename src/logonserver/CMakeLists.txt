@@ -13,10 +13,12 @@
 #   limitations under the License.
 
 add_executable (logonserver
-    account_connection.cpp
-    client_connection.cpp
-    logon_service.cpp
+    network/client_connection.cpp
+    network/logon_service.cpp
+    network/realm_service.cpp
+    network/realm_connection.cpp
     main.cpp
+    realm_manager.cpp
     cli/help.cpp
     ${version_file}
 )
