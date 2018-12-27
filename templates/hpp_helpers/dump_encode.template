@@ -34,12 +34,12 @@
             encoder.put(static_cast<{% if hasAnnotation(attrib, "size_type") %}{{annotationValue(attrib, "size_type")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
 
 ## endif
-            for (auto&& elem : {{ attrib/name }})
 
 ## if isUserDefinedData(attrib/type)
+            for (auto&& elem : {{ attrib/name }})
                 elem.encode(encoder);
 ## else
-                encoder.put(elem);
+            encoder.put(gsl::make_span({{ attrib/name }}));
 ## endif
 ## else if hasSpecifier(attrib, "optional")
 {##}
