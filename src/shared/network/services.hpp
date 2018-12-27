@@ -22,12 +22,19 @@
 namespace keycap::shared::network
 {
     keycap_enum(services, uint32,
-                logon = 0,
-                account = 1,
-                realm = 2,
+                logon = 0,       // user -> logon server
+                logon_realm = 1, // realm server -> logon server
+                account = 2,     // internal service -> account server
+                realm = 3,       // user -> realm server
     );
 
-    const static keycap::root::network::service_type logon_service{services::logon};
-    const static keycap::root::network::service_type account_service{services::account};
-    const static keycap::root::network::service_type realm_service{services::realm};
+    constexpr static keycap::root::network::service_type logon_service_type{services::logon};
+    constexpr static keycap::root::network::service_type logon_realm_service_type{services::logon_realm};
+    constexpr static keycap::root::network::service_type account_service_type{services::account};
+    constexpr static keycap::root::network::service_type realm_service_type{services::realm};
+
+    constexpr static services logon_service{services::logon};
+    constexpr static services logon_realm_service{services::logon_realm};
+    constexpr static services account_service{services::account};
+    constexpr static services realm_service{services::realm};
 }

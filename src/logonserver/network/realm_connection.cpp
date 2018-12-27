@@ -16,7 +16,7 @@
 
 #include "realm_connection.hpp"
 
-#include <protocol.hpp>
+#include <shared_protocol.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -73,7 +73,7 @@ namespace keycap::logonserver
         }
         else
         {
-            realm_manager_.remove(realm_id_);
+            realm_manager_.set_offline(realm_id_);
 
             auto logger = keycap::root::utility::get_safe_logger("connections");
             logger->debug("[realm_connection] Connection closed");
@@ -94,12 +94,12 @@ namespace keycap::logonserver
     shared::network::state_result realm_connection::connected::on_data(realm_connection& connection, uint64 sender,
                                                                        keycap::root::network::memory_stream& stream)
     {
-        auto protocol = stream.peek<shared_net::protocol>();
+        auto command = stream.peek<keycap::protocol::shared_command>();
 
-        if(protocol != shared_net::protocol::realm_hello)
+        if(command != keycap::protocol::shared_command::realm_hello)
             return shared::network::state_result::abort;
 
-        auto packet = shared_net::realm_hello::decode(stream);
+        auto packet = keycap::protocol::realm_hello::decode(stream);
 
         connection.realm_id_ = packet.info.id;
 

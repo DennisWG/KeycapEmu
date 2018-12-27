@@ -31,20 +31,22 @@
 
 #include <variant>
 
-namespace keycap::shared::network
+namespace keycap::protocol
 {
     class reply_account_data;
 }
 
 namespace keycap::logonserver
 {
+    class realm_manager;
+
     class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
     {
         using base_connection = keycap::root::network::connection;
 
       public:
-        client_connection(keycap::root::network::service_base& service,
-                          keycap::root::network::service_locator& locator);
+        client_connection(keycap::root::network::service_base& service, keycap::root::network::service_locator& locator,
+                          realm_manager& realm_manager);
 
         bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      std::vector<uint8_t> const& data) override;
@@ -90,7 +92,7 @@ namespace keycap::logonserver
                                                   keycap::root::network::memory_stream& stream);
 
             void on_account_reply(std::weak_ptr<client_connection> connection,
-                                  shared::network::reply_account_data& reply, std::string const& account_name);
+                                  protocol::reply_account_data& reply, std::string const& account_name);
 
             std::string name = "JustConnected";
 
@@ -120,8 +122,7 @@ namespace keycap::logonserver
             std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
             generate_session_key_and_server_proof(protocol::client_logon_proof const& packet);
 
-            void send_proof_success(client_connection& connection, Botan::BigInt session_key,
-                                    Botan::BigInt M1_S);
+            void send_proof_success(client_connection& connection, Botan::BigInt session_key, Botan::BigInt M1_S);
         };
 
         // Client send its Challange and is now authenticated
@@ -132,6 +133,8 @@ namespace keycap::logonserver
                                                   keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
+
+            void send_realm_list();
         };
 
         std::variant<disconnected, just_connected, challanged, authenticated> state_;
@@ -139,5 +142,7 @@ namespace keycap::logonserver
         keycap::root::network::memory_stream input_stream_;
 
         keycap::root::network::service_locator& locator_;
+
+        realm_manager& realm_manager_;
     };
 }

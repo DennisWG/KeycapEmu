@@ -28,7 +28,7 @@ namespace keycap::accountserver
     {
       public:
         explicit account_service(int thread_count)
-          : service{keycap::root::network::service_mode::Server, shared::network::account_service, thread_count}
+          : service{keycap::root::network::service_mode::Server, shared::network::account_service_type, thread_count}
         {
         }
 

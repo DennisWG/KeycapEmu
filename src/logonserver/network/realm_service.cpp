@@ -19,7 +19,7 @@
 namespace keycap::logonserver
 {
     realm_service::realm_service(int thread_count, realm_manager& realm_manager)
-      : service{keycap::root::network::service_mode::Server, shared::network::logon_realm_service, thread_count}
+      : service{keycap::root::network::service_mode::Server, shared::network::logon_realm_service_type, thread_count}
       , realm_manager_{realm_manager}
     {
     }

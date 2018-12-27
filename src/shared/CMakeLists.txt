@@ -17,9 +17,12 @@ set(LIBRARY_NAME keycapemushared)
 add_library(${LIBRARY_NAME}
     cli/handler.cpp
     cli/helpers.cpp
+    cryptography/packet_scrambler.cpp
     database/daos/mysql/user.cpp
+    database/daos/mysql/realm.cpp
     database/mysql/database.cpp
     database/mysql/prepared_statement.cpp
+    logging/utility.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}
@@ -27,6 +30,7 @@ target_link_libraries(${LIBRARY_NAME}
 #        "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
 #        "${MySQL_C_Connector_ROOT_DIR}/lib/vs14/mysqlclient.lib"
         "${MySQL_Cpp_Connector_ROOT_DIR}/lib64/vs14/mysqlcppconn.lib"
+        ${Botan_LIBRARIES}
 )
 
 target_include_directories(${LIBRARY_NAME}
@@ -41,6 +45,8 @@ target_include_directories(${LIBRARY_NAME}
         "${MySQL_Cpp_Connector_ROOT_DIR}/include/jdbc"
         "."
     PRIVATE
+        ${Botan_INCLUDE_DIR}
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
 )
 
 target_compile_definitions(${LIBRARY_NAME}

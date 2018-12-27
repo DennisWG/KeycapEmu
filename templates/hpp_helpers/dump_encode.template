@@ -1,17 +1,39 @@
 ## if attrib/type == "string"
-## if hasAnnotation(attrib, "zero_teminated")
+## if hasAnnotation(attrib, "zero_terminated")
+## if hasSpecifier(attrib, "optional")
+{##}
+            if({{ attrib/name }})
+            {
+                encoder.put(*{{ attrib/name }});
+                encoder.put<uint8>(0);
+            }
+## else
 {##}
             encoder.put({{ attrib/name }});
             encoder.put<uint8>(0);
+## endif
+## else
+## if hasSpecifier(attrib, "optional")
+{##}
+            if({{ attrib/name }})
+            {
+                encoder.put(static_cast<uint8>({{ attrib/name }}->size()));
+                encoder.put(*{{ attrib/name }});
+            }
 ## else
 {##}
             encoder.put(static_cast<uint8>({{ attrib/name }}.size()));
             encoder.put({{ attrib/name }});
-## endif 
+## endif
+## endif
 ## else if attrib/hasSpecifier
 ## if hasSpecifier(attrib, "repeated")
 {##}
+
+## if not hasAnnotation(attrib, "no_size")
             encoder.put(static_cast<{% if hasAnnotation(attrib, "size_type") %}{{annotationValue(attrib, "size_type")}}{% else %}uint8{% endif %}>({{attrib/name}}.size()));
+
+## endif
             for (auto&& elem : {{ attrib/name }})
 
 ## if isUserDefinedData(attrib/type)
@@ -29,10 +51,13 @@
                 encoder.put({{ attrib/name }});
 ## endif
 ## endif
+## else if attrib/hasArraySize
+{##}
+            encoder.put<{{attrib/type}}, {{ attrib/arraySize }}>({{attrib/name}});
 ## else
 ## if isUserDefinedData(attrib/type)
 {##}
-            {{attrib/name}}.encode(encoder); // {{isUserDefinedData(attrib/type)}}
+            {{attrib/name}}.encode(encoder);
 ## else
 ## if not hasAnnotation(attrib, "is_size")
 {##}

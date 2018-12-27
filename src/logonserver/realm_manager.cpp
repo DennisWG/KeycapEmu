@@ -18,14 +18,22 @@
 
 namespace keycap::logonserver
 {
-    void realm_manager::insert(keycap::shared::network::realm_info const& realm_data)
+    void realm_manager::insert(keycap::protocol::realm_info const& realm_data)
     {
-        realms_[realm_data.id] = realm_data;
+        if (auto const& realm = realms_.find(realm_data.id); realm != realms_.end())
+            realm->second.realm_flags.clear_flag(keycap::protocol::realm_flag::offline);
+        else
+            realms_[realm_data.id] = realm_data;
     }
 
-    void realm_manager::remove(keycap::shared::network::realm_info const& realm_data)
+    void realm_manager::remove(keycap::protocol::realm_info const& realm_data)
     {
         realms_.erase(realm_data.id);
+    }
+
+    void realm_manager::set_offline(uint8_t id)
+    {
+        realms_[id].realm_flags.set_flag(keycap::protocol::realm_flag::offline);
     }
 
     void realm_manager::remove(uint8_t id)

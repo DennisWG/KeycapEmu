@@ -16,14 +16,16 @@
 
 #include "connection.hpp"
 
-#include <protocol.hpp>
+#include <shared_protocol.hpp>
 
+#include <database/daos/realm.hpp>
 #include <database/daos/user.hpp>
 
 #include <spdlog/spdlog.h>
 
 namespace net = keycap::root::network;
 namespace shared_net = keycap::shared::network;
+namespace protocol = keycap::protocol;
 
 extern keycap::shared::database::database& get_login_database();
 
@@ -92,42 +94,47 @@ namespace keycap::accountserver
     shared::network::state_result connection::connected::on_data(connection& connection, uint64 sender,
                                                                  net::memory_stream& stream)
     {
-        auto protocol = stream.peek<shared_net::protocol>();
+        auto command = stream.peek<protocol::shared_command>();
         auto logger = keycap::root::utility::get_safe_logger("connections");
 
         std::weak_ptr<accountserver::connection> connection_ptr{
             std::static_pointer_cast<accountserver::connection>(connection.shared_from_this())};
 
-        logger->debug("[connection] Received {} from {}", protocol.to_string(), sender);
+        logger->debug("[connection] Received {} from {}", command.to_string(), sender);
 
-        switch (protocol)
+        switch (command)
         {
             default:
             {
-                logger->error("[connection] Received unkown protocol {}", protocol);
+                logger->error("[connection] Received unkown command {}", command);
                 return shared::network::state_result::abort;
             }
-            case shared_net::protocol::request_account_data:
+            case protocol::shared_command::request_account_data:
             {
-                auto packet = shared_net::request_account_data::decode(stream);
+                auto packet = protocol::request_account_data::decode(stream);
                 return on_account_data_request(connection_ptr, sender, packet);
             }
-            case shared_net::protocol::update_session_key:
+            case protocol::shared_command::update_session_key:
             {
-                auto packet = shared_net::update_session_key::decode(stream);
+                auto packet = protocol::update_session_key::decode(stream);
                 return on_update_session_key(connection_ptr, sender, packet);
             }
-            case shared_net::protocol::request_session_key:
+            case protocol::shared_command::request_session_key:
             {
-                auto packet = shared_net::request_session_key::decode(stream);
+                auto packet = protocol::request_session_key::decode(stream);
                 return on_session_key_request(connection_ptr, sender, packet);
+            }
+            case protocol::shared_command::request_realm_data:
+            {
+                auto packet = protocol::request_realm_data::decode(stream);
+                return on_realm_data_request(connection_ptr, sender, packet);
             }
         }
     }
 
     shared::network::state_result
     connection::connected::on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr,
-                                                   uint64 sender, shared::network::request_account_data& packet)
+                                                   uint64 sender, protocol::request_account_data& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->user(packet.account_name, [ sender, connection =
@@ -135,10 +142,10 @@ namespace keycap::accountserver
             if (connection.expired())
                 return;
 
-            shared_net::reply_account_data reply;
+            protocol::reply_account_data reply;
 
             if (user)
-                reply.data = shared_net::account_data{user->verifier, user->salt, user->security_options, user->flags};
+                reply.data = protocol::account_data{user->verifier, user->salt, user->security_options, user->flags};
 
             connection.lock()->send_answer(sender, reply.encode());
         });
@@ -148,7 +155,7 @@ namespace keycap::accountserver
 
     shared::network::state_result
     connection::connected::on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr,
-                                                 uint64 sender, shared::network::update_session_key& packet)
+                                                 uint64 sender, protocol::update_session_key& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->update_session_key(packet.account_name, packet.session_key);
@@ -158,21 +165,46 @@ namespace keycap::accountserver
 
     shared::network::state_result
     connection::connected::on_session_key_request(std::weak_ptr<accountserver::connection>& connection_ptr,
-                                                  uint64 sender, shared::network::request_session_key& packet)
+                                                  uint64 sender, protocol::request_session_key& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->user(packet.account_name,
                        [ sender, connection = connection_ptr ](std::optional<shared::database::user> user) {
-                           if (connection.expired())
+                           if (connection.expired() || !user)
                                return;
 
-                           shared_net::reply_session_key reply;
-
-                           if (user)
-                               reply.session_key = user->session_key;
+                           protocol::reply_session_key reply;
+                           reply.session_key = user->session_key;
 
                            connection.lock()->send_answer(sender, reply.encode());
                        });
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_realm_data_request(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                 uint64 sender, protocol::request_realm_data& packet)
+    {
+        auto realm_dao = shared::database::dal::get_realm_dao(get_login_database());
+
+        realm_dao->realm(packet.realm_id,
+                         [ sender, connection = connection_ptr ](std::optional<shared::database::realm> realm) {
+                             if (connection.expired() || !realm)
+                                 return;
+
+                             protocol::reply_realm_data reply;
+                             reply.info = {static_cast<protocol::realm_type>(realm->type),
+                                           realm->locked,
+                                           static_cast<protocol::realm_flag>(realm->flags),
+                                           realm->name,
+                                           fmt::format("{}:{}", realm->host, realm->port),
+                                           realm->population,
+                                           static_cast<protocol::realm_category>(realm->category),
+                                           realm->id};
+
+                             connection.lock()->send_answer(sender, reply.encode());
+                         });
 
         return shared::network::state_result::ok;
     }

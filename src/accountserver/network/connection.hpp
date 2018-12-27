@@ -31,12 +31,13 @@
 
 #include <variant>
 
-namespace keycap::shared::network
+namespace keycap::protocol
 {
     class request_account_data;
     class update_session_key;
 
     class request_session_key;
+    class request_realm_data;
 }
 
 namespace keycap::accountserver
@@ -73,15 +74,19 @@ namespace keycap::accountserver
           private:
             shared::network::state_result
             on_account_data_request(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
-                                    shared::network::request_account_data& packet);
+                                    protocol::request_account_data& packet);
 
             shared::network::state_result
             on_update_session_key(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
-                                  shared::network::update_session_key& packet);
+                                  protocol::update_session_key& packet);
 
             shared::network::state_result
             on_session_key_request(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
-                                   shared::network::request_session_key& packet);
+                                   protocol::request_session_key& packet);
+
+            shared::network::state_result
+            on_realm_data_request(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                  protocol::request_realm_data& packet);
         };
 
         std::variant<disconnected, connected> state_;

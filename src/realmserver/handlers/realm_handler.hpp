@@ -14,18 +14,22 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
-#include "logon_service.hpp"
+#pragma once
 
-namespace keycap::logonserver
+#include <character_select.hpp>
+
+namespace keycap::realmserver
 {
-    bool logon_service::on_new_connection(SharedHandler handler)
-    {
-        return true;
-    }
+    class player_session;
 
-    logon_service::SharedHandler logon_service::make_handler()
+    class realm_handler
     {
-        return std::make_shared<client_connection>(*this, locator_, realm_manager_);
-    }
+      public:
+        explicit realm_handler(player_session& session);
+
+        bool handle_char_enum(keycap::protocol::client_char_enum packet);
+
+      private:
+        player_session& session_;
+    };
 }

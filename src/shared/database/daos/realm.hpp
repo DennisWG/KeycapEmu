@@ -14,18 +14,4 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
-#include "logon_service.hpp"
-
-namespace keycap::logonserver
-{
-    bool logon_service::on_new_connection(SharedHandler handler)
-    {
-        return true;
-    }
-
-    logon_service::SharedHandler logon_service::make_handler()
-    {
-        return std::make_shared<client_connection>(*this, locator_, realm_manager_);
-    }
-}
+#include "mysql/realm.hpp"

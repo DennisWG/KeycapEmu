@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <protocol.hpp>
+#include <shared_protocol.hpp>
 
 #include <unordered_map>
 
@@ -26,25 +26,29 @@ namespace keycap::logonserver
     class realm_manager
     {
       public:
-        // Inserts the given realm_data to the realm_manager. Duplicates will be ignored.
-        void insert(keycap::shared::network::realm_info const& realm_data);
+        // Inserts the given realm_data to the realm_manager.
+        // Will set the realm to online if it has been added before.
+        void insert(keycap::protocol::realm_info const& realm_data);
 
         // Removes the given realm_data from the realm_manager if it has been added
-        void remove(keycap::shared::network::realm_info const& realm_data);
+        void remove(keycap::protocol::realm_info const& realm_data);
+
+        // Sets the realm as offline
+        void set_offline(uint8_t id);
 
         // Removes a realm with the given id if it has been added
         void remove(uint8_t id);
 
         // Iterates all stored realms. Requires callback with signature
-        // `void(keycap::logonserver::protocol::realm_list_data const& realm_data)`
+        // `void(keycap::shared::network::realm_info const& realm_data)`
         template <typename FUN>
-        void iterate(FUN&& callback)
+        void iterate(FUN&& callback) const
         {
-            for(auto&& realm : realms_)
+            for (auto && [ id, realm ] : realms_)
                 callback(realm);
         }
-        
+
       private:
-        std::unordered_map<uint8_t, keycap::shared::network::realm_info> realms_;
+        std::unordered_map<uint8_t, keycap::protocol::realm_info> realms_;
     };
 }

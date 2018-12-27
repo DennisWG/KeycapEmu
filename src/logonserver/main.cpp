@@ -149,9 +149,9 @@ int main()
     realm_service.start(config.realm_service.host, config.realm_service.port);
 
     net::service_locator service_locator;
-    service_locator.locate(shared_net::account_service, config.account_service.host, config.account_service.port);
+    service_locator.locate(shared_net::account_service_type, config.account_service.host, config.account_service.port);
 
-    keycap::logonserver::logon_service service{config.network.threads, service_locator};
+    keycap::logonserver::logon_service service{config.network.threads, service_locator, realm_manager};
     service.start(config.network.bind_ip, config.network.port);
 
     keycap::shared::cli::run_command_line(console_role, running);

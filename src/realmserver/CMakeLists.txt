@@ -13,8 +13,12 @@
 #   limitations under the License.
 
 add_executable (realmserver
-    client_connection.cpp
-    client_service.cpp
+    handlers/character_handler.cpp
+    network/client_connection.cpp
+    network/client_service.cpp
+    network/handler.cpp
+    network/login_queue.cpp
+    network/player_session.cpp
     main.cpp
     ${version_file}
 )
@@ -25,10 +29,12 @@ target_link_libraries(realmserver
     boost
     ${Boost_LIBRARIES}
     ${Botan_LIBRARIES}
+    ${ZLIB_LIBRARIES}
 )
 
 target_include_directories(realmserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
         ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${ZLIB_INCLUDE_DIRS}
 )

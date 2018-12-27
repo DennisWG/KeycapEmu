@@ -15,8 +15,9 @@
 */
 
 #include "client_connection.hpp"
+#include "../realm_manager.hpp"
 
-#include <protocol.hpp>
+#include <shared_protocol.hpp>
 #include <realm.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
@@ -47,12 +48,15 @@ std::ostream& operator<<(std::ostream& os, std::vector<uint8_t> const& vec)
 
 namespace net = keycap::root::network;
 namespace shared_net = keycap::shared::network;
+namespace protocol = keycap::protocol;
 
 namespace keycap::logonserver
 {
-    client_connection::client_connection(net::service_base& service, keycap::root::network::service_locator& locator)
+    client_connection::client_connection(net::service_base& service, keycap::root::network::service_locator& locator,
+                                         realm_manager& realm_manager)
       : base_connection{service}
       , locator_{locator}
+      , realm_manager_{realm_manager}
     {
         router_.configure_inbound(this);
     }
@@ -149,14 +153,14 @@ namespace keycap::logonserver
         if (packet.cmd != protocol::command::challange)
             return shared::network::state_result::abort;
 
-        shared_net::request_account_data request;
+        protocol::request_account_data request;
         request.account_name = packet.account_name;
 
         connection.service_locator().send_registered(
-            shared_net::account_service, request.encode(),
+            shared_net::account_service_type, request.encode(),
             [&, account_name = packet.account_name, self = std::static_pointer_cast<client_connection>(
                     connection.shared_from_this()) ](net::service_type sender, net::memory_stream data) {
-                auto reply = shared_net::reply_account_data::decode(data);
+                auto reply = protocol::reply_account_data::decode(data);
                 on_account_reply(self, reply, account_name);
                 return true;
             });
@@ -165,7 +169,7 @@ namespace keycap::logonserver
     }
 
     void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
-                                                             shared_net::reply_account_data& reply,
+                                                             protocol::reply_account_data& reply,
                                                              std::string const& account_name)
     {
         if (connection.expired())
@@ -243,7 +247,7 @@ namespace keycap::logonserver
     void update_session_key(client_connection& connection, std::string const& account_name,
                             Botan::BigInt const& session_key)
     {
-        shared_net::update_session_key update;
+        protocol::update_session_key update;
         update.account_name = account_name;
         auto key = Botan::BigInt::encode(session_key);
         update.session_key = keycap::root::utility::to_hex_string(key.begin(), key.end(), true);
@@ -251,7 +255,7 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug("[client_connection] Updating session key of {} to {}", update.account_name, update.session_key);
 
-        connection.service_locator().send_to(shared_net::account_service, update.encode());
+        connection.service_locator().send_to(shared_net::account_service_type, update.encode());
     }
 
     shared::network::state_result client_connection::challanged::on_data(client_connection& connection,
@@ -333,32 +337,36 @@ namespace keycap::logonserver
         logger->debug("[client_connection] {}", packet.to_string());
 
         protocol::server_realm_list outPacket;
-        auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
-        data.type = protocol::realm_type::pve;
-        data.locked = 0;
-        data.realm_flags = protocol::realm_flag::recommended;
-        data.name = "KeycapEmu Testrealm";
-        data.ip = "127.0.0.1:8085";
-        data.population = 0.f;
-        data.num_characters = 0;
-        data.category = protocol::realm_category::tournament;
-        data.id = 1;
 
-        auto& data2 = outPacket.data.emplace_back(protocol::realm_list_data{});
-        data2.type = protocol::realm_type::pve;
-        data2.locked = 0;
-        data2.realm_flags = protocol::realm_flag::new_;
-        data2.name = "KeycapEmu Testrealm 2";
-        data2.ip = "127.0.0.1:8085";
-        data2.population = 0.f;
-        data2.num_characters = 0;
-        data2.category = protocol::realm_category::test_server_2;
-        data2.id = 2;
+        /*
+        connection.io_service_.post([conn=connection.weak_from_this()](){
+            if(conn.expired())
+                return;
+        });
+        */
+
+        connection.realm_manager_.iterate(
+            [&outPacket](keycap::protocol::realm_info const& realm_data) {
+                auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
+                data.type = realm_data.type;
+                data.locked = realm_data.locked;
+                data.realm_flags = realm_data.realm_flags;
+                data.name = realm_data.name;
+                data.ip = realm_data.ip;
+                data.population = realm_data.population;
+                data.num_characters = 0;
+                data.category = realm_data.category;
+                data.id = realm_data.id;
+            });
 
         outPacket.unk = 12345;
 
         connection.send(outPacket.encode());
 
         return shared::network::state_result::ok;
+    }
+
+    void client_connection::authenticated::send_realm_list()
+    {
     }
 }

@@ -20,6 +20,8 @@
 
 #include <Keycap/Root/Types.hpp>
 
+#include <boost/optional.hpp>
+
 namespace keycap::shared::database
 {
 ## if hasData

@@ -18,6 +18,14 @@
 
 #pragma once
 
+## if hasImports
+## for imp in imports
+{##}
+#include <{{ imp/importName }}.hpp>
+## endfor
+## endif
+{##}
+
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/types.hpp>
 #include <keycap/root/utility/enum.hpp>
@@ -27,15 +35,6 @@
 #include <boost/optional.hpp>
 
 #include <spdlog/fmt/fmt.h>
-## if hasImports
-## for imp in imports
-#include "{{ imp/importName }}.hpp"
-
-## endfor
-{##}
-
-## endif
-{##}
 
 namespace {% for i in modulePath %}{% if loop/is_first %}{{ i }}{% else %}::{{ i }}{% endif %}{% endfor %}
 {
@@ -176,6 +175,7 @@ for attrib in msg/attributes %}
 {% include "hpp_helpers/dump_decode.template" %}
 ## endfor
 {##}
+            decoder.shrink();
             return packet;
         }
 

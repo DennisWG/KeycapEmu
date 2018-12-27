@@ -16,35 +16,45 @@
 
 #pragma once
 
-#include <network/services.hpp>
-
-#include <keycap/root/network/service.hpp>
-
-#include <memory>
-
-namespace keycap::root::network
+namespace keycap
 {
-    class service_locator;
+    namespace root::network
+    {
+        class memory_stream;
+    }
+
+    namespace protocol
+    {
+        class client_addon_info;
+    }
+
+    namespace shared::cryptography
+    {
+        class packet_scrambler;
+    }
+}
+
+namespace Botan
+{
+    class BigInt;
 }
 
 namespace keycap::realmserver
 {
     class client_connection;
 
-    class client_service : public keycap::root::network::service<client_connection>
+    class player_session
     {
       public:
-        explicit client_service(root::network::service_locator& locator, int thread_count)
-          : service{keycap::root::network::service_mode::Server, shared::network::realm_service, thread_count}
-          , locator_{locator}
-        {
-        }
+        player_session(client_connection& connection, shared::cryptography::packet_scrambler& scrambler);
 
-        virtual bool on_new_connection(SharedHandler handler) override;
+        void send_addon_info(keycap::protocol::client_addon_info const& client_addons);
 
-        virtual SharedHandler make_handler() override;
+        void send(keycap::root::network::memory_stream& stream);
+        void send(keycap::root::network::memory_stream&& stream);
 
       private:
-        root::network::service_locator& locator_;
+        client_connection& connection_;
+        shared::cryptography::packet_scrambler& scrambler_;
     };
 }

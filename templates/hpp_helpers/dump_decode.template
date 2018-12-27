@@ -1,22 +1,60 @@
 ## if attrib/type == "string"
-## if hasAnnotation(attrib, "zero_terminated")
+## if hasSpecifier(attrib, "optional")
+## if hasAnnotation(attrib, "requires")
 {##}
-            packet.{{attrib/name}} = decoder.get_string();
+            if (packet.{{annotationValue(attrib, "requires")}})
+            {
 ## else
 {##}
-            auto size_{{ attrib/name }} = decoder.get<uint8>();
-            packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
+            if (decoder.size() >= sizeof({{ attrib/type }}))
+            {
+## endif
+## endif
+## if hasAnnotation(attrib, "zero_terminated")
+{##}
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}packet.{{attrib/name}} = decoder.get_string();
+## else
+{##}
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}auto size_{{ attrib/name }} = decoder.get<uint8>();
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
 ## if hasAnnotation(attrib, "expects")
 {##}
-            ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotationValue(attrib, "expects")}}");
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotationValue(attrib, "expects")}}");
 ## endif
+## endif
+## if hasSpecifier(attrib, "optional")
+{##}
+            }
 ## endif
 ## else if attrib/hasSpecifier
 ## if hasSpecifier(attrib, "repeated")
 {##}
-            auto size_{{attrib/name}} = decoder.get<uint8>();
+            auto size_{{attrib/name}} = decoder.get<{% if hasAnnotation(attrib, "size_type") %}{{annotationValue(attrib, "size_type")}}{% else %}uint8{% endif %}>();
+## if hasAnnotation(attrib, "compressed")
+## if hasAnnotation(attrib, "requires")
+{##}
+            constexpr uint32 max_size = {{annotationValue(attrib, "requires")}};
+            if(size_{{attrib/name}} <= max_size)
+            {
+## endif
+{##}
+            {%if hasAnnotation(attrib, "requires")%}    {%endif%}decoder.decompress(size_{{attrib/name}});
+            {%if hasAnnotation(attrib, "requires")%}    {%endif%}while (decoder.size() > 0)
+
+## if isUserDefinedData(attrib/type)
+            {%if hasAnnotation(attrib, "requires")%}    {%endif%}    packet.{{attrib/name}}.push_back({{ attrib/type }}::decode(decoder));
+## else
+            {%if hasAnnotation(attrib, "requires")%}    {%endif%}    packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
+## endif
+## if hasAnnotation(attrib, "requires")
+{##}
+            }
+## endif
+## else
+{##}
             for (int i = 0; i < size_{{attrib/name}}; ++i)
                 packet.{{attrib/name}}.push_back(decoder.get<{{ attrib/type }}>());
+## endif
 ## else if hasSpecifier(attrib, "optional")
 ## if hasAnnotation(attrib, "requires")
 {##}
@@ -36,6 +74,9 @@
 ## else if attrib/hasArraySize
 {##}
             packet.{{attrib/name}} = decoder.get<{{ attrib/type }}, {{ attrib/arraySize }}>();
+## else if isUserDefinedData(attrib/type)
+{##}
+            packet.{{attrib/name}} = {{ attrib/type }}::decode(decoder);
 ## else
 {##}
             {%if not hasAnnotation(attrib, "is_size")%}packet.{{attrib/name}} = {%endif%}{%if hasAnnotation(attrib, "endian_reverse")%}boost::endian::endian_reverse(decoder.get<{{ attrib/type }}>()){%else%}decoder.get<{{ attrib/type }}>(){%endif%};

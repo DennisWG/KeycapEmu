@@ -24,6 +24,9 @@
             ss << "    {{ attrib/name }}[{{ attrib/arraySize }}]\n";
             if constexpr (!std::is_class_v<{{ attrib/type }}>)
                 keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
+## else if isUserDefinedData(attrib/type)
+{##}
+            // TODO: Add user defined data
 ## else
 {##}
             ss << "    {{ attrib/name }} = " << {{ attrib/name }} << '\n';

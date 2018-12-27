@@ -14,18 +14,23 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
-#include "logon_service.hpp"
+#include <Realm.hpp>
 
-namespace keycap::logonserver
+#include <functional>
+#include <optional>
+
+namespace keycap::shared::database::dal
 {
-    bool logon_service::on_new_connection(SharedHandler handler)
+    class realm_dao
     {
-        return true;
-    }
+      public:
+        virtual ~realm_dao()
+        {
+        }
 
-    logon_service::SharedHandler logon_service::make_handler()
-    {
-        return std::make_shared<client_connection>(*this, locator_, realm_manager_);
-    }
+        using realm_callback = std::function<void(std::optional<shared::database::realm>)>;
+        
+        // Retreives the realm with the given id from the database and then calls the given callback
+        virtual void realm(uint8 id, realm_callback callback) const = 0;
+    };
 }

@@ -43,6 +43,12 @@ set_property(TARGET boost
     PROPERTY
         INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
 )
+ 
+ ################################
+ # Zlib
+ ################################
+
+ find_package(ZLIB REQUIRED)
 
 ################################
 # external submodules
@@ -56,6 +62,10 @@ include_directories(${PROJECT_SOURCE_DIR}/contrib/gsl/include)
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(MY_CXX_FLAGS_LIST
 	/std:c++latest
+    /permissive-
+    /experimental:external
+    /external:W0
+    /external:env:cpp_external_paths
     )
   string(REPLACE ";" " " MY_CXX_FLAGS "${MY_CXX_FLAGS_LIST}")
 

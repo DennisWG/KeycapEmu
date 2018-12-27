@@ -19,22 +19,24 @@
 #include <network/services.hpp>
 
 #include <keycap/root/network/service.hpp>
-#include <keycap/root/network/service_locator.hpp>
 
 #include <memory>
 
-namespace keycap::logonserver
+namespace keycap::root::network
+{
+    class service_locator;
+}
+
+namespace keycap::realmserver
 {
     class client_connection;
-    class realm_manager;
 
-    class logon_service : public keycap::root::network::service<client_connection>
+    class client_service : public keycap::root::network::service<client_connection>
     {
       public:
-        logon_service(int thread_count, keycap::root::network::service_locator& locator, realm_manager& realm_manager)
-          : service{keycap::root::network::service_mode::Server, shared::network::logon_service_type, thread_count}
+        explicit client_service(root::network::service_locator& locator, int thread_count)
+          : service{keycap::root::network::service_mode::Server, shared::network::realm_service_type, thread_count}
           , locator_{locator}
-          , realm_manager_{realm_manager}
         {
         }
 
@@ -43,7 +45,6 @@ namespace keycap::logonserver
         virtual SharedHandler make_handler() override;
 
       private:
-        keycap::root::network::service_locator& locator_;
-        realm_manager& realm_manager_;
+        root::network::service_locator& locator_;
     };
 }

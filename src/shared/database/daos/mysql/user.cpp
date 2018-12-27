@@ -14,9 +14,9 @@
     limitations under the License.
 */
 
-#include "./User.hpp"
+#include "./user.hpp"
 
-#include "../../Database.hpp"
+#include "../../database.hpp"
 #include "../../prepared_statement.hpp"
 
 namespace keycap::shared::database::dal
@@ -44,7 +44,8 @@ namespace keycap::shared::database::dal
                                             static_cast<uint8>(result->getUInt("security_options")),
                                             result->getUInt("flags"),
                                             result->getString("verifier").c_str(),
-                                            result->getString("salt").c_str()};
+                                            result->getString("salt").c_str(),
+                                            result->getString("session_key").c_str()};
                 callback(user);
             };
 
@@ -54,7 +55,8 @@ namespace keycap::shared::database::dal
         void create(shared::database::user const& user) const override
         {
             static auto statement
-                = database_.prepare_statement("INSERT INTO user(account_name, email, security_options, flags, verifier, salt) VALUES (?, ?, ?, ?, ?, ?)");
+                = database_.prepare_statement("INSERT INTO user(account_name, email, security_options, flags, "
+                                              "verifier, salt) VALUES (?, ?, ?, ?, ?, ?)");
 
             statement.add_parameter(user.account_name);
             statement.add_parameter(user.email);
@@ -68,7 +70,8 @@ namespace keycap::shared::database::dal
 
         virtual void update_session_key(std::string const& account_name, std::string const& session_key) const override
         {
-            static auto statement = database_.prepare_statement("UPDATE user SET session_key = ? WHERE account_name = ?");
+            static auto statement
+                = database_.prepare_statement("UPDATE user SET session_key = ? WHERE account_name = ?");
 
             statement.add_parameter(session_key);
             statement.add_parameter(account_name);

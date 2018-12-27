@@ -14,24 +14,25 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
+#pragma once
+
+#include <character_select.hpp>
+#include <realm_protocol.hpp>
 
 namespace keycap::realmserver
 {
-    client_connection::client_connection(keycap::root::network::service_base& service,
-                                         keycap::root::network::service_locator& locator)
-      : connection{service}
-    {
-    }
+    class player_session;
 
-    bool client_connection::on_data(net::data_router const& router, net::service_type service,
-                                    std::vector<uint8_t> const& data)
+    class character_handler
     {
-        return true;
-    }
+      public:
+        explicit character_handler(player_session& session);
 
-    bool client_connection::on_link(net::data_router const& router, net::service_type service, net::link_status status)
-    {
-        return true;
-    }
+        bool handle_char_enum(keycap::protocol::client_char_enum packet);
+
+        bool handle_realm_split(keycap::protocol::client_realm_split pakcet);
+
+      private:
+        player_session& session_;
+    };
 }
