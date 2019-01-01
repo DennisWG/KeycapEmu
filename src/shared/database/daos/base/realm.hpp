@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include <Realm.hpp>
+#include <generated/realm.hpp>
 
 #include <functional>
 #include <optional>

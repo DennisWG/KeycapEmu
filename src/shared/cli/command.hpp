@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <permissions.hpp>
+#include <generated/permissions.hpp>
 
 #include <functional>
 #include <string>

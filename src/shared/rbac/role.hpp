@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <Permissions.hpp>
+#include <generated/permissions.hpp>
 #include <keycap/root/types.hpp>
 
 #include <unordered_set>

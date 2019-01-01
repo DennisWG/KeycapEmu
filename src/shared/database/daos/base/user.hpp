@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include <User.hpp>
+#include <generated/user.hpp>
 
 #include <functional>
 #include <optional>
