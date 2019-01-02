@@ -28,7 +28,7 @@ CREATE TABLE `{{ dat/name }}` (
     {{ attrib/name }} {{ attrib/mysqlType }}
 ## if attrib/hasAnnotations
 ## for annotation in attrib/annotations
-{% if annotation/name == "index" %} PRIMARY KEY{% endif %}{% if annotation/name == "not_null" %} NOT NULL{% endif %}{% if annotation/name == "increment" %} AUTO_INCREMENT{% endif %}
+{% if annotation/name == "primary" %} PRIMARY KEY{% endif %}{% if annotation/name == "not_null" %} NOT NULL{% endif %}{% if annotation/name == "increment" %} AUTO_INCREMENT{% endif %}
 ## endfor
 ## endif
 ## if not loop/is_last
@@ -38,9 +38,27 @@ CREATE TABLE `{{ dat/name }}` (
 ## endif
 ## endfor
 ## if hasAnnotation(dat, "keys")
-,{##}
+,
     PRIMARY KEY({{annotationValue(dat, "keys")}})
 ## endif
+## for annotation in getAnnotationsWithName(dat, "foreign_key")
+,
+    FOREIGN KEY ({{ annotation }})
+## for attrib in dat/attributes
+## if hasAnnotation(attrib, "foreign_key")
+{##}
+      REFERENCES {{ annotationValue(attrib, "foreign_key") }}
+## endif
+## if hasAnnotation(attrib, "on_update")
+{##}
+      ON UPDATE {{ annotationValue(attrib, "on_update") }}
+## endif
+## if hasAnnotation(attrib, "on_delete")
+{##}
+      ON DELETE {{ annotationValue(attrib, "on_delete") }}
+## endif
+## endfor
+## endfor
 {##}
 );
 

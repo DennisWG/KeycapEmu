@@ -1,6 +1,6 @@
 data build
 {
-    [index] [not_null] [increment]
+    [primary] [not_null] [increment]
     uint8 id;
     [NotNull]
     uint8 major;
@@ -14,7 +14,7 @@ data build
 
 data realm
 {
-    [index] [not_null] [increment]
+    [primary] [not_null] [increment]
     uint8 id;
     uint8 type;
     uint8 locked;

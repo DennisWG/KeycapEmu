@@ -1,6 +1,6 @@
 data user
 {
-    [index] [not_null] [increment]
+    [primary] [not_null] [increment]
     uint32 id;
     string account_name;
     string email;
