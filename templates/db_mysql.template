@@ -41,14 +41,11 @@ CREATE TABLE `{{ dat/name }}` (
 ,
     PRIMARY KEY({{annotationValue(dat, "keys")}})
 ## endif
-## for annotation in getAnnotationsWithName(dat, "foreign_key")
-,
-    FOREIGN KEY ({{ annotation }})
 ## for attrib in dat/attributes
 ## if hasAnnotation(attrib, "foreign_key")
-{##}
+,
+    FOREIGN KEY ({{ attrib/name }})
       REFERENCES {{ annotationValue(attrib, "foreign_key") }}
-## endif
 ## if hasAnnotation(attrib, "on_update")
 {##}
       ON UPDATE {{ annotationValue(attrib, "on_update") }}
@@ -57,7 +54,7 @@ CREATE TABLE `{{ dat/name }}` (
 {##}
       ON DELETE {{ annotationValue(attrib, "on_delete") }}
 ## endif
-## endfor
+## endif
 ## endfor
 {##}
 );

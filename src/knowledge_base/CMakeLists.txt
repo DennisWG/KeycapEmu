@@ -14,6 +14,7 @@
 
 add_executable (knowledge_base
     main.cpp
+    kb_service.cpp
     ${version_file}
 )
 

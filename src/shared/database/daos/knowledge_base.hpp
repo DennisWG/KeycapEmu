@@ -14,17 +14,4 @@
     limitations under the License.
 */
 
-#pragma once
-
-#include <generated/permissions.hpp>
-
-#include "role.hpp"
-
-namespace keycap::shared::rbac
-{
-    permission_set get_all_permissions()
-    {
-        auto const& perms = permission::to_vector();
-        return permission_set{std::begin(perms), std::end(perms)};
-    }
-}
+#include "mysql/knowledge_base.hpp"

@@ -9,10 +9,12 @@ flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shar
 
 flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
 flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
+flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
 
 
 flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
 flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
+flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
 
 
 

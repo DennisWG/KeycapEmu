@@ -14,17 +14,12 @@
     limitations under the License.
 */
 
-#pragma once
+#include "../../database.hpp"
+#include "../base/knowledge_base.hpp"
 
-#include <generated/permissions.hpp>
+#include <memory>
 
-#include "role.hpp"
-
-namespace keycap::shared::rbac
+namespace keycap::shared::database::dal
 {
-    permission_set get_all_permissions()
-    {
-        auto const& perms = permission::to_vector();
-        return permission_set{std::begin(perms), std::end(perms)};
-    }
+    std::unique_ptr<knowledge_base_dao> get_knowledge_base_dao(database& database);
 }
