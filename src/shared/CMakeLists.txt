@@ -20,6 +20,7 @@ add_library(${LIBRARY_NAME}
     cryptography/packet_scrambler.cpp
     database/daos/mysql/user.cpp
     database/daos/mysql/realm.cpp
+    database/daos/mysql/knowledge_base.cpp
     database/mysql/database.cpp
     database/mysql/prepared_statement.cpp
     logging/utility.cpp
@@ -27,8 +28,6 @@ add_library(${LIBRARY_NAME}
 
 target_link_libraries(${LIBRARY_NAME}
     PUBLIC
-#        "${MySQL_C_Connector_ROOT_DIR}/lib/libmysql.lib"
-#        "${MySQL_C_Connector_ROOT_DIR}/lib/vs14/mysqlclient.lib"
         "${MySQL_Cpp_Connector_ROOT_DIR}/lib64/vs14/mysqlcppconn.lib"
         ${Botan_LIBRARIES}
 )
@@ -40,8 +39,6 @@ target_include_directories(${LIBRARY_NAME}
         ${Spdlog_INCLUDE_DIR}
         ${Boost_INCLUDE_DIR}
 #        ${AMY_INCLUDE_DIR}
-#        "${MySQL_C_Connector_ROOT_DIR}/mysql"
-#        "${MySQL_C_Connector_ROOT_DIR}"
         "${MySQL_Cpp_Connector_ROOT_DIR}/include/jdbc"
         "."
     PRIVATE
