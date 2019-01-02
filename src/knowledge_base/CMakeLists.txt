@@ -12,11 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-add_subdirectory (accountserver)
-add_subdirectory (logonserver)
-add_subdirectory (realmserver)
-add_subdirectory (worldserver)
-add_subdirectory (shared)
+add_executable (knowledge_base
+    main.cpp
+    ${version_file}
+)
 
-# optional services
-add_subdirectory (knowledge_base)
+target_link_libraries(knowledge_base
+    keycaproot
+    keycapemushared
+    boost
+    ${Boost_LIBRARIES}
+    ${Botan_LIBRARIES}
+)
+
+target_include_directories(knowledge_base
+    PRIVATE
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+)
+
+include(FlatmessageCompile)
