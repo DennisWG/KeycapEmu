@@ -55,6 +55,10 @@ CREATE TABLE `{{ dat/name }}` (
       ON DELETE {{ annotationValue(attrib, "on_delete") }}
 ## endif
 ## endif
+## if hasAnnotation(attrib, "fulltext")
+,
+    FULLTEXT INDEX ({{ attrib/name }})
+## endif
 ## endfor
 {##}
 );

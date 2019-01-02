@@ -31,7 +31,7 @@ data article
     [not_null][foreign_key="sub_category(id)"][on_update="CASCADE"][on_delete="CASCADE"]
     int32 sub_category;
 
-    [not_null]
+    [not_null][fulltext]
     string subject;
 
     [not_null]
@@ -40,6 +40,6 @@ data article
     [not_null]
     bool is_updated;
 
-    [not_null]
+    [not_null][fulltext]
     string text;
 }
