@@ -16,24 +16,9 @@
 
 #include "kb_servce.hpp"
 
+#include <keycap/root/type_cast.hpp>
+
 #include <spdlog/fmt/fmt.h>
-
-template <typename T1, typename T2>
-T1 lexical_cast(T2&& value, T1&& default_value)
-{
-    T1 ret_value;
-
-    if constexpr (std::is_pointer_v<T2>)
-    {
-        if (value == nullptr)
-            return default_value;
-    }
-
-    if (boost::conversion::try_lexical_convert(std::forward<T2>(value), ret_value))
-        return ret_value;
-
-    return std::forward<T1>(default_value);
-}
 
 extern keycap::shared::database::database& get_kb_database();
 
