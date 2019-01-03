@@ -21,7 +21,7 @@
 ## if hasImports
 ## for imp in imports
 {##}
-#include <{{ imp/importName }}.hpp>
+#include <generated/{{ imp/importName }}.hpp>
 ## endfor
 ## endif
 {##}

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "logon.hpp"
+#include "generated/logon.hpp"
 #include "logon_service.hpp"
 
 #include <network/state_result.hpp>

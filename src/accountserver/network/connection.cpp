@@ -16,7 +16,7 @@
 
 #include "connection.hpp"
 
-#include <shared_protocol.hpp>
+#include <generated/shared_protocol.hpp>
 
 #include <database/daos/realm.hpp>
 #include <database/daos/user.hpp>

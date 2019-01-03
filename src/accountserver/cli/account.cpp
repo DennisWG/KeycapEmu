@@ -19,9 +19,9 @@
 #include <database/daos/user.hpp>
 
 #include <database/database.hpp>
-#include <permissions.hpp>
+#include <generated/permissions.hpp>
 #include <rbac/role.hpp>
-#include <user.hpp>
+#include <generated/user.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>

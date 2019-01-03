@@ -17,8 +17,8 @@
 #include "client_connection.hpp"
 #include "../realm_manager.hpp"
 
-#include <shared_protocol.hpp>
-#include <realm.hpp>
+#include <generated/shared_protocol.hpp>
+#include <generated/realm.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>

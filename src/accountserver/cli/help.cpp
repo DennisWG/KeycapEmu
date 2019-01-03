@@ -15,7 +15,7 @@
 */
 
 #include <cli/command.hpp>
-#include <permissions.hpp>
+#include <generated/permissions.hpp>
 #include <rbac/role.hpp>
 
 #include <iostream>
