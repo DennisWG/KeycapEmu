@@ -21,3 +21,6 @@ add_subdirectory (shared)
 # optional services
 add_subdirectory (knowledge_base)
 add_subdirectory (account_messaging)
+
+# optional tools
+add_subdirectory (tools)
