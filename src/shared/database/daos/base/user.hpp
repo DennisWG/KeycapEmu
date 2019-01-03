@@ -38,5 +38,9 @@ namespace keycap::shared::database::dal
 
         // Sets the user's session key to the given one
         virtual void update_session_key(std::string const& account_name, std::string const& session_key) const = 0;
+
+        // Returns the session_key of the given account_name
+        // Note: Blocks on the callers thread until the database answers!
+        virtual std::optional<std::string> session_key(std::string const& account_name) const = 0;
     };
 }
