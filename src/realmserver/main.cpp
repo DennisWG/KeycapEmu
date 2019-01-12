@@ -17,21 +17,20 @@
 #include "network/client_connection.hpp"
 #include "network/client_service.hpp"
 
-#include <shared_protocol.hpp>
+#include <generated/shared_protocol.hpp>
 
 #include <cli/helpers.hpp>
+#include <database/database.hpp>
 #include <logging/utility.hpp>
 #include <network/services.hpp>
 #include <rbac/rbac.hpp>
+#include <version.hpp>
 
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/utility.hpp>
-
-#include <database/database.hpp>
-#include <version.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -142,7 +141,7 @@ void get_realm_info(keycap::root::network::service_locator& locator, config& con
                     console->info("Listening to {} on port {} with {} thread(s).", ip, port, config.network.threads);
 
                     static keycap::realmserver::client_service service{locator, config.network.threads};
-                    if(!service.running())
+                    if (!service.running())
                         service.start(ip, port);
                 });
 

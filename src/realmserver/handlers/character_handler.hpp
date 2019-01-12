@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <character_select.hpp>
-#include <realm_protocol.hpp>
+#include <generated/character_select.hpp>
+#include <generated/realm_protocol.hpp>
 
 namespace keycap::realmserver
 {

@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include <authentication.hpp>
+#include <generated/authentication.hpp>
 
 #include "client_connection.hpp"
 #include "player_session.hpp"

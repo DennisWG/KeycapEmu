@@ -18,10 +18,11 @@
 
 #include "login_queue.hpp"
 
-#include <client.hpp>
+#include <generated/client.hpp>
+#include <generated/shared_protocol.hpp>
+
 #include <cryptography/packet_scrambler.hpp>
 #include <network/state_result.hpp>
-#include <shared_protocol.hpp>
 
 #include <keycap/root/network/connection.hpp>
 #include <keycap/root/network/memory_stream.hpp>

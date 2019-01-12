@@ -15,7 +15,7 @@
 */
 
 #include "login_queue.hpp"
-#include <authentication.hpp>
+#include <generated/authentication.hpp>
 
 #include <cryptography/packet_scrambler.hpp>
 

@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#include <authentication.hpp>
-#include <realm_protocol.hpp>
+#include <generated/authentication.hpp>
+#include <generated/realm_protocol.hpp>
 
 #include "../handlers/character_handler.hpp"
 #include "client_connection.hpp"

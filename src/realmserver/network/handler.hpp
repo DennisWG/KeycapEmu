@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <client.hpp>
+#include <generated/client.hpp>
 
 #include <array>
 #include <functional>
