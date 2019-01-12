@@ -24,6 +24,7 @@ add_library(${LIBRARY_NAME}
     database/mysql/database.cpp
     database/mysql/prepared_statement.cpp
     logging/utility.cpp
+    crash_dump.cpp
 )
 
 target_link_libraries(${LIBRARY_NAME}

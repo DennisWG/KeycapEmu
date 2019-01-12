@@ -21,6 +21,7 @@
 #include "version.hpp"
 
 #include <cli/helpers.hpp>
+#include <crash_dump.hpp>
 #include <logging/utility.hpp>
 #include <network/services.hpp>
 #include <rbac/rbac.hpp>
@@ -126,6 +127,8 @@ int main()
     namespace utility = keycap::root::utility;
     namespace net = keycap::root::network;
     namespace shared_net = keycap::shared::network;
+
+    keycap::shared::set_unhandled_exception_handler();
 
     auto console_role = keycap::shared::rbac::role{0, "Console", keycap::shared::rbac::get_all_permissions()};
 
