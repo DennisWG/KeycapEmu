@@ -20,6 +20,7 @@
 #include <generated/shared_protocol.hpp>
 
 #include <cli/helpers.hpp>
+#include <crash_dump.hpp>
 #include <database/database.hpp>
 #include <logging/utility.hpp>
 #include <network/services.hpp>
@@ -152,6 +153,8 @@ void get_realm_info(keycap::root::network::service_locator& locator, config& con
 int main()
 {
     namespace utility = keycap::root::utility;
+
+    keycap::shared::set_unhandled_exception_handler();
 
     utility::set_console_title("Realmserver");
 

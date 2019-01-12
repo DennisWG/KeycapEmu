@@ -18,14 +18,15 @@
 #include "network/connection.hpp"
 
 #include <cli/helpers.hpp>
+#include <crash_dump.hpp>
+#include <database/database.hpp>
+#include <logging/utility.hpp>
+#include <rbac/rbac.hpp>
+#include <version.hpp>
+
 #include <keycap/root/configuration/config_file.hpp>
 #include <keycap/root/utility/scope_exit.hpp>
 #include <keycap/root/utility/utility.hpp>
-#include <logging/utility.hpp>
-#include <rbac/rbac.hpp>
-
-#include <database/database.hpp>
-#include <version.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -122,8 +123,10 @@ int main()
 {
     namespace utility = keycap::root::utility;
 
+    keycap::shared::set_unhandled_exception_handler();
+
     utility::set_console_title("Accountserver");
-    
+
     auto config = parse_config("account.json");
     logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
@@ -157,5 +160,6 @@ int main()
     keycap::accountserver::account_service service{config.network.threads};
     service.start(config.network.bind_ip, config.network.port);
 
-    keycap::shared::cli::run_command_line(keycap::shared::rbac::role{0, "console", keycap::shared::rbac::get_all_permissions()}, running);
+    keycap::shared::cli::run_command_line(
+        keycap::shared::rbac::role{0, "console", keycap::shared::rbac::get_all_permissions()}, running);
 }

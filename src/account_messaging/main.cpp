@@ -17,6 +17,7 @@
 #include "am_service.hpp"
 
 #include <cli/helpers.hpp>
+#include <crash_dump.hpp>
 #include <database/database.hpp>
 #include <logging/utility.hpp>
 #include <rbac/rbac.hpp>
@@ -109,6 +110,8 @@ void register_command(keycap::shared::cli::command const& command)
 int main()
 {
     namespace utility = keycap::root::utility;
+
+    keycap::shared::set_unhandled_exception_handler();
 
     utility::set_console_title("AccountMessaging");
 
