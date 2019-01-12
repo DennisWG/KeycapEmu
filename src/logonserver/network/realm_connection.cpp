@@ -16,7 +16,7 @@
 
 #include "realm_connection.hpp"
 
-#include <shared_protocol.hpp>
+#include <generated/shared_protocol.hpp>
 
 #include <spdlog/spdlog.h>
 

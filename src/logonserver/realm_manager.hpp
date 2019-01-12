@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <shared_protocol.hpp>
+#include <generated/shared_protocol.hpp>
 
 #include <unordered_map>
 
