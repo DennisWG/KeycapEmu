@@ -1,3 +1,5 @@
+module keycap.shared.user;
+
 data user
 {
     [primary] [not_null] [increment]

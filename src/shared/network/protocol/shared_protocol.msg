@@ -1,6 +1,7 @@
 module keycap.protocol.shared_protocol;
 
 import keycap.protocol.network_constants;
+import keycap.protocol.character_select;
 
 protocol shared_protocol;
 
@@ -17,6 +18,11 @@ enum shared_command : byte
     request_realm_data = 5,
     reply_realm_data = 6,
     realm_hello = 7,
+	request_characters = 8,
+	reply_characters = 9,
+
+	request_account_id_from_name = 10,
+	reply_account_id = 11,
 }
 
 message request_account_data
@@ -97,4 +103,33 @@ message realm_hello
     shared_command cmd = "shared_command::realm_hello";
     
      realm_info info;
+}
+
+message request_characters
+{
+	shared_command cmd = "shared_command::request_characters";
+
+	uint8 realm_id;
+	uint32 account_id;
+}
+
+message reply_characters
+{
+	shared_command cmd = "shared_command::reply_characters";
+
+	repeated char_data characters;
+}
+
+message request_account_id_from_name
+{
+	shared_command cmd = "shared_command::request_account_id_from_name";
+
+	string account_name;
+}
+
+message reply_account_id
+{
+	shared_command cmd = "shared_command::reply_account_id";
+	
+	uint32 account_id;
 }

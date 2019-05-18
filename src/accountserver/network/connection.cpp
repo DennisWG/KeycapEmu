@@ -18,6 +18,7 @@
 
 #include <generated/shared_protocol.hpp>
 
+#include <database/daos/character.hpp>
 #include <database/daos/realm.hpp>
 #include <database/daos/user.hpp>
 
@@ -129,6 +130,16 @@ namespace keycap::accountserver
                 auto packet = protocol::request_realm_data::decode(stream);
                 return on_realm_data_request(connection_ptr, sender, packet);
             }
+            case protocol::shared_command::request_characters:
+            {
+                auto packet = protocol::request_characters::decode(stream);
+                return on_characters_request(connection_ptr, sender, packet);
+            }
+            case protocol::shared_command::request_account_id_from_name:
+            {
+                auto packet = protocol::request_account_id_from_name::decode(stream);
+                return on_request_account_id_from_name(connection_ptr, sender, packet);
+            }
         }
     }
 
@@ -137,8 +148,8 @@ namespace keycap::accountserver
                                                    uint64 sender, protocol::request_account_data& packet)
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
-        user_dao->user(packet.account_name, [ sender, connection =
-                                                          connection_ptr ](std::optional<shared::database::user> user) {
+        user_dao->user(packet.account_name, [sender,
+                                             connection = connection_ptr](std::optional<shared::database::user> user) {
             if (connection.expired())
                 return;
 
@@ -169,7 +180,7 @@ namespace keycap::accountserver
     {
         auto user_dao = shared::database::dal::get_user_dao(get_login_database());
         user_dao->user(packet.account_name,
-                       [ sender, connection = connection_ptr ](std::optional<shared::database::user> user) {
+                       [sender, connection = connection_ptr](std::optional<shared::database::user> user) {
                            if (connection.expired() || !user)
                                return;
 
@@ -189,22 +200,70 @@ namespace keycap::accountserver
         auto realm_dao = shared::database::dal::get_realm_dao(get_login_database());
 
         realm_dao->realm(packet.realm_id,
-                         [ sender, connection = connection_ptr ](std::optional<shared::database::realm> realm) {
+                         [sender, connection = connection_ptr](std::optional<shared::database::realm> realm) {
                              if (connection.expired() || !realm)
                                  return;
 
                              protocol::reply_realm_data reply;
-                             reply.info = {static_cast<protocol::realm_type>(realm->type),
-                                           realm->locked,
-                                           static_cast<protocol::realm_flag>(realm->flags),
-                                           realm->name,
-                                           fmt::format("{}:{}", realm->host, realm->port),
-                                           realm->population,
-                                           static_cast<protocol::realm_category>(realm->category),
-                                           realm->id};
+                             reply.info = {static_cast<protocol::realm_type>(realm->type),         realm->locked,
+                                           static_cast<protocol::realm_flag>(realm->flags),        realm->name,
+                                           fmt::format("{}:{}", realm->host, realm->port),         realm->population,
+                                           static_cast<protocol::realm_category>(realm->category), realm->id};
 
                              connection.lock()->send_answer(sender, reply.encode());
                          });
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_characters_request(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                 uint64 sender, protocol::request_characters& packet)
+    {
+        auto char_dao = shared::database::dal::get_character_dao(get_login_database());
+
+        char_dao->realm_characters(
+            packet.realm_id, packet.account_id,
+            [sender, connection = connection_ptr](std::vector<shared::database::character> characters) {
+                if (connection.expired())
+                    return;
+
+                protocol::reply_characters reply;
+
+                for (auto& character : characters)
+                {
+                    reply.characters.emplace_back(protocol::char_data{
+                        character.id,         character.name,        character.race,        character.player_class,
+                        character.gender,     character.skin,        character.face,        character.hair_style,
+                        character.hair_color, character.facial_hair, character.level,       character.zone,
+                        character.map,        character.x,           character.y,           character.z,
+                        character.guild,      character.flags,       character.first_login, character.active_pet,
+                        // character.items,
+                    });
+                }
+
+                connection.lock()->send_answer(sender, reply.encode());
+            });
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_request_account_id_from_name(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                           uint64 sender,
+                                                           protocol::request_account_id_from_name& packet)
+    {
+        auto user_dao = shared::database::dal::get_user_dao(get_login_database());
+        user_dao->user_id_from_username(packet.account_name,
+                                        [sender, connection = connection_ptr](std::optional<int> user_id) {
+                                            if (connection.expired() || !user_id)
+                                                return;
+
+                                            protocol::reply_account_id reply;
+                                            reply.account_id = *user_id;
+
+                                            connection.lock()->send_answer(sender, reply.encode());
+                                        });
 
         return shared::network::state_result::ok;
     }

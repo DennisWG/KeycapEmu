@@ -27,6 +27,7 @@
 #include <keycap/root/network/connection.hpp>
 #include <keycap/root/network/memory_stream.hpp>
 #include <keycap/root/network/message_handler.hpp>
+#include <keycap/root/network/service_locator.hpp>
 
 #include <variant>
 
@@ -69,6 +70,10 @@ namespace keycap::realmserver
       private:
         using state_result = std::tuple<shared::network::state_result, uint16, keycap::protocol::client_command>;
 
+        friend class player_session;
+        void query_account_service(keycap::root::network::memory_stream const& message,
+                                   keycap::root::network::service_locator::registered_callback callback);
+
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
@@ -108,7 +113,7 @@ namespace keycap::realmserver
         struct authenticated
         {
           public:
-            authenticated(std::shared_ptr<client_connection> connection,
+            authenticated(std::shared_ptr<client_connection> connection, std::string const& account_name,
                           keycap::protocol::client_addon_info const& client_addons, Botan::BigInt const& session_key);
 
             state_result on_data(client_connection& connection, keycap::root::network::data_router const& router,

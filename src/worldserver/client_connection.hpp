@@ -26,9 +26,10 @@ namespace keycap::worldserver
       public:
         explicit client_connection(keycap::root::network::service_base& service);
 
-        bool on_data(keycap::root::network::data_router const& router, std::vector<uint8_t> const& data) override;
+        bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
+                     std::vector<uint8_t> const& data) override;
 
-        bool on_link(keycap::root::network::data_router const& router,
+        bool on_link(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      keycap::root::network::link_status status) override;
     };
 }

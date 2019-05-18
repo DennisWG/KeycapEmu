@@ -18,6 +18,7 @@ add_library(${LIBRARY_NAME}
     cli/handler.cpp
     cli/helpers.cpp
     cryptography/packet_scrambler.cpp
+    database/daos/mysql/character.cpp
     database/daos/mysql/user.cpp
     database/daos/mysql/realm.cpp
     database/daos/mysql/knowledge_base.cpp

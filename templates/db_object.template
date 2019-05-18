@@ -18,6 +18,14 @@
 
 #pragma once
 
+## if hasImports
+## for imp in imports
+{##}
+#include <generated/{{ imp/importName }}.hpp>
+## endfor
+## endif
+{##}
+
 #include <Keycap/Root/Types.hpp>
 
 #include <boost/optional.hpp>

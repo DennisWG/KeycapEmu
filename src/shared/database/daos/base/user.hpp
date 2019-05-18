@@ -29,6 +29,7 @@ namespace keycap::shared::database::dal
         }
 
         using user_callback = std::function<void(std::optional<shared::database::user>)>;
+        using user_id_callback = std::function<void(std::optional<int>)>;
 
         // Retreives the user with the given username from the database and then calls the given callback
         virtual void user(std::string const& username, user_callback callback) const = 0;
@@ -42,5 +43,8 @@ namespace keycap::shared::database::dal
         // Returns the session_key of the given account_name
         // Note: Blocks on the callers thread until the database answers!
         virtual std::optional<std::string> session_key(std::string const& account_name) const = 0;
+
+        // Returns the user's unique id of the given username
+        virtual void user_id_from_username(std::string const& username, user_id_callback callback) const = 0;
     };
 }

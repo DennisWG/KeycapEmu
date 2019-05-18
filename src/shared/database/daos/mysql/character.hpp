@@ -14,28 +14,12 @@
     limitations under the License.
 */
 
-#pragma once
-
-#include <network/services.hpp>
-
-#include <keycap/root/network/service.hpp>
+#include "../../database.hpp"
+#include "../base/character.hpp"
 
 #include <memory>
 
-namespace keycap::worldserver
+namespace keycap::shared::database::dal
 {
-    class client_connection;
-
-    class client_service : public keycap::root::network::service<client_connection>
-    {
-      public:
-        explicit client_service(int thread_count)
-          : service{keycap::root::network::service_mode::Server, shared::network::world_service_type, thread_count}
-        {
-        }
-
-        virtual bool on_new_connection(SharedHandler handler) override;
-
-        virtual SharedHandler make_handler() override;
-    };
+    std::unique_ptr<character_dao> get_character_dao(database& database);
 }

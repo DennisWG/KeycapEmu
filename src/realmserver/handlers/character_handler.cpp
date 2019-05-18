@@ -19,12 +19,27 @@
 #include "../network/player_session.hpp"
 #include "../network/handler.hpp"
 
+#include <generated/shared_protocol.hpp>
+
+#include <database/daos/character.hpp>
+#include <network/services.hpp>
+
+#include <keycap/root/network/service_locator.hpp>
+
 #include <spdlog/spdlog.h>
+
+namespace db = keycap::shared::database;
+namespace net = keycap::root::network;
+namespace shared_net = keycap::shared::network;
+
+extern boost::asio::io_service& get_net_service();
+extern uint8 get_realm_id();
 
 namespace keycap::realmserver
 {
-    character_handler::character_handler(player_session& session)
+    character_handler::character_handler(player_session& session, keycap::root::network::service_locator& locator)
       : session_{session}
+      , locator_{locator}
     {
         auto& handlers = get_handlers();
 
@@ -36,6 +51,32 @@ namespace keycap::realmserver
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->trace("[character_handler] handle_char_enum");
+
+        keycap::protocol::request_characters request;
+        request.realm_id = get_realm_id();
+        request.account_id = session_.account_id();
+
+        auto on_reply = [session = &session_](net::service_type sender, net::memory_stream data) {
+            if (data.peek<keycap::protocol::shared_command>() != keycap::protocol::shared_command::reply_characters)
+                return false;
+
+            auto reply = keycap::protocol::reply_characters::decode(data);
+
+            keycap::protocol::server_char_enum answer;
+            answer.data = reply.characters;
+
+            auto logger = keycap::root::utility::get_safe_logger("connections");
+            logger->debug("[character_handler] sending {}", answer.to_string());
+
+            session->send(answer.encode());
+
+            return true;
+        };
+
+        locator_.send_registered(shared_net::account_service_type, request.encode(), get_net_service(), on_reply);
+        
+
+        /*/db::dal::get_character_dao()
 
         keycap::protocol::char_data data{
             0,         //   guid;
@@ -64,14 +105,8 @@ namespace keycap::realmserver
         };
 
         keycap::protocol::server_char_enum answer;
-        //answer.data.emplace_back(std::move(data));
-
-        logger->debug("[character_handler] sending {}", answer.to_string());
-
-        auto foo = answer.encode();
-        //foo.put<uint8>(0);
-        //session_.send(answer.encode());
-        session_.send(foo);
+        answer.data.emplace_back(std::move(data));
+        //*/
 
         return true;
     }

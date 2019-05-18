@@ -93,6 +93,21 @@ namespace keycap::shared::database::dal
             return result->getString("session_key").c_str();
         }
 
+        void user_id_from_username(std::string const& username, user_id_callback callback) const override
+        {
+            static auto statement = database_.prepare_statement("SELECT id FROM user WHERE account_name = ?");
+            statement.add_parameter(username);
+
+            auto whenDone = [callback](std::unique_ptr<sql::ResultSet> result) {
+                if (!result || !result->next())
+                    return callback(std::nullopt);
+
+                callback(result->getUInt("id"));
+            };
+
+            statement.query_async(whenDone);
+        }
+
       private:
         database& database_;
     };
@@ -101,4 +116,4 @@ namespace keycap::shared::database::dal
     {
         return std::make_unique<mysql_user_dao>(database);
     }
-}
+} // namespace keycap::shared::database::dal

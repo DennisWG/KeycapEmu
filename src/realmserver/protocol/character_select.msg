@@ -4,6 +4,7 @@ protocol character_select;
 
 import keycap.protocol.client;
 import keycap.protocol.server;
+import keycap.shared.character;
 
 message client_char_enum
 {

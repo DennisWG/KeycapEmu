@@ -19,6 +19,11 @@
 #include <generated/character_select.hpp>
 #include <generated/realm_protocol.hpp>
 
+namespace keycap::root::network
+{
+    class service_locator;
+}
+
 namespace keycap::realmserver
 {
     class player_session;
@@ -26,7 +31,7 @@ namespace keycap::realmserver
     class character_handler
     {
       public:
-        explicit character_handler(player_session& session);
+        explicit character_handler(player_session& session, keycap::root::network::service_locator& locator);
 
         bool handle_char_enum(keycap::protocol::client_char_enum packet);
 
@@ -34,5 +39,7 @@ namespace keycap::realmserver
 
       private:
         player_session& session_;
+
+        keycap::root::network::service_locator& locator_;
     };
 }

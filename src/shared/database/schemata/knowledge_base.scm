@@ -1,3 +1,5 @@
+module keycap.shared.knowledge_base;
+
 data category
 {
     [primary][not_null][increment]

@@ -1,3 +1,5 @@
+module keycap.shared.realm;
+
 data build
 {
     [primary] [not_null] [increment]

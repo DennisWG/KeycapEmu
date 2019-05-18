@@ -17,8 +17,8 @@
 #include "client_connection.hpp"
 #include "../realm_manager.hpp"
 
-#include <generated/shared_protocol.hpp>
 #include <generated/realm.hpp>
+#include <generated/shared_protocol.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
@@ -157,7 +157,7 @@ namespace keycap::logonserver
         request.account_name = packet.account_name;
 
         connection.service_locator().send_registered(
-            shared_net::account_service_type, request.encode(),
+            shared_net::account_service_type, request.encode(), connection.io_service_,
             [&, account_name = packet.account_name, self = std::static_pointer_cast<client_connection>(
                     connection.shared_from_this()) ](net::service_type sender, net::memory_stream data) {
                 auto reply = protocol::reply_account_data::decode(data);
@@ -345,19 +345,18 @@ namespace keycap::logonserver
         });
         */
 
-        connection.realm_manager_.iterate(
-            [&outPacket](keycap::protocol::realm_info const& realm_data) {
-                auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
-                data.type = realm_data.type;
-                data.locked = realm_data.locked;
-                data.realm_flags = realm_data.realm_flags;
-                data.name = realm_data.name;
-                data.ip = realm_data.ip;
-                data.population = realm_data.population;
-                data.num_characters = 0;
-                data.category = realm_data.category;
-                data.id = realm_data.id;
-            });
+        connection.realm_manager_.iterate([&outPacket](keycap::protocol::realm_info const& realm_data) {
+            auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
+            data.type = realm_data.type;
+            data.locked = realm_data.locked;
+            data.realm_flags = realm_data.realm_flags;
+            data.name = realm_data.name;
+            data.ip = realm_data.ip;
+            data.population = realm_data.population;
+            data.num_characters = 0;
+            data.category = realm_data.category;
+            data.id = realm_data.id;
+        });
 
         outPacket.unk = 12345;
 

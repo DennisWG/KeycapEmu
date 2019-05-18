@@ -95,6 +95,29 @@ config parse_config(std::string config_file)
     return cfg;
 }
 
+boost::asio::io_service& get_net_service()
+{
+    static boost::asio::io_service net_service;
+    return net_service;
+}
+
+void init_network_threads(std::vector<std::thread>& thread_pool, config const& config)
+{
+    auto& service = get_net_service();
+    for (int i = 0; i < config.network.threads; ++i)
+        thread_pool.emplace_back([&] { service.run(); });
+}
+
+void kill_network_threads(std::vector<std::thread>& thread_pool)
+{
+    get_net_service().stop();
+    for (auto& thread : thread_pool)
+    {
+        if (thread.joinable())
+            thread.join();
+    }
+}
+
 keycap::shared::cli::command_map commands;
 
 auto& get_command_map()
@@ -113,7 +136,7 @@ void get_realm_info(keycap::root::network::service_locator& locator, config& con
     packet.realm_id = config.realm.id;
 
     locator.send_registered(
-        shared_net::account_service_type, packet.encode(),
+        shared_net::account_service_type, packet.encode(), get_net_service(),
         [&locator, &config](net::service_type sender, net::memory_stream data) {
             if (data.peek<keycap::protocol::shared_command>() != keycap::protocol::shared_command::reply_realm_data)
                 return false;
@@ -125,29 +148,40 @@ void get_realm_info(keycap::root::network::service_locator& locator, config& con
 
             auto packet = keycap::protocol::reply_realm_data::decode(data);
 
-            locator.locate(
-                shared_net::logon_realm_service_type, config.logon_service.host, config.logon_service.port,
-                [&config, info = packet.info ](auto& locator, auto type) {
-                    keycap::protocol::realm_hello packet;
-                    packet.info = info;
+            net::service_locator::located_callback callback = [&config, info = packet.info ](auto& locator, auto type)
+            {
+                keycap::protocol::realm_hello packet;
+                packet.info = info;
 
-                    auto console = keycap::root::utility::get_safe_logger("console");
-                    console->info("{} located! Sending hello to logon server.", shared_net::logon_service.to_string());
-                    locator.send_to(shared_net::logon_realm_service_type, packet.encode());
+                auto console = keycap::root::utility::get_safe_logger("console");
+                console->info("{} located! Sending hello to logon server.", shared_net::logon_service.to_string());
+                locator.send_to(shared_net::logon_realm_service_type, packet.encode());
 
-                    auto exploded_ip = keycap::root::utility::explode(info.ip, ':');
-                    auto& ip = exploded_ip[0];
-                    auto port = std::stoi(exploded_ip[1]);
+                auto exploded_ip = keycap::root::utility::explode(info.ip, ':');
+                auto& ip = exploded_ip[0];
+                auto port = std::stoi(exploded_ip[1]);
 
-                    console->info("Listening to {} on port {} with {} thread(s).", ip, port, config.network.threads);
+                console->info("Listening to {} on port {} with {} thread(s).", ip, port, config.network.threads);
 
-                    static keycap::realmserver::client_service service{locator, config.network.threads};
-                    if (!service.running())
-                        service.start(ip, port);
-                });
+                static keycap::realmserver::client_service service{locator, config.network.threads};
+                if (!service.running())
+                    service.start(ip, port);
+            };
+
+            net::service_locator::located_callback_container container{get_net_service(), callback};
+
+            locator.locate(shared_net::logon_realm_service_type, config.logon_service.host, config.logon_service.port,
+                           container);
 
             return true;
         });
+}
+
+uint8 global_realm_id = 0;
+
+uint8 get_realm_id()
+{
+    return global_realm_id;
 }
 
 int main()
@@ -159,6 +193,8 @@ int main()
     utility::set_console_title("Realmserver");
 
     auto config = parse_config("realm.json");
+    global_realm_id = static_cast<uint8>(config.realm.id);
+
     logging::create_loggers(config.logging);
     QUICK_SCOPE_EXIT(sc, [] { spdlog::drop_all(); });
 
@@ -179,10 +215,18 @@ int main()
                              },
                              "Shuts down the Server"s});
 
+    boost::asio::io_service::work net_work{get_net_service()};
+    std::vector<std::thread> net_thread_pool;
+    init_network_threads(net_thread_pool, config);
+    SCOPE_EXIT(sc2, [&] { kill_network_threads(net_thread_pool); });
+
+    net::service_locator::located_callback_container container{
+        get_net_service(), [&](auto& locator, auto type) { get_realm_info(locator, config); }};
+
     console->info("Attempting to locate {}...", shared_net::account_service.to_string());
     keycap::root::network::service_locator locator;
     locator.locate(shared_net::account_service_type, config.account_service.host, config.account_service.port,
-                   [&config](auto& locator, auto type) { get_realm_info(locator, config); });
+                   container);
 
     keycap::shared::cli::run_command_line(
         keycap::shared::rbac::role{0, "Console", keycap::shared::rbac::get_all_permissions()}, running);

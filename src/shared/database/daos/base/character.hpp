@@ -14,28 +14,24 @@
     limitations under the License.
 */
 
-#pragma once
+#include <generated/character.hpp>
 
-#include <network/services.hpp>
+#include <functional>
+#include <optional>
 
-#include <keycap/root/network/service.hpp>
-
-#include <memory>
-
-namespace keycap::worldserver
+namespace keycap::shared::database::dal
 {
-    class client_connection;
-
-    class client_service : public keycap::root::network::service<client_connection>
+    class character_dao
     {
       public:
-        explicit client_service(int thread_count)
-          : service{keycap::root::network::service_mode::Server, shared::network::world_service_type, thread_count}
+        virtual ~character_dao()
         {
         }
 
-        virtual bool on_new_connection(SharedHandler handler) override;
+        using character_callback = std::function<void(std::vector<shared::database::character>)>;
 
-        virtual SharedHandler make_handler() override;
+        // Retreives all characters from the given realm with the given user id from the database and then calls the
+        // given callback
+        virtual void realm_characters(uint8 realm, uint32 user, character_callback callback) const = 0;
     };
 }

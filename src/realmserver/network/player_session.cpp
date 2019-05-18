@@ -15,29 +15,52 @@
 */
 
 #include <generated/authentication.hpp>
+#include <generated/realm_protocol.hpp>
 
 #include "client_connection.hpp"
 #include "player_session.hpp"
 
 #include <keycap/root/network/memory_stream.hpp>
+#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
 #include <keycap/root/utility/crc32.hpp>
+#include <network/services.hpp>
 
+namespace net = keycap::root::network;
+namespace shared_net = keycap::shared::network;
 namespace srp6 = keycap::root::network::srp6;
 namespace util = keycap::root::utility;
 
 namespace keycap::realmserver
 {
-    player_session::player_session(client_connection& connection, shared::cryptography::packet_scrambler& scrambler)
+    player_session::player_session(client_connection& connection, std::string const& account_name,
+                                   shared::cryptography::packet_scrambler& scrambler)
       : connection_{connection}
       , scrambler_{scrambler}
     {
+        protocol::request_account_id_from_name request;
+        request.account_name = account_name;
+
+        auto callback = [&](net::service_type sender, net::memory_stream data) {
+            auto reply = protocol::reply_account_id::decode(data);
+
+            account_id_ = reply.account_id;
+
+            return true;
+        };
+
+        connection.query_account_service(request.encode(), callback);
     }
 
     void player_session::send(keycap::root::network::memory_stream&& stream)
     {
         scrambler_.encrypt(stream);
         connection_.send(stream);
+    }
+
+    uint32 player_session::account_id() const
+    {
+        return account_id_;
     }
 
     void player_session::send(keycap::root::network::memory_stream& stream)

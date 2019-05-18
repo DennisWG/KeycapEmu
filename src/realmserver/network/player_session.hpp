@@ -46,15 +46,18 @@ namespace keycap::realmserver
     class player_session
     {
       public:
-        player_session(client_connection& connection, shared::cryptography::packet_scrambler& scrambler);
+        player_session(client_connection& connection, std::string const& account_name, shared::cryptography::packet_scrambler& scrambler);
 
         void send_addon_info(keycap::protocol::client_addon_info const& client_addons);
 
         void send(keycap::root::network::memory_stream& stream);
         void send(keycap::root::network::memory_stream&& stream);
 
+        uint32 account_id() const;
       private:
         client_connection& connection_;
         shared::cryptography::packet_scrambler& scrambler_;
+
+        uint32 account_id_ = 0;
     };
 }

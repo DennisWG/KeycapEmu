@@ -25,7 +25,6 @@
 #include <cryptography/packet_scrambler.hpp>
 
 #include <keycap/root/compression/zip.hpp>
-#include <keycap/root/network/service_locator.hpp>
 #include <keycap/root/network/srp6/utility.hpp>
 #include <keycap/root/utility/crc32.hpp>
 #include <keycap/root/utility/random.hpp>
@@ -164,6 +163,12 @@ namespace keycap::realmserver
         return locator_;
     }
 
+    void client_connection::query_account_service(keycap::root::network::memory_stream const& message,
+                                                  keycap::root::network::service_locator::registered_callback callback)
+    {
+        locator().send_registered(shared_net::account_service_type, message, io_service_, callback);
+    }
+
     client_connection::state_result client_connection::disconnected::on_data(client_connection& connection,
                                                                              net::data_router const& router,
                                                                              net::memory_stream& stream)
@@ -203,15 +208,16 @@ namespace keycap::realmserver
 
         auto self = std::static_pointer_cast<client_connection>(connection.shared_from_this());
 
-        connection.locator().send_registered(shared_net::account_service_type, request.encode(), [
-            =, addon_info = std::move(addon_info), client_seed = packet.client_seed, account_name = packet.account_name,
-            digest = packet.digest
-        ](net::service_type sender, net::memory_stream data) {
+        auto callback = [=, addon_info = std::move(addon_info), client_seed = packet.client_seed,
+                         account_name = packet.account_name,
+                         digest = packet.digest](net::service_type sender, net::memory_stream data) {
             auto reply = protocol::reply_session_key::decode(data);
             account_reply_data reply_data{account_name, client_seed, digest, addon_info};
             on_account_reply(self, reply, reply_data);
             return true;
-        });
+        };
+
+        connection.query_account_service(request.encode(), callback);
 
         return std::make_tuple(result, size, opcode);
     }
@@ -249,7 +255,7 @@ namespace keycap::realmserver
             return;
         }
 
-        conn->state_ = authenticated{conn, protocol::client_addon_info::decode(data.addon_data), K};
+        conn->state_ = authenticated{conn, data.account_name, protocol::client_addon_info::decode(data.addon_data), K};
     }
 
     bool client_connection::just_connected::verify_digest(std::string const& account_name, uint32 client_seed,
@@ -270,6 +276,7 @@ namespace keycap::realmserver
     }
 
     client_connection::authenticated::authenticated(std::shared_ptr<client_connection> connection,
+                                                    std::string const& account_name,
                                                     protocol::client_addon_info const& client_addons,
                                                     Botan::BigInt const& session_key)
     {
@@ -278,7 +285,8 @@ namespace keycap::realmserver
 
         connection->scrambler_.initialize(srp6::encode_flip(session_key));
 
-        connection->player_session_ = std::make_unique<player_session>(*connection, connection->scrambler_);
+        connection->player_session_
+            = std::make_unique<player_session>(*connection, account_name, connection->scrambler_);
 
         connection->player_session_->send_addon_info(client_addons);
 
@@ -305,11 +313,20 @@ namespace keycap::realmserver
             connection.player_session_->send(answer.encode());
         }
 
-        character_handler ch{*connection.player_session_};
+        character_handler ch{*connection.player_session_, connection.locator_};
 
-        if (auto itr = handlers.find(cmd); itr != handlers.end())
-            itr->second(*connection.player_session_, stream);
+        try
+        {
+            if (auto itr = handlers.find(cmd); itr != handlers.end())
+                itr->second(*connection.player_session_, stream);
+        }
+        catch (std::exception const& ex)
+        {
+            auto logger = root::utility::get_safe_logger("connections");
+            logger->trace("[client_connection::on_data] Exception thrown!", ex.what());
 
+            return client_connection::state_result{shared::network::state_result::abort, size, opcode};
+        }
         return std::make_tuple(result, size, opcode);
     }
 }

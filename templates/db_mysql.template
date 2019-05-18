@@ -25,7 +25,7 @@ CREATE TABLE `{{ dat/name }}` (
 ## if not hasSpecifier(attrib, "repeated")
 ## if not hasSpecifier(attrib, "optional")
 {##}
-    {{ attrib/name }} {{ attrib/mysqlType }}
+    `{{ attrib/name }}` {{ attrib/mysqlType }}
 ## if attrib/hasAnnotations
 ## for annotation in attrib/annotations
 {% if annotation/name == "primary" %} PRIMARY KEY{% endif %}{% if annotation/name == "not_null" %} NOT NULL{% endif %}{% if annotation/name == "increment" %} AUTO_INCREMENT{% endif %}
@@ -43,8 +43,8 @@ CREATE TABLE `{{ dat/name }}` (
 ## endif
 ## for attrib in dat/attributes
 ## if hasAnnotation(attrib, "foreign_key")
-,
-    FOREIGN KEY ({{ attrib/name }})
+{% if not hasAnnotation(dat, "skip_foreign_keys_comma") %},{% endif %}
+    FOREIGN KEY (`{{ attrib/name }}`)
       REFERENCES {{ annotationValue(attrib, "foreign_key") }}
 ## if hasAnnotation(attrib, "on_update")
 {##}
