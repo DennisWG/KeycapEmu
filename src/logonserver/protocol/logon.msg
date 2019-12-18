@@ -97,8 +97,8 @@ message client_logon_challange
 {
     [expects="command::challange"]
     command cmd;
-    [expects="grunt_result::db_busy"]
-    grunt_result result;
+    [expects="8"]
+    uint8 protocol_version;
     uint16 size;
     char[4] game;
     byte[3] version;
@@ -117,13 +117,25 @@ data pin
     uint8[16] pin_salt;
 }
 
+data pin_response
+{
+    uint8[16] key_checksum;
+    uint8[20] final_checksum;
+}
+
 data matrix
 {
+    uint8 num_coloumns;
+    uint8 num_rows;
     uint8 unk1;
-    uint8 unk2;
-    uint8 unk3;
-    uint8 unk4;
-    uint64 unk5;
+    uint8 num_values_to_enter;
+    [comment="1 dimensional array"]
+    uint64 number_to_pick;
+}
+
+data matrix_response
+{
+    uint8[20] unk;
 }
 
 data token
@@ -131,11 +143,16 @@ data token
     uint8 unk;
 }
 
+data token_response
+{
+    string input;
+}
+
 message server_logon_challange
 {
     command cmd = "command::challange";
-    grunt_result result = "grunt_result::success";
-    grunt_result error;
+    uint8 protocol_version = 0;
+    grunt_result error = "grunt_result::success";
     uint8[32] B;
     uint8 g_length;
     uint8 g;
@@ -158,14 +175,8 @@ message server_logon_challange
 message server_logon_error
 {
     command cmd = "command::challange";
+    uint8 protocol_version = 0;
     grunt_result result;
-}
-
-message server_logon_unknown_account
-{
-    command cmd = "command::challange";
-    grunt_result result = "grunt_result::unknown_account";
-    uint16 unk = 0;
 }
 
 data telemetry_data
@@ -187,7 +198,16 @@ message client_logon_proof
     uint8[20] M1;
     uint8[20] checksum;
     repeated telemetry_data data;
-    uint8 security_flags;
+    security_flag security_flags;
+    
+    [requires="security_flags.test_flag(security_flag::pin)"]
+    optional pin_response pin_response;
+    
+    [requires="security_flags.test_flag(security_flag::matrix)"]
+    optional matrix_response matrix_response;
+    
+    [requires="security_flags.test_flag(security_flag::token)"]
+    optional token_response token_response;
 }
 
 message server_logon_proof
