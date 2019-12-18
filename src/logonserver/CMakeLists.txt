@@ -13,6 +13,11 @@
 #   limitations under the License.
 
 add_executable (logonserver
+    authentication/pin_authenticator.cpp
+    network/client_states/disconnected.cpp
+    network/client_states/just_connected.cpp
+    network/client_states/challanged.cpp
+    network/client_states/authenticated.cpp
     network/client_connection.cpp
     network/logon_service.cpp
     network/realm_service.cpp
