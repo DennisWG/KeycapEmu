@@ -26,7 +26,7 @@
                 keycap::root::utility::dump_as_hex(std::begin({{ attrib/name }}), std::end({{ attrib/name }}), ss, 8);
 ## else if isUserDefinedData(attrib/type)
 {##}
-            // TODO: Add user defined data
+            // TODO: Add user defined data! See https://github.com/DennisWG/KeycapEmu/issues/9
 ## else
 {##}
             ss << "    {{ attrib/name }} = " << {{ attrib/name }} << '\n';

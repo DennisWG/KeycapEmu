@@ -113,7 +113,7 @@ namespace keycap::realmserver
                 {
                     input_stream_.clear();
                     logger->error("[client_connection] Underread packet (size {} opcode {}) in state {} from user {}", size, opcode, state.name, account_name);
-                    // TODO: disconnect here?
+                    // TODO: disconnect here? See https://github.com/DennisWG/KeycapEmu/issues/12
                 }
 
                 return success;
@@ -236,7 +236,7 @@ namespace keycap::realmserver
         if (!reply.session_key)
         {
             protocol::server_auth_error session;
-            // TODO: send error
+            // TODO: send error. See https://github.com/DennisWG/KeycapEmu/issues/11
             logger->info("[client_connection::just_connected] User {} tried to log in with incorrect login info!",
                          data.account_name);
             return;
@@ -249,7 +249,7 @@ namespace keycap::realmserver
             protocol::server_auth_error session;
             session.result = protocol::auth_result::unknown_account;
             conn->send(session.encode());
-            // TODO: send error
+            // TODO: send error. See https://github.com/DennisWG/KeycapEmu/issues/11
             logger->info("[client_connection::just_connected] User {} tried to log in with incorrect login info!",
                          data.account_name);
             return;

@@ -138,10 +138,11 @@ namespace keycap::logonserver
             // it also changes the following coordinates)
             // Speculation:
             // I believe the this->field_1F4 array is being calculated in sub_0041E120
+            // See https://github.com/DennisWG/KeycapEmu/issues/3
 
             matrix.num_coloumns = 8;
             matrix.num_rows = 2;
-            matrix.unk1 = 5; // Todo: no idea what this does.
+            matrix.unk1 = 5; // Todo: no idea what this does. See https://github.com/DennisWG/KeycapEmu/issues/3
             matrix.num_values_to_enter = 5;
             matrix.number_to_pick = 252;
 

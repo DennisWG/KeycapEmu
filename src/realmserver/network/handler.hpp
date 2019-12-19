@@ -117,7 +117,7 @@ namespace keycap::realmserver
             };
 
             // TODO: This has to be the most ugliest hack I've ever done! Is this even valid C++? Look for an
-            // actual solution to this ugly mess...
+            // actual solution to this ugly mess... See https://github.com/DennisWG/KeycapEmu/issues/10
             callback_ = reinterpret_cast<void*>(*(reinterpret_cast<size_t*>(&callback)));
             handler_ = reinterpret_cast<void*>(handler);
         }
