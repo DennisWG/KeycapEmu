@@ -96,7 +96,7 @@ namespace keycap::logonserver
     {
         auto command = stream.peek<keycap::protocol::shared_command>();
 
-        if(command != keycap::protocol::shared_command::realm_hello)
+        if (command != keycap::protocol::shared_command::realm_hello)
             return shared::network::state_result::abort;
 
         auto packet = keycap::protocol::realm_hello::decode(stream);

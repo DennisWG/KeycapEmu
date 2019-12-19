@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
 #include "logon_service.hpp"
+#include "client_connection.hpp"
 
 namespace keycap::logonserver
 {

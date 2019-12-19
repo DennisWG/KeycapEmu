@@ -119,8 +119,7 @@ namespace keycap::logonserver
         logger->debug(packet.to_string());
 
         std::string const key = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
-        auto totp_secret
-            = Botan::base32_encode(reinterpret_cast<uint8_t*>(data.verifier.data()), data.verifier.size());
+        auto totp_secret = Botan::base32_encode(reinterpret_cast<uint8_t*>(data.verifier.data()), data.verifier.size());
 
         if (packet.pin_response)
         {

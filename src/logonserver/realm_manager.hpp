@@ -44,7 +44,7 @@ namespace keycap::logonserver
         template <typename FUN>
         void iterate(FUN&& callback) const
         {
-            for (auto && [ id, realm ] : realms_)
+            for (auto&& [id, realm] : realms_)
                 callback(realm);
         }
 

@@ -79,8 +79,8 @@ void register_command(keycap::shared::cli::command const& command)
 void register_default_commands(bool& running)
 {
     using namespace std::string_literals;
-    using keycap::shared::cli::command;
     using keycap::shared::permission;
+    using keycap::shared::cli::command;
     namespace rbac = keycap::shared::rbac;
 
     register_command(command{"shutdown"s, permission::CommandShutdown,
