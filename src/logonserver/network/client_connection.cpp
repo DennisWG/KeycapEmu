@@ -53,7 +53,8 @@ namespace keycap::logonserver
         auto result = std::visit([&](auto state) -> shared::network::state_result
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
-            logger->debug("[client_connection] Received data in state: {}", state.name);
+            auto cmd = input_stream_.peek<protocol::command>();
+            logger->debug("[client_connection] Received {} in state: {}", cmd.to_string(), state.name);
 
             try
             {

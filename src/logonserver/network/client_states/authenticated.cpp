@@ -22,6 +22,7 @@
 #include <spdlog/spdlog.h>
 
 namespace net = keycap::root::network;
+namespace shared_net = keycap::shared::network;
 
 namespace keycap::logonserver
 {
@@ -29,25 +30,41 @@ namespace keycap::logonserver
                                                                             net::data_router const& router,
                                                                             net::memory_stream& stream)
     {
-        if (stream.size() < protocol::client_realm_list::expected_size)
-            return shared::network::state_result::incomplete_data;
+        switch (stream.peek<protocol::command>())
+        {
+            case protocol::command::realm_list: {
+                if (stream.size() < protocol::client_realm_list::expected_size)
+                    return shared::network::state_result::incomplete_data;
 
-        if (stream.peek<protocol::command>() != protocol::command::realm_list)
-            return shared::network::state_result::abort;
+                if (stream.peek<protocol::command>() != protocol::command::realm_list)
+                    return shared::network::state_result::abort;
 
-        auto packet{protocol::client_realm_list::decode(stream)};
+                handle_realm_list(connection, protocol::client_realm_list::decode(stream));
+            }
+            break;
+            case protocol::command::survey_result: {
+                if (stream.peek<uint16>(6) > stream.size())
+                    return shared::network::state_result::incomplete_data;
 
+                handle_survey_result(connection, protocol::survey_result::decode(stream));
+            }
+            break;
+            default: {
+                auto logger = keycap::root::utility::get_safe_logger("connections");
+                logger->debug("[client_connection] Received unexpected command {}!", stream.peek<protocol::command>());
+            }
+        }
+
+        return shared::network::state_result::ok;
+    }
+
+    void client_connection::authenticated::handle_realm_list(client_connection& connection,
+                                                             protocol::client_realm_list packet)
+    {
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug("[client_connection] {}", packet.to_string());
 
         protocol::server_realm_list outPacket;
-
-        /*
-        connection.io_service_.post([conn=connection.weak_from_this()](){
-            if(conn.expired())
-                return;
-        });
-        */
 
         connection.realm_manager_.iterate([&outPacket](keycap::protocol::realm_info const& realm_data) {
             auto& data = outPacket.data.emplace_back(protocol::realm_list_data{});
@@ -65,11 +82,19 @@ namespace keycap::logonserver
         outPacket.unk = 0xC01A;
 
         connection.send(outPacket.encode());
-
-        return shared::network::state_result::ok;
     }
 
-    void client_connection::authenticated::send_realm_list()
+    void client_connection::authenticated::handle_survey_result(client_connection& connection,
+                                                                protocol::survey_result packet)
     {
+        auto logger = keycap::root::utility::get_safe_logger("connections");
+        logger->debug("[client_connection] {}", packet.to_string());
+
+        protocol::login_telemetry out_packet;
+        out_packet.account_name = connection.account_name_;
+        out_packet.telemetry = packet.data;
+
+        if(packet.error == 0)
+            connection.service_locator().send_to(shared_net::account_service_type, out_packet.encode());
     }
 }

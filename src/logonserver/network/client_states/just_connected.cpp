@@ -56,8 +56,10 @@ namespace keycap::logonserver
             [&, account_name = packet.account_name,
              self = std::static_pointer_cast<client_connection>(connection.shared_from_this())](
                 net::service_type sender, net::memory_stream data) {
-                auto reply = protocol::reply_account_data::decode(data);
-                on_account_reply(self, reply, account_name);
+                self->io_service_.post(
+                    [this, self, account_name, reply = protocol::reply_account_data::decode(data)]() {
+                        on_account_reply(self, reply, account_name);
+                    });
                 return true;
             });
 
@@ -65,7 +67,7 @@ namespace keycap::logonserver
     }
 
     void client_connection::just_connected::on_account_reply(std::weak_ptr<client_connection> connection,
-                                                             protocol::reply_account_data& reply,
+                                                             protocol::reply_account_data const& reply,
                                                              std::string const& account_name)
     {
         if (connection.expired())
@@ -88,10 +90,11 @@ namespace keycap::logonserver
         Botan::BigInt verifier{reply.data->verifier};
         Botan::BigInt salt{reply.data->salt};
 
+        conn->account_name_ = account_name;
+
         challanged_data challanged_data;
         challanged_data.server = std::make_shared<net::srp6::server>(parameter, verifier, compliance);
         challanged_data.verifier = reply.data->verifier;
-        challanged_data.username = account_name;
         challanged_data.user_salt = salt;
         challanged_data.checksum_salt = Botan::AutoSeeded_RNG().random_vec(16);
         challanged_data.account_flags = static_cast<protocol::account_flag>(reply.data->flags);

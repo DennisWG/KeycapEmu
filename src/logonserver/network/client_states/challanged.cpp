@@ -50,26 +50,29 @@ namespace keycap::logonserver
     }
 
     std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
-    client_connection::challanged::generate_session_key_and_server_proof(protocol::client_logon_proof const& packet)
+    client_connection::challanged::generate_session_key_and_server_proof(std::string const& username,
+                                                                         protocol::client_logon_proof const& packet)
     {
         Botan::BigInt A{packet.A.data(), 32};
         Botan::BigInt M1{packet.M1.data(), 20};
         auto session_key = data.server->session_key(A);
 
         auto M1_S = net::srp6::generate_client_proof(data.server->prime(), data.server->generator(), data.user_salt,
-                                                     data.username, A, data.server->public_ephemeral_value(),
-                                                     session_key, data.server->compliance_mode());
+                                                     username, A, data.server->public_ephemeral_value(), session_key,
+                                                     data.server->compliance_mode());
 
         return std::make_tuple(std::move(session_key), std::move(M1), std::move(M1_S));
     }
 
     void client_connection::challanged::send_proof_success(client_connection& connection, Botan::BigInt session_key,
-                                                           Botan::BigInt M1_S)
+                                                           Botan::BigInt M1_S, bool send_survey)
     {
         protocol::server_logon_proof outPacket;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
         outPacket.account_flags = data.account_flags;
         outPacket.num_account_messages = 0;
+        // TODO: implement proper survey selection. See https://github.com/DennisWG/KeycapEmu/issues/20
+        outPacket.survey_id = send_survey ? 11 : 0;
 
         connection.send(outPacket.encode());
     }
@@ -126,23 +129,29 @@ namespace keycap::logonserver
             if (!validate_pin(connection.authenticator_, *packet.pin_response, totp_secret))
             {
                 return login_error("[client_connection] User {} tried to log in with incorrect PIN!", connection,
-                                   protocol::grunt_result::unknown_account, data.username);
+                                   protocol::grunt_result::unknown_account, connection.account_name_);
             }
         }
 
-        auto [session_key, M1, M1_S] = generate_session_key_and_server_proof(packet);
+        auto [session_key, M1, M1_S] = generate_session_key_and_server_proof(connection.account_name_, packet);
 
         if (M1_S != M1)
         {
             return login_error("[client_connection] User {} tried to log in with incorrect login info!", connection,
-                               protocol::grunt_result::unknown_account, data.username);
+                               protocol::grunt_result::unknown_account, connection.account_name_);
         }
 
-        update_session_key(connection, data.username, session_key);
+        update_session_key(connection, connection.account_name_, session_key);
 
-        send_proof_success(connection, session_key, M1_S);
+        // TODO: implement proper survey selection. See https://github.com/DennisWG/KeycapEmu/issues/20
+        bool constexpr send_survey = true;
+        send_proof_success(connection, session_key, M1_S, send_survey);
 
-        connection.state_ = authenticated{};
+        if (send_survey)
+            connection.state_ = transferring{connection};
+        else
+            connection.state_ = authenticated{};
+
         return shared::network::state_result::ok;
     }
 }

@@ -41,6 +41,8 @@ namespace keycap::protocol
 
     class request_characters;
     class request_account_id_from_name;
+
+    class login_telemetry;
 }
 
 namespace keycap::accountserver
@@ -98,6 +100,9 @@ namespace keycap::accountserver
             shared::network::state_result
             on_request_account_id_from_name(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
                                             protocol::request_account_id_from_name& packet);
+
+            shared::network::state_result on_login_telemetry(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                             uint64 sender, protocol::login_telemetry& packet);
         };
 
         std::variant<disconnected, connected> state_;

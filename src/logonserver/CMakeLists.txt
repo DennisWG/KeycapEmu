@@ -17,6 +17,7 @@ add_executable (logonserver
     network/client_states/disconnected.cpp
     network/client_states/just_connected.cpp
     network/client_states/challanged.cpp
+    network/client_states/transferring.cpp
     network/client_states/authenticated.cpp
     network/client_connection.cpp
     network/logon_service.cpp
@@ -34,6 +35,7 @@ target_link_libraries(logonserver
     boost
     ${Boost_LIBRARIES}
     ${Botan_LIBRARIES}
+    ${ZLIB_LIBRARIES}
 )
 
 target_include_directories(logonserver

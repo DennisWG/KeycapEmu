@@ -22,6 +22,7 @@ add_library(${LIBRARY_NAME}
     database/daos/mysql/user.cpp
     database/daos/mysql/realm.cpp
     database/daos/mysql/knowledge_base.cpp
+    database/daos/mysql/user_telemetry.cpp
     database/mysql/database.cpp
     database/mysql/prepared_statement.cpp
     logging/utility.cpp

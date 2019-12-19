@@ -70,7 +70,6 @@ namespace keycap::logonserver
             std::string verifier;
             keycap::root::network::srp6::compliance compliance;
 
-            std::string username;
             Botan::BigInt user_salt;
             Botan::secure_vector<uint8_t> checksum_salt;
             protocol::account_flag account_flags;
@@ -93,8 +92,8 @@ namespace keycap::logonserver
                                                   keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
-            void on_account_reply(std::weak_ptr<client_connection> connection, protocol::reply_account_data& reply,
-                                  std::string const& account_name);
+            void on_account_reply(std::weak_ptr<client_connection> connection,
+                                  protocol::reply_account_data const& reply, std::string const& account_name);
 
             std::string name = "JustConnected";
 
@@ -122,9 +121,11 @@ namespace keycap::logonserver
 
           private:
             std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
-            generate_session_key_and_server_proof(protocol::client_logon_proof const& packet);
+            generate_session_key_and_server_proof(std::string const& username,
+                                                  protocol::client_logon_proof const& packet);
 
-            void send_proof_success(client_connection& connection, Botan::BigInt session_key, Botan::BigInt M1_S);
+            void send_proof_success(client_connection& connection, Botan::BigInt session_key, Botan::BigInt M1_S,
+                                    bool send_survey);
         };
 
         // Client send its Challange and is now authenticated
@@ -136,16 +137,34 @@ namespace keycap::logonserver
 
             std::string name = "Authenticated";
 
-            void send_realm_list();
+            void handle_realm_list(client_connection& connection, protocol::client_realm_list packet);
+            void handle_survey_result(client_connection& connection, protocol::survey_result packet);
+        };
+
+        // We're sending some data (patches, surveys, etc.) to the client
+        struct transferring
+        {
+            transferring() = default;
+            transferring(client_connection& connection);
+
+            shared::network::state_result on_data(client_connection& connection,
+                                                  keycap::root::network::data_router const& router,
+                                                  keycap::root::network::memory_stream& stream);
+
+            std::vector<uint8> data;
+
+            std::string name = "Transferring";
         };
 
         pin_authenticator authenticator_;
 
-        std::variant<disconnected, just_connected, challanged, authenticated> state_;
+        std::variant<disconnected, just_connected, challanged, transferring, authenticated> state_;
 
         keycap::root::network::memory_stream input_stream_;
 
         keycap::root::network::service_locator& locator_;
+
+        std::string account_name_;
 
         realm_manager& realm_manager_;
     };

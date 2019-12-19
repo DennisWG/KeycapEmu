@@ -15,8 +15,14 @@
             {%if hasSpecifier(attrib, "optional")%}    {%endif%}packet.{{attrib/name}} = decoder.get_string();
 ## else
 {##}
-            {%if hasSpecifier(attrib, "optional")%}    {%endif%}auto size_{{ attrib/name }} = decoder.get<uint8>();
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}auto size_{{attrib/name}} = decoder.get<{% if hasAnnotation(attrib, "size_type") %}{{annotationValue(attrib, "size_type")}}{% else %}uint8{% endif %}>();
+## if hasAnnotation(attrib, "compressed")
+{##}
+            {%if hasSpecifier(attrib, "optional")%}    {%endif%}packet.{{attrib/name}} = decoder.get_string(decoder.decompress(size_{{attrib/name}}));
+## else
+{##}
             {%if hasSpecifier(attrib, "optional")%}    {%endif%}packet.{{attrib/name}} = decoder.get_string(size_{{ attrib/name }});
+## endif
 ## if hasAnnotation(attrib, "expects")
 {##}
             {%if hasSpecifier(attrib, "optional")%}    {%endif%}ensure("{{attrib/name}}", packet.{{attrib/name}}, "{{annotationValue(attrib, "expects")}}");

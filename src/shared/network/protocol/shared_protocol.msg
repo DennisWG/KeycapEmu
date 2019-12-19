@@ -23,6 +23,8 @@ enum shared_command : byte
 
 	request_account_id_from_name = 10,
 	reply_account_id = 11,
+
+    login_telemetry = 12,
 }
 
 message request_account_data
@@ -132,4 +134,12 @@ message reply_account_id
 	shared_command cmd = "shared_command::reply_account_id";
 	
 	uint32 account_id;
+}
+
+message login_telemetry
+{
+    shared_command cmd = "shared_command::login_telemetry";
+
+    string account_name;
+    [zero_terminated] string telemetry;
 }

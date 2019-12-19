@@ -21,6 +21,7 @@
 #include <database/daos/character.hpp>
 #include <database/daos/realm.hpp>
 #include <database/daos/user.hpp>
+#include <database/daos/user_telemetry.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -132,6 +133,10 @@ namespace keycap::accountserver
             case protocol::shared_command::request_account_id_from_name: {
                 auto packet = protocol::request_account_id_from_name::decode(stream);
                 return on_request_account_id_from_name(connection_ptr, sender, packet);
+            }
+            case protocol::shared_command::login_telemetry: {
+                auto packet = protocol::login_telemetry::decode(stream);
+                return on_login_telemetry(connection_ptr, sender, packet);
             }
         }
     }
@@ -257,6 +262,16 @@ namespace keycap::accountserver
 
                                             connection.lock()->send_answer(sender, reply.encode());
                                         });
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_login_telemetry(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                              protocol::login_telemetry& packet)
+    {
+        auto telemetry_dao = shared::database::dal::get_user_telemetry_dao(get_login_database());
+        telemetry_dao->add_telemetry_data(packet.account_name, packet.telemetry);
 
         return shared::network::state_result::ok;
     }

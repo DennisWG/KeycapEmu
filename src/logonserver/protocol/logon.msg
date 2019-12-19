@@ -14,6 +14,9 @@ enum command : byte
     realm_list = 16,
     xfer_initiate = 48,
     xfer_data = 49,
+    xfer_accept = 50,
+    xfer_resume = 51,
+    xfer_cancel = 52,
 
     grunt_auth_challange = 0,
     grunt_auth_verify = 2,
@@ -254,4 +257,34 @@ message server_realm_list
     repeated realm_list_data data;
     
     uint16 unk = 0;
+}
+
+message xfer_initiate
+{
+    command cmd = "command::xfer_initiate";
+
+    [comment="Can either be 'Patch' or 'Survey'"]
+    string action;
+    uint64 filesize;
+    uint8[16] md5_checksum;
+}
+
+message xfer_data
+{
+    command cmd = "command::xfer_data";
+
+    [size_type="uint16"]
+    repeated uint8 chunk;
+}
+
+message survey_result
+{
+    [expects="command::survey_result"]
+    command cmd;
+
+    uint32 survey_id;
+    uint8 error;
+
+    [compressed][size_type="uint16"]
+    string data;
 }
