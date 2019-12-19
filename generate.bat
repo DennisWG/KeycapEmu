@@ -1,23 +1,38 @@
 @echo off
-flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\network_constants.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\logonserver\protocol\logon.msg"
+echo Building hpp protocols...
+flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" ^
+-d "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol\network_constants.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\logonserver\protocol\logon.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\authentication.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol\server.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol\client.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\character_select.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\realm_protocol.msg" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\permissions.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol\shared_protocol.msg"
+echo Done!
 
-flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\authentication.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\server.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\client.msg"
-flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\character_select.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\server.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\client.msg"
-flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol\realm_protocol.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\server.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\client.msg"
-flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\permissions.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
+echo Building db objects...
+flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" ^
+-d "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol" ^
+-d "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm"  ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\character.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user_telemetry.scm"
+echo Done!
 
+echo Building sql schemata...
+flatmessage_compiler -e "sql" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" ^
+-d "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\protocol" ^
+-d "E:\Programmieren\C++\Keycap\KeycapEmu\src\realmserver\protocol" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\character.scm" ^
+-i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user_telemetry.scm"
+echo Done!
 
-flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-flatmessage_compiler -e "hpp" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_object.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-
-
-flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\realm.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\user.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-flatmessage_compiler -e "sql" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\database\schemata\knowledge_base.scm" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\db_mysql.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated"
-
-
-
-flatmessage_compiler -e "hpp" -t "E:\Programmieren\C++\Keycap\KeycapEmu\templates\hpp.template" -o "E:\Programmieren\C++\Keycap\KeycapEmu\build\x64-Debug\src\generated" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\network_constants.msg" -i "E:\Programmieren\C++\Keycap\KeycapEmu\src\shared\network\shared_protocol.msg"
-
-PAUSE
+echo All Done!
