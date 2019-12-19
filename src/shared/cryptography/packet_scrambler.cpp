@@ -42,7 +42,7 @@ namespace keycap::shared::cryptography
     {
         constexpr uint8 decrypt_len = 6;
         if (stream.size() < decrypt_len)
-            return; // TODO: throw?
+            return; // TODO: throw? See https://github.com/DennisWG/KeycapEmu/issues/8
 
         for (uint8 i = 0; i < decrypt_len; ++i)
         {
@@ -60,7 +60,7 @@ namespace keycap::shared::cryptography
     {
         constexpr uint8 encrypt_len = 4;
         if (stream.size() < encrypt_len)
-            return; // TODO: throw?
+            return; // TODO: throw? See https://github.com/DennisWG/KeycapEmu/issues/8
 
         for (uint8 i = 0; i < encrypt_len; ++i)
         {

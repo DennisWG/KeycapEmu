@@ -29,7 +29,7 @@ namespace keycap::shared::database::dal
         }
 
         using realm_callback = std::function<void(std::optional<shared::database::realm>)>;
-        
+
         // Retreives the realm with the given id from the database and then calls the given callback
         virtual void realm(uint8 id, realm_callback callback) const = 0;
     };

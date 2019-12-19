@@ -24,8 +24,7 @@ namespace keycap::worldserver
     }
 
     bool client_connection::on_data(keycap::root::network::data_router const& router,
-                                    keycap::root::network::service_type service,
-                                    std::vector<uint8_t> const& data)
+                                    keycap::root::network::service_type service, std::vector<uint8_t> const& data)
     {
         return true;
     }

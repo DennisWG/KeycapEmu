@@ -65,4 +65,4 @@ namespace keycap::logonserver
 
         uint8_t realm_id_ = 0;
     };
-} // namespace keycap::logonserver
+}

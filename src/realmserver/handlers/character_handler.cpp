@@ -75,39 +75,6 @@ namespace keycap::realmserver
 
         locator_.send_registered(shared_net::account_service_type, request.encode(), get_net_service(), on_reply);
         
-
-        /*/db::dal::get_character_dao()
-
-        keycap::protocol::char_data data{
-            0,         //   guid;
-            "Testzor", //   name;
-            1,         //  race;
-            2,         //  player_class;
-            1,         //  gender;
-            1,         //  skin;
-            1,         //  face;
-            1,         //  hair_style;
-            1,         //  hair_color;
-            1,         //  facial_hair;
-            41,        //  level;
-            1,         //   zone;
-            1,         //  map;
-            0.f,       //  x;
-            0.f,       //  y;
-            0.f,       //  z;
-            0,         //   guild_id;
-            0,         //   flags;
-            1,         //  first_login;
-            0,         //   pet_display_id;
-            0,         //   pet_level;
-            0,         //   pet_family;
-            {}         //
-        };
-
-        keycap::protocol::server_char_enum answer;
-        answer.data.emplace_back(std::move(data));
-        //*/
-
         return true;
     }
 

@@ -59,4 +59,4 @@ namespace keycap::realmserver
 
         shared::cryptography::packet_scrambler& scrambler_;
     };
-} // namespace keycap::realmserver
+}

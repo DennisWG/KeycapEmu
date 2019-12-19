@@ -144,7 +144,7 @@ namespace keycap::shared::database::dal
                 categories[cat].insert(sub_category{result->getInt("sid"), id, result->getString("sname").c_str()});
             }
 
-            for (auto & [ category, sub_categories ] : categories)
+            for (auto& [category, sub_categories] : categories)
             {
                 category_data dat(category, sub_categories);
                 data.emplace_back(dat);

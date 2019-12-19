@@ -26,7 +26,7 @@ namespace keycap::shared::network
                 logon_realm = 1, // realm server -> logon server
                 account = 2,     // internal service -> account server
                 realm = 3,       // user -> realm server
-				world = 4,		 // realm server -> world server
+                world = 4,       // realm server -> world server
     );
 
     constexpr static keycap::root::network::service_type logon_service_type{services::logon};

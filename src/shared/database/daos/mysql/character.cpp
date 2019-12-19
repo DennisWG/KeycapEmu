@@ -31,10 +31,10 @@ namespace keycap::shared::database::dal
 
         void realm_characters(uint8 realm, uint32 user, character_callback callback) const override
         {
-            static auto statement = database_.prepare_statement("SELECT c.*, i.* " 
+            static auto statement = database_.prepare_statement("SELECT c.*, i.* "
                                                                 "from realm_character r "
-                                                                    "INNER JOIN `character` c ON r.`character` = c.id "
-                                                                    "LEFT JOIN character_item i ON i.`character` = c.id "
+                                                                "INNER JOIN `character` c ON r.`character` = c.id "
+                                                                "LEFT JOIN character_item i ON i.`character` = c.id "
                                                                 "WHERE account = ? AND realm = ?;");
             statement.add_parameter(user);
             statement.add_parameter(realm);

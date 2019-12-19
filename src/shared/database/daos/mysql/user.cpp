@@ -116,4 +116,4 @@ namespace keycap::shared::database::dal
     {
         return std::make_unique<mysql_user_dao>(database);
     }
-} // namespace keycap::shared::database::dal
+}

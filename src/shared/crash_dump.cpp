@@ -48,8 +48,8 @@ LONG WINAPI unhandled_handler(struct _EXCEPTION_POINTERS* apExceptionInfo)
                     stLocalTime.wMonth, stLocalTime.wDay, stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
                     GetCurrentProcessId(), GetCurrentThreadId());
 
-    HANDLE hFile = ::CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
-                                FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE hFile
+        = ::CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     _MINIDUMP_EXCEPTION_INFORMATION ExInfo;
     ExInfo.ThreadId = ::GetCurrentThreadId();

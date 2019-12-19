@@ -20,8 +20,8 @@
 
 #include <database/database.hpp>
 #include <generated/permissions.hpp>
-#include <rbac/role.hpp>
 #include <generated/user.hpp>
+#include <rbac/role.hpp>
 
 #include <keycap/root/network/srp6/server.hpp>
 #include <keycap/root/network/srp6/utility.hpp>

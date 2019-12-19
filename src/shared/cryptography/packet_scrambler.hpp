@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <keycap/root/types.hpp>
 #include <keycap/root/network/memory_stream.hpp>
+#include <keycap/root/types.hpp>
 
 #include <keycap/root/cryptography/ARC4.hpp>
 
@@ -38,12 +38,12 @@ namespace keycap::shared::cryptography
         void encrypt(keycap::root::network::memory_stream& stream);
 
       private:
-          uint8 encrypt_i_ = 0;
-          uint8 enrypt_j_ = 0;
+        uint8 encrypt_i_ = 0;
+        uint8 enrypt_j_ = 0;
 
-          uint8 decrypt_i_ = 0;
-          uint8 decrypt_j_ = 0;
+        uint8 decrypt_i_ = 0;
+        uint8 decrypt_j_ = 0;
 
-          std::vector<uint8> block_;
+        std::vector<uint8> block_;
     };
 }

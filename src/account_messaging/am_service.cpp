@@ -58,7 +58,8 @@ namespace keycap::account_messaging
         app_thread_.join();
     }
 
-    std::string am_service::get_message_headers(const crow::request& req) try
+    std::string am_service::get_message_headers(const crow::request& req)
+    try
     {
         auto account_name = req.url_params.get("accountName");
         auto key_hash = req.url_params.get("sessionKeyHash");
@@ -69,9 +70,7 @@ namespace keycap::account_messaging
         auto user_dao = dal::get_user_dao(get_am_database());
         auto session_key = user_dao->session_key(account_name);
 
-        
-
-        if(!session_key)
+        if (!session_key)
             return "";
 
         Botan::SHA_1 sha;
@@ -79,11 +78,10 @@ namespace keycap::account_messaging
         sha.update("\vz");
 
         std::string hash;
-        for(auto& c : sha.final_stdvec())
+        for (auto& c : sha.final_stdvec())
             hash += fmt::format("{}", static_cast<int>(c));
 
         auto same = hash == key_hash;
-
 
         auto language_id = req.url_params.get("languageId");
         auto num_articles = lexical_cast<int>(req.url_params.get("numArticles"), 20);
@@ -96,7 +94,7 @@ namespace keycap::account_messaging
         std::stringstream ss;
         ss << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n";
         ss << "<Categories>\n";
-        for (auto && [ cat, subcat ] : kb_data_.categories)
+        for (auto&& [cat, subcat] : kb_data_.categories)
         {
             ss << fmt::format("<Category id=\"{}\" caption=\"{}\">\n", cat.id, cat.name);
 
@@ -138,7 +136,8 @@ namespace keycap::account_messaging
         return "<Root></Root>";
     }
 
-    std::string am_service::send_article_query(const crow::request& req) try
+    std::string am_service::send_article_query(const crow::request& req)
+    try
     {
         auto article_id = lexical_cast<int>(req.url_params.get("articleId"), -1);
         auto language_id = req.url_params.get("languageId");
@@ -170,7 +169,8 @@ namespace keycap::account_messaging
         return "<Root></Root>";
     }
 
-    std::string am_service::send_kb_qeury(const crow::request& req) try
+    std::string am_service::send_kb_qeury(const crow::request& req)
+    try
     {
         auto query = req.url_params.get("searchQuery");
         // if (!query)
@@ -219,4 +219,4 @@ namespace keycap::account_messaging
             schedule_.add(std::chrono::seconds{5}, [&](auto ec) { refresh_callback(ec); });
         }
     }
-} // namespace keycap::account_messaging
+}

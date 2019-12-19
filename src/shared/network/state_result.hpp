@@ -26,6 +26,5 @@ namespace keycap::shared::network
                 // There was some kind of error in the received packet and we have to terminate the connection
                 abort = 1,
                 // We're still wating for more data to arrive from the client
-                incomplete_data = 2,
-    );
+                incomplete_data = 2, );
 }

@@ -133,8 +133,8 @@ int main()
     // keycap::accountserver::cli::register_commands(commands);
 
     using namespace std::string_literals;
-    using keycap::shared::cli::command;
     using keycap::shared::permission;
+    using keycap::shared::cli::command;
     namespace rbac = keycap::shared::rbac;
     register_command(command{"shutdown"s, permission::CommandShutdown,
                              [&](std::vector<std::string> const& args, rbac::role const& role) {

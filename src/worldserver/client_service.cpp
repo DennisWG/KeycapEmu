@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#include "client_connection.hpp"
 #include "client_service.hpp"
+#include "client_connection.hpp"
 
 namespace keycap::worldserver
 {

@@ -54,7 +54,8 @@ namespace keycap::knowledge_base
         app_thread_.join();
     }
 
-    std::string kb_service::get_kb_setup(const crow::request& req) try
+    std::string kb_service::get_kb_setup(const crow::request& req)
+    try
     {
         auto language_id = req.url_params.get("languageId");
         auto num_articles = lexical_cast<int>(req.url_params.get("numArticles"), 20);
@@ -67,7 +68,7 @@ namespace keycap::knowledge_base
         std::stringstream ss;
         ss << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Root>\n";
         ss << "<Categories>\n";
-        for (auto && [ cat, subcat ] : kb_data_.categories)
+        for (auto&& [cat, subcat] : kb_data_.categories)
         {
             ss << fmt::format("<Category id=\"{}\" caption=\"{}\">\n", cat.id, cat.name);
 
@@ -109,7 +110,8 @@ namespace keycap::knowledge_base
         return "<Root></Root>";
     }
 
-    std::string kb_service::send_article_query(const crow::request& req) try
+    std::string kb_service::send_article_query(const crow::request& req)
+    try
     {
         auto article_id = lexical_cast<int>(req.url_params.get("articleId"), -1);
         auto language_id = req.url_params.get("languageId");
@@ -141,7 +143,8 @@ namespace keycap::knowledge_base
         return "<Root></Root>";
     }
 
-    std::string kb_service::send_kb_qeury(const crow::request& req) try
+    std::string kb_service::send_kb_qeury(const crow::request& req)
+    try
     {
         auto query = req.url_params.get("searchQuery");
         if (!query)
