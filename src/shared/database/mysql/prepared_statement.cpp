@@ -76,7 +76,7 @@ namespace keycap::shared::database
     {
         statement_->setUInt(parameter_index_++, param);
     }
-    
+
     template <>
     void prepared_statement::add_parameter(uint64_t param)
     {

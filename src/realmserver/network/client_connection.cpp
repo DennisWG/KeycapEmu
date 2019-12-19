@@ -196,7 +196,7 @@ namespace keycap::realmserver
                                                                                net::data_router const& router,
                                                                                net::memory_stream& stream)
     {
-        auto[result, size, opcode] = validate_packet_header(stream, nullptr);
+        auto [result, size, opcode] = validate_packet_header(stream, nullptr);
         if (result != shared::network::state_result::ok)
             return std::make_tuple(result, size, opcode);
 
@@ -297,7 +297,7 @@ namespace keycap::realmserver
                                                                               root::network::data_router const& router,
                                                                               root::network::memory_stream& stream)
     {
-        auto[result, size, opcode] = validate_packet_header(stream, &connection.scrambler_);
+        auto [result, size, opcode] = validate_packet_header(stream, &connection.scrambler_);
         if (result != shared::network::state_result::ok)
             return std::make_tuple(result, size, opcode);
 

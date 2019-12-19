@@ -16,8 +16,8 @@
 
 #include "character_handler.hpp"
 
-#include "../network/player_session.hpp"
 #include "../network/handler.hpp"
+#include "../network/player_session.hpp"
 
 #include <generated/shared_protocol.hpp>
 
@@ -74,7 +74,7 @@ namespace keycap::realmserver
         };
 
         locator_.send_registered(shared_net::account_service_type, request.encode(), get_net_service(), on_reply);
-        
+
         return true;
     }
 
@@ -83,7 +83,7 @@ namespace keycap::realmserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->trace("[character_handler] handle_realm_split");
 
-        if(pakcet.choice != protocol::realm_split_choice::request)
+        if (pakcet.choice != protocol::realm_split_choice::request)
             return true;
 
         protocol::server_realm_split answer;

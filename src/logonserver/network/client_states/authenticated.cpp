@@ -32,7 +32,8 @@ namespace keycap::logonserver
     {
         switch (stream.peek<protocol::command>())
         {
-            case protocol::command::realm_list: {
+            case protocol::command::realm_list:
+            {
                 if (stream.size() < protocol::client_realm_list::expected_size)
                     return shared::network::state_result::incomplete_data;
 
@@ -42,14 +43,16 @@ namespace keycap::logonserver
                 handle_realm_list(connection, protocol::client_realm_list::decode(stream));
             }
             break;
-            case protocol::command::survey_result: {
+            case protocol::command::survey_result:
+            {
                 if (stream.peek<uint16>(6) > stream.size())
                     return shared::network::state_result::incomplete_data;
 
                 handle_survey_result(connection, protocol::survey_result::decode(stream));
             }
             break;
-            default: {
+            default:
+            {
                 auto logger = keycap::root::utility::get_safe_logger("connections");
                 logger->debug("[client_connection] Received unexpected command {}!", stream.peek<protocol::command>());
             }
@@ -94,7 +97,7 @@ namespace keycap::logonserver
         out_packet.account_name = connection.account_name_;
         out_packet.telemetry = packet.data;
 
-        if(packet.error == 0)
+        if (packet.error == 0)
             connection.service_locator().send_to(shared_net::account_service_type, out_packet.encode());
     }
 }

@@ -148,8 +148,7 @@ void get_realm_info(keycap::root::network::service_locator& locator, config& con
 
             auto packet = keycap::protocol::reply_realm_data::decode(data);
 
-            net::service_locator::located_callback callback = [&config, info = packet.info ](auto& locator, auto type)
-            {
+            net::service_locator::located_callback callback = [&config, info = packet.info](auto& locator, auto type) {
                 keycap::protocol::realm_hello packet;
                 packet.info = info;
 
@@ -205,8 +204,8 @@ int main()
     bool running = true;
 
     using namespace std::string_literals;
-    using keycap::shared::cli::command;
     using keycap::shared::permission;
+    using keycap::shared::cli::command;
     namespace rbac = keycap::shared::rbac;
     register_command(command{"shutdown"s, permission::CommandShutdown,
                              [&running](std::vector<std::string> const& args, rbac::role const& role) {

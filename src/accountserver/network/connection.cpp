@@ -106,35 +106,43 @@ namespace keycap::accountserver
 
         switch (command)
         {
-            default: {
+            default:
+            {
                 logger->error("[connection] Received unkown command {}", command);
                 return shared::network::state_result::abort;
             }
-            case protocol::shared_command::request_account_data: {
+            case protocol::shared_command::request_account_data:
+            {
                 auto packet = protocol::request_account_data::decode(stream);
                 return on_account_data_request(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::update_session_key: {
+            case protocol::shared_command::update_session_key:
+            {
                 auto packet = protocol::update_session_key::decode(stream);
                 return on_update_session_key(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::request_session_key: {
+            case protocol::shared_command::request_session_key:
+            {
                 auto packet = protocol::request_session_key::decode(stream);
                 return on_session_key_request(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::request_realm_data: {
+            case protocol::shared_command::request_realm_data:
+            {
                 auto packet = protocol::request_realm_data::decode(stream);
                 return on_realm_data_request(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::request_characters: {
+            case protocol::shared_command::request_characters:
+            {
                 auto packet = protocol::request_characters::decode(stream);
                 return on_characters_request(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::request_account_id_from_name: {
+            case protocol::shared_command::request_account_id_from_name:
+            {
                 auto packet = protocol::request_account_id_from_name::decode(stream);
                 return on_request_account_id_from_name(connection_ptr, sender, packet);
             }
-            case protocol::shared_command::login_telemetry: {
+            case protocol::shared_command::login_telemetry:
+            {
                 auto packet = protocol::login_telemetry::decode(stream);
                 return on_login_telemetry(connection_ptr, sender, packet);
             }

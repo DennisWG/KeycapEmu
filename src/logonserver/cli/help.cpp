@@ -30,7 +30,7 @@ namespace keycap::logonserver::cli
     {
         if (args.empty())
         {
-            for (auto[name, command] : get_command_map())
+            for (auto [name, command] : get_command_map())
             {
                 if (role.has(command.permission))
                     std::cout << name << " - " << command.description << '\n';

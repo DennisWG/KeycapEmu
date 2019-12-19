@@ -68,7 +68,8 @@ namespace keycap::logonserver
                 connection.state_ = authenticated{};
                 return shared::network::state_result::ok;
 
-            case protocol::command::xfer_accept: {
+            case protocol::command::xfer_accept:
+            {
                 stream.clear();
                 root::network::memory_stream data_buffer(data.begin(), data.end());
                 while (data_buffer.has_data_remaining())
@@ -97,7 +98,8 @@ namespace keycap::logonserver
                 stream.clear();
                 break;
 
-            case protocol::command::survey_result: {
+            case protocol::command::survey_result:
+            {
                 auto packet = protocol::survey_result::decode(stream);
                 logger->debug("{}\n{}", packet.to_string(), stream.size());
             }
