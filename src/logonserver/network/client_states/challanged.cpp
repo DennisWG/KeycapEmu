@@ -95,7 +95,7 @@ namespace keycap::logonserver
         {
             auto step = static_cast<std::uint64_t>((std::floor(now / 30))) + i;
             auto code = HOTP::generate(totp_secret, step, 6);
-            printf("%s %d\n", code.c_str(), std::stoi(code));
+
             if (authenticator.validate(code, response.key_checksum, response.final_checksum))
                 return true;
         }
@@ -118,12 +118,12 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug(packet.to_string());
 
-        std::string const key = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
-        auto totp_secret = Botan::base32_encode(reinterpret_cast<uint8_t*>(data.verifier.data()), data.verifier.size());
+        auto secret = data.verifier.substr(2, 10);
+        auto totp_secret = Botan::base32_encode(reinterpret_cast<uint8_t*>(secret.data()), secret.size());
 
         if (packet.pin_response)
         {
-            if (!validate_pin(connection.authenticator_, *packet.pin_response, key))
+            if (!validate_pin(connection.authenticator_, *packet.pin_response, totp_secret))
             {
                 return login_error("[client_connection] User {} tried to log in with incorrect PIN!", connection,
                                    protocol::grunt_result::unknown_account, data.username);
