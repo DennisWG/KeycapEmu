@@ -90,7 +90,7 @@ namespace keycap::logonserver
 
         challanged_data challanged_data;
         challanged_data.server = std::make_shared<net::srp6::server>(parameter, verifier, compliance);
-        challanged_data.v = verifier;
+        challanged_data.verifier = reply.data->verifier;
         challanged_data.username = account_name;
         challanged_data.user_salt = salt;
         challanged_data.checksum_salt = Botan::AutoSeeded_RNG().random_vec(16);
@@ -121,8 +121,8 @@ namespace keycap::logonserver
         if (outPacket.security_flags.test_flag(protocol::security_flag::pin))
         {
             protocol::pin pin;
-            pin.pin_value = 1234;
-            // pin.pin_salt
+            pin.pin_value = conn->authenticator_.generate_grid_seed();
+            pin.pin_salt = conn->authenticator_.server_salt();
             outPacket.pin = pin;
         }
         if (outPacket.security_flags.test_flag(protocol::security_flag::matrix))

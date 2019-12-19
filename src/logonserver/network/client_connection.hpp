@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "../authentication/pin_authenticator.hpp"
+
 #include "generated/logon.hpp"
 #include "logon_service.hpp"
 
@@ -65,7 +67,7 @@ namespace keycap::logonserver
         struct challanged_data
         {
             std::shared_ptr<keycap::root::network::srp6::server> server;
-            Botan::BigInt v;
+            std::string verifier;
             keycap::root::network::srp6::compliance compliance;
 
             std::string username;
@@ -91,8 +93,8 @@ namespace keycap::logonserver
                                                   keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
-            void on_account_reply(std::weak_ptr<client_connection> connection,
-                                  protocol::reply_account_data& reply, std::string const& account_name);
+            void on_account_reply(std::weak_ptr<client_connection> connection, protocol::reply_account_data& reply,
+                                  std::string const& account_name);
 
             std::string name = "JustConnected";
 
@@ -136,6 +138,8 @@ namespace keycap::logonserver
 
             void send_realm_list();
         };
+
+        pin_authenticator authenticator_;
 
         std::variant<disconnected, just_connected, challanged, authenticated> state_;
 

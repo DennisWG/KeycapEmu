@@ -14,13 +14,10 @@
     limitations under the License.
 */
 
-#include "../client_connection.hpp"
 #include "../../realm_manager.hpp"
+#include "../client_connection.hpp"
 
 #include <generated/shared_protocol.hpp>
-
-#include <keycap/root/network/srp6/server.hpp>
-#include <keycap/root/network/srp6/utility.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -28,31 +25,6 @@ namespace net = keycap::root::network;
 
 namespace keycap::logonserver
 {
-    std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
-    client_connection::challanged::generate_session_key_and_server_proof(protocol::client_logon_proof const& packet)
-    {
-        Botan::BigInt A{packet.A.data(), 32};
-        Botan::BigInt M1{packet.M1.data(), 20};
-        auto session_key = data.server->session_key(A);
-
-        auto M1_S = net::srp6::generate_client_proof(data.server->prime(), data.server->generator(), data.user_salt,
-                                                     data.username, A, data.server->public_ephemeral_value(),
-                                                     session_key, data.server->compliance_mode());
-
-        return std::make_tuple(std::move(session_key), std::move(M1), std::move(M1_S));
-    }
-
-    void client_connection::challanged::send_proof_success(client_connection& connection, Botan::BigInt session_key,
-                                                           Botan::BigInt M1_S)
-    {
-        protocol::server_logon_proof outPacket;
-        outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
-        outPacket.account_flags = data.account_flags;
-        outPacket.num_account_messages = 1;
-
-        connection.send(outPacket.encode());
-    }
-
     shared::network::state_result client_connection::authenticated::on_data(client_connection& connection,
                                                                             net::data_router const& router,
                                                                             net::memory_stream& stream)
