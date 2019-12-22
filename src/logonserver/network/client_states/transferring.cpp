@@ -70,30 +70,9 @@ namespace keycap::logonserver
                 return shared::network::state_result::ok;
 
             case protocol::command::xfer_accept:
-            {
                 stream.clear();
-                root::network::memory_stream data_buffer(data.begin(), data.end());
-                while (data_buffer.has_data_remaining())
-                {
-                    protocol::xfer_data packet;
-
-                    if (data_buffer.size() > 65535)
-                    {
-                        auto tmp = data_buffer.get<uint8, 65535>();
-                        packet.chunk.resize(65535);
-                        std::copy(std::begin(tmp), std::end(tmp), packet.chunk.begin());
-                    }
-                    else
-                    {
-                        packet.chunk.clear();
-                        packet.chunk = data_buffer.to_vector();
-                    }
-
-                    connection.send(packet.encode());
-                }
-                connection.state_ = authenticated{};
-            }
-            break;
+                send({data.begin(), data.end()});
+                break;
 
             case protocol::command::xfer_resume:
                 // TODO: https://github.com/DennisWG/KeycapEmu/issues/6
@@ -106,5 +85,31 @@ namespace keycap::logonserver
         }
 
         return shared::network::state_result::ok;
+    }
+
+    void client_connection::transferring::send(keycap::root::network::memory_stream const& stream)
+    {
+        auto conn = connection.lock();
+
+        if (!stream.has_data_remaining())
+        {
+            // conn->state_ = authenticated{connection};
+            return;
+        }
+
+        auto callback = [this, stream = stream, connection = conn]() mutable {
+            protocol::xfer_data packet;
+
+            size_t constexpr max_packet_size = 65535;
+            auto size = std::min(stream.size(), max_packet_size);
+
+            packet.chunk.resize(size);
+            stream.write_to(packet.chunk.begin(), size);
+
+            connection->send(packet.encode());
+            send(stream);
+        };
+
+        conn->io_service_.post(callback);
     }
 }

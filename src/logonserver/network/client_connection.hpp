@@ -160,6 +160,9 @@ namespace keycap::logonserver
             std::vector<uint8> data;
 
             std::string name = "Transferring";
+
+          private:
+            void send(keycap::root::network::memory_stream const& stream);
         };
 
         pin_authenticator authenticator_;
