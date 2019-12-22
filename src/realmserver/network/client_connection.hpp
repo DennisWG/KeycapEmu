@@ -74,6 +74,16 @@ namespace keycap::realmserver
         void query_account_service(keycap::root::network::memory_stream const& message,
                                    keycap::root::network::service_locator::registered_callback callback);
 
+        struct validate_result
+        {
+            keycap::shared::network::state_result result = keycap::shared::network::state_result::abort;
+            uint16 size = 0;
+            keycap::protocol::client_command cmd = keycap::protocol::client_command::invalid;
+        };
+
+        validate_result validate_packet_header(keycap::root::network::memory_stream& stream,
+                                               shared::cryptography::packet_scrambler* scrambler);
+
         // Connection hasn't been established yet or has been terminated
         struct disconnected
         {
