@@ -117,12 +117,8 @@ namespace keycap::logonserver
         // Auth Challange was send to client and we're waiting for a response
         struct challanged : public state
         {
-            challanged() = default;
-            explicit challanged(std::weak_ptr<client_connection> connection, challanged_data const& data)
-              : state{connection}
-              , data{data}
-            {
-            }
+            challanged(std::weak_ptr<client_connection> connection, challanged_data const& data);
+
             shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 

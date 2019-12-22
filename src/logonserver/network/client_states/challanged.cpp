@@ -35,6 +35,12 @@ namespace HOTP = keycap::root::cryptography::HOTP;
 
 namespace keycap::logonserver
 {
+    client_connection::challanged::challanged(std::weak_ptr<client_connection> connection, challanged_data const& data)
+      : state{connection}
+      , data{data}
+    {
+    }
+
     void update_session_key(std::shared_ptr<client_connection>& connection, std::string const& account_name,
                             Botan::BigInt const& session_key)
     {
