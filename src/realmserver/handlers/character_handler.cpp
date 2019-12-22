@@ -21,7 +21,6 @@
 
 #include <generated/shared_protocol.hpp>
 
-#include <database/daos/character.hpp>
 #include <network/services.hpp>
 
 #include <keycap/root/network/service_locator.hpp>

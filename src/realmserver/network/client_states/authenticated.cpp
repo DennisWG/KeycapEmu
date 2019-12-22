@@ -67,6 +67,7 @@ namespace keycap::realmserver
             answer.counter = packet.counter;
 
             connection.player_session_->send(answer.encode());
+            return std::make_tuple(result, size, opcode);
         }
 
         character_handler ch{*connection.player_session_, connection.locator_};
@@ -78,7 +79,8 @@ namespace keycap::realmserver
             else
             {
                 auto logger = root::utility::get_safe_logger("connections");
-                logger->error("[client_connection::on_data] Received unhandled packet (ID: {}, Name: {})!", cmd, opcode.to_string());
+                logger->error("[client_connection::on_data] Received unhandled packet (ID: {}, Name: {})!", cmd,
+                              opcode.to_string());
             }
         }
         catch (std::exception const& ex)
