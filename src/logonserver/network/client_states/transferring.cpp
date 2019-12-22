@@ -44,7 +44,7 @@ namespace keycap::logonserver
         if (!file.good())
             throw "Something went wrong!";
 
-        packet.filename = "Survey";
+        packet.action = "Survey";
         packet.filesize = static_cast<uint64>(size);
         packet.md5_checksum = root::utility::md5(data);
 
