@@ -75,21 +75,31 @@ namespace keycap::logonserver
             protocol::account_flag account_flags;
         };
 
-        // Connection hasn't been established yet or has been terminated
-        struct disconnected
+        struct state
         {
-            shared::network::state_result on_data(client_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            state() = default;
+
+            state(std::weak_ptr<client_connection> connection)
+              : connection{connection}
+            {
+            }
+
+            std::weak_ptr<client_connection> connection;
+        };
+
+        // Connection hasn't been established yet or has been terminated
+        struct disconnected : public state
+        {
+            shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
             std::string name = "Disconnected";
         };
 
         // Connection was just established
-        struct just_connected
+        struct just_connected : public state
         {
-            shared::network::state_result on_data(client_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
             void on_account_reply(std::weak_ptr<client_connection> connection,
@@ -105,15 +115,15 @@ namespace keycap::logonserver
         };
 
         // Auth Challange was send to client and we're waiting for a response
-        struct challanged
+        struct challanged : public state
         {
             challanged() = default;
-            explicit challanged(challanged_data const& data)
-              : data{data}
+            explicit challanged(std::weak_ptr<client_connection> connection, challanged_data const& data)
+              : state{connection}
+              , data{data}
             {
             }
-            shared::network::state_result on_data(client_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
             std::string name = "Challanged";
@@ -124,31 +134,27 @@ namespace keycap::logonserver
             generate_session_key_and_server_proof(std::string const& username,
                                                   protocol::client_logon_proof const& packet);
 
-            void send_proof_success(client_connection& connection, Botan::BigInt session_key, Botan::BigInt M1_S,
-                                    bool send_survey);
+            void send_proof_success(Botan::BigInt session_key, Botan::BigInt M1_S, bool send_survey);
         };
 
         // Client send its Challange and is now authenticated
-        struct authenticated
+        struct authenticated : public state
         {
-            shared::network::state_result on_data(client_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
             std::string name = "Authenticated";
 
-            void handle_realm_list(client_connection& connection, protocol::client_realm_list packet);
-            void handle_survey_result(client_connection& connection, protocol::survey_result packet);
+            void handle_realm_list(protocol::client_realm_list packet);
+            void handle_survey_result(protocol::survey_result packet);
         };
 
         // We're sending some data (patches, surveys, etc.) to the client
-        struct transferring
+        struct transferring : public state
         {
-            transferring() = default;
-            transferring(client_connection& connection);
+            transferring(std::weak_ptr<client_connection> connection);
 
-            shared::network::state_result on_data(client_connection& connection,
-                                                  keycap::root::network::data_router const& router,
+            shared::network::state_result on_data(keycap::root::network::data_router const& router,
                                                   keycap::root::network::memory_stream& stream);
 
             std::vector<uint8> data;

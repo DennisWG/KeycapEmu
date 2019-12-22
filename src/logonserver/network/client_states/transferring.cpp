@@ -27,7 +27,8 @@ namespace net = keycap::root::network;
 
 namespace keycap::logonserver
 {
-    client_connection::transferring::transferring(client_connection& connection)
+    client_connection::transferring::transferring(std::weak_ptr<client_connection> connection)
+      : state{connection}
     {
         protocol::xfer_initiate packet;
 
@@ -47,16 +48,16 @@ namespace keycap::logonserver
         packet.filesize = static_cast<uint64>(size);
         packet.md5_checksum = root::utility::md5(data);
 
-        connection.send(packet.encode());
+        connection.lock()->send(packet.encode());
     }
 
-    shared::network::state_result client_connection::transferring::on_data(client_connection& connection,
-                                                                           net::data_router const& router,
+    shared::network::state_result client_connection::transferring::on_data(net::data_router const& router,
                                                                            net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
 
         auto command = stream.peek<protocol::command>();
+        auto conn = connection.lock();
 
         switch (command)
         {
@@ -65,7 +66,7 @@ namespace keycap::logonserver
             // Or, when Survey.MPQ already exists locally
             case protocol::command::xfer_cancel:
                 stream.clear();
-                connection.state_ = authenticated{};
+                conn->state_ = authenticated{connection};
                 return shared::network::state_result::ok;
 
             case protocol::command::xfer_accept:
@@ -95,15 +96,13 @@ namespace keycap::logonserver
             break;
 
             case protocol::command::xfer_resume:
+                // TODO: https://github.com/DennisWG/KeycapEmu/issues/6
                 stream.clear();
                 break;
 
-            case protocol::command::survey_result:
-            {
-                auto packet = protocol::survey_result::decode(stream);
-                logger->debug("{}\n{}", packet.to_string(), stream.size());
-            }
-            break;
+            default:
+                logger->debug("Received unexpected command {}({})", command.to_string(), command);
+                break;
         }
 
         return shared::network::state_result::ok;

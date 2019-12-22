@@ -22,8 +22,7 @@ namespace net = keycap::root::network;
 
 namespace keycap::logonserver
 {
-    shared::network::state_result client_connection::disconnected::on_data(client_connection& connection,
-                                                                           net::data_router const& router,
+    shared::network::state_result client_connection::disconnected::on_data(net::data_router const& router,
                                                                            net::memory_stream& stream)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");

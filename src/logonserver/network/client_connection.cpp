@@ -50,7 +50,7 @@ namespace keycap::logonserver
     {
         input_stream_.put(gsl::make_span(data));
         // clang-format off
-        auto result = std::visit([&](auto state) -> shared::network::state_result
+        auto result = std::visit([&](auto& state) -> shared::network::state_result
         {
             auto logger = keycap::root::utility::get_safe_logger("connections");
             auto cmd = input_stream_.peek<protocol::command>();
@@ -58,7 +58,7 @@ namespace keycap::logonserver
 
             try
             {
-                return state.on_data(*this, router, input_stream_);
+                return state.on_data(router, input_stream_);
             }
             catch (std::exception const& e)
             {
@@ -91,12 +91,12 @@ namespace keycap::logonserver
         if (status == net::link_status::Up)
         {
             logger->debug("[client_connection] New connection");
-            state_ = just_connected{};
+            state_ = just_connected{{std::static_pointer_cast<client_connection>(shared_from_this())}};
         }
         else
         {
             logger->debug("[client_connection] Connection closed");
-            state_ = disconnected{};
+            state_ = disconnected{{std::static_pointer_cast<client_connection>(shared_from_this())}};
         }
 
         return true;

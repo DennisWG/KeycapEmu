@@ -27,8 +27,7 @@ namespace shared_net = keycap::shared::network;
 
 namespace keycap::logonserver
 {
-    shared::network::state_result client_connection::just_connected::on_data(client_connection& connection,
-                                                                             net::data_router const& router,
+    shared::network::state_result client_connection::just_connected::on_data(net::data_router const& router,
                                                                              net::memory_stream& stream)
     {
         constexpr auto header_size = sizeof(byte) + sizeof(byte) + sizeof(uint16);
@@ -51,11 +50,11 @@ namespace keycap::logonserver
         protocol::request_account_data request;
         request.account_name = packet.account_name;
 
-        connection.service_locator().send_registered(
-            shared_net::account_service_type, request.encode(), connection.io_service_,
-            [&, account_name = packet.account_name,
-             self = std::static_pointer_cast<client_connection>(connection.shared_from_this())](
-                net::service_type sender, net::memory_stream data) {
+        auto conn = connection.lock();
+
+        conn->service_locator().send_registered(
+            shared_net::account_service_type, request.encode(), conn->io_service_,
+            [&, account_name = packet.account_name, self = conn](net::service_type sender, net::memory_stream data) {
                 self->io_service_.post(
                     [this, self, account_name, reply = protocol::reply_account_data::decode(data)]() {
                         on_account_reply(self, reply, account_name);
@@ -100,7 +99,7 @@ namespace keycap::logonserver
         challanged_data.account_flags = static_cast<protocol::account_flag>(reply.data->flags);
 
         send_server_challange(conn, challanged_data, compliance, parameter, salt, reply.data->security_options);
-        conn->state_ = challanged{challanged_data};
+        conn->state_ = challanged{conn, challanged_data};
     }
 
     void client_connection::just_connected::send_server_challange(std::shared_ptr<client_connection> conn,

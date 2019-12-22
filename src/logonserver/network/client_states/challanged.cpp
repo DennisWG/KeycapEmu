@@ -35,7 +35,7 @@ namespace HOTP = keycap::root::cryptography::HOTP;
 
 namespace keycap::logonserver
 {
-    void update_session_key(client_connection& connection, std::string const& account_name,
+    void update_session_key(std::shared_ptr<client_connection>& connection, std::string const& account_name,
                             Botan::BigInt const& session_key)
     {
         protocol::update_session_key update;
@@ -46,7 +46,7 @@ namespace keycap::logonserver
         auto logger = keycap::root::utility::get_safe_logger("connections");
         logger->debug("[client_connection] Updating session key of {} to {}", update.account_name, update.session_key);
 
-        connection.service_locator().send_to(shared_net::account_service_type, update.encode());
+        connection->service_locator().send_to(shared_net::account_service_type, update.encode());
     }
 
     std::tuple<Botan::BigInt, Botan::BigInt, Botan::BigInt>
@@ -64,8 +64,8 @@ namespace keycap::logonserver
         return std::make_tuple(std::move(session_key), std::move(M1), std::move(M1_S));
     }
 
-    void client_connection::challanged::send_proof_success(client_connection& connection, Botan::BigInt session_key,
-                                                           Botan::BigInt M1_S, bool send_survey)
+    void client_connection::challanged::send_proof_success(Botan::BigInt session_key, Botan::BigInt M1_S,
+                                                           bool send_survey)
     {
         protocol::server_logon_proof outPacket;
         outPacket.M2 = net::srp6::to_array<20>(data.server->proof(M1_S, session_key), data.server->compliance_mode());
@@ -74,15 +74,15 @@ namespace keycap::logonserver
         // TODO: implement proper survey selection. See https://github.com/DennisWG/KeycapEmu/issues/20
         outPacket.survey_id = send_survey ? 11 : 0;
 
-        connection.send(outPacket.encode());
+        connection.lock()->send(outPacket.encode());
     }
 
     template <typename... Args>
-    shared::network::state_result login_error(char const* error_message, client_connection& connection,
+    shared::network::state_result login_error(char const* error_message, std::shared_ptr<client_connection>& connection,
                                               protocol::grunt_result result, Args&&... arguments)
     {
         auto logger = keycap::root::utility::get_safe_logger("connections");
-        connection.send_error(result);
+        connection->send_error(result);
         logger->info(error_message, std::forward<Args>(arguments)...);
 
         return shared::network::state_result::ok;
@@ -106,8 +106,7 @@ namespace keycap::logonserver
         return false;
     }
 
-    shared::network::state_result client_connection::challanged::on_data(client_connection& connection,
-                                                                         net::data_router const& router,
+    shared::network::state_result client_connection::challanged::on_data(net::data_router const& router,
                                                                          net::memory_stream& stream)
     {
         if (stream.size() < protocol::client_logon_proof::expected_size)
@@ -124,33 +123,35 @@ namespace keycap::logonserver
         auto secret = data.verifier.substr(2, 10);
         auto totp_secret = Botan::base32_encode(reinterpret_cast<uint8_t*>(secret.data()), secret.size());
 
+        auto conn = connection.lock();
+
         if (packet.pin_response)
         {
-            if (!validate_pin(connection.authenticator_, *packet.pin_response, totp_secret))
+            if (!validate_pin(conn->authenticator_, *packet.pin_response, totp_secret))
             {
-                return login_error("[client_connection] User {} tried to log in with incorrect PIN!", connection,
-                                   protocol::grunt_result::unknown_account, connection.account_name_);
+                return login_error("[client_connection] User {} tried to log in with incorrect PIN!", conn,
+                                   protocol::grunt_result::unknown_account, conn->account_name_);
             }
         }
 
-        auto [session_key, M1, M1_S] = generate_session_key_and_server_proof(connection.account_name_, packet);
+        auto [session_key, M1, M1_S] = generate_session_key_and_server_proof(conn->account_name_, packet);
 
         if (M1_S != M1)
         {
-            return login_error("[client_connection] User {} tried to log in with incorrect login info!", connection,
-                               protocol::grunt_result::unknown_account, connection.account_name_);
+            return login_error("[client_connection] User {} tried to log in with incorrect login info!", conn,
+                               protocol::grunt_result::unknown_account, conn->account_name_);
         }
 
-        update_session_key(connection, connection.account_name_, session_key);
+        update_session_key(conn, conn->account_name_, session_key);
 
         // TODO: implement proper survey selection. See https://github.com/DennisWG/KeycapEmu/issues/20
         bool constexpr send_survey = true;
-        send_proof_success(connection, session_key, M1_S, send_survey);
+        send_proof_success(session_key, M1_S, send_survey);
 
         if (send_survey)
-            connection.state_ = transferring{connection};
+            conn->state_.emplace<3>(std::weak_ptr<client_connection>{connection});
         else
-            connection.state_ = authenticated{};
+            conn->state_ = authenticated{connection};
 
         return shared::network::state_result::ok;
     }
