@@ -14,6 +14,9 @@
 
 add_executable (realmserver
     handlers/character_handler.cpp
+    network/client_states/disconnected.cpp
+    network/client_states/just_connected.cpp
+    network/client_states/authenticated.cpp
     network/client_connection.cpp
     network/client_service.cpp
     network/handler.cpp
