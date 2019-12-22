@@ -93,7 +93,7 @@ namespace keycap::logonserver
 
         if (!stream.has_data_remaining())
         {
-            // conn->state_ = authenticated{connection};
+            conn->state_ = authenticated{connection};
             return;
         }
 
