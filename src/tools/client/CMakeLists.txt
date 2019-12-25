@@ -29,5 +29,5 @@ target_link_libraries(client
 target_include_directories(client
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )

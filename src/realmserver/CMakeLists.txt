@@ -38,6 +38,6 @@ target_link_libraries(realmserver
 target_include_directories(realmserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
         ${ZLIB_INCLUDE_DIRS}
 )

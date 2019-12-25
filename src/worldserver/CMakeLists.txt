@@ -30,7 +30,7 @@ target_link_libraries(worldserver
 target_include_directories(worldserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )
 
 include(FlatmessageCompile)

@@ -28,7 +28,7 @@ target_link_libraries(knowledge_base
 
 target_include_directories(knowledge_base
     PRIVATE
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )
 
 include(FlatmessageCompile)

@@ -46,7 +46,7 @@ target_include_directories(${LIBRARY_NAME}
         "."
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )
 
 target_compile_definitions(${LIBRARY_NAME}

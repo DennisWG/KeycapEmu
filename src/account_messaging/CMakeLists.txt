@@ -29,7 +29,7 @@ target_link_libraries(account_messaging
 target_include_directories(account_messaging
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )
 
 include(FlatmessageCompile)

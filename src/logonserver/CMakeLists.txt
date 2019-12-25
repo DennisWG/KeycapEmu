@@ -23,6 +23,7 @@ add_executable (logonserver
     network/logon_service.cpp
     network/realm_service.cpp
     network/realm_connection.cpp
+    network/streamable_file.cpp
     main.cpp
     realm_manager.cpp
     cli/help.cpp
@@ -41,5 +42,5 @@ target_link_libraries(logonserver
 target_include_directories(logonserver
     PRIVATE
         ${Botan_INCLUDE_DIR}
-        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/src
+        ${KeycapRoot_INCLUDE_DIR}/../../contrib/json/include
 )
