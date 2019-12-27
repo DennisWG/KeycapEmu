@@ -124,12 +124,13 @@ namespace dbc_to_sql
             xml.Load(arguments.XmlPath);
 
             DbcBuilder builder = new DbcBuilder(xml);
-            var dbc = builder.Build(new StreamReader(arguments.InputPath).BaseStream);
+            var dbc = builder.Build(File.Open(arguments.InputPath, FileMode.Open, FileAccess.Read));
 
             var sqlBuilder = new SqlBuilder();
             var sql = sqlBuilder.Build(dbc);
 
-            using (var writer = new StreamWriter(arguments.OutputPath))
+            Directory.CreateDirectory(Path.GetDirectoryName(arguments.OutputPath));
+            using (var writer = new StreamWriter(File.Open(arguments.OutputPath, FileMode.Create)))
                 writer.Write(sql);
         }
     }
