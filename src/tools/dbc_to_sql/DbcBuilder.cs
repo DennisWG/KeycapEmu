@@ -69,6 +69,7 @@ namespace dbc_to_sql
             }
 
             dbc_.Name = root_.SelectSingleNode("name").InnerText;
+            dbc_.ClientVersion = root_.SelectSingleNode("version").InnerText;
             dbc_.Entries = entries;
 
             return dbc_;
@@ -84,6 +85,12 @@ namespace dbc_to_sql
                 throw new FormatException("The given XmlDocument mustn't contain more than one <file> node!");
 
             root_ = root[0];
+
+            if (root_.SelectSingleNode("name") == null)
+                throw new FormatException("The given XmlDocument must contain a name!");
+
+            if (root_.SelectSingleNode("version") == null)
+                throw new FormatException("The given XmlDocument must contain a version!");
 
             if (root_.SelectSingleNode("format") == null)
                 throw new FormatException("The given XmlDocument must contain a format description!");

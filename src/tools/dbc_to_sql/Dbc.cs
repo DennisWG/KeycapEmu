@@ -111,6 +111,11 @@ namespace dbc_to_sql
         public string Name { get; set; }
 
         /// <summary>
+        /// The client's version this Dbc is made for
+        /// </summary>
+        public string ClientVersion { get; set; }
+
+        /// <summary>
         /// The entries stored as Rows[Coloumns]
         /// </summary>
         public List<List<Coloumn>> Entries { get; set; }
