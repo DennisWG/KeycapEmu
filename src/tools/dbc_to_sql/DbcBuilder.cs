@@ -28,31 +28,22 @@ namespace dbc_to_sql
     /// </summary>
     public class DbcBuilder
     {
-        public DbcBuilder(XmlDocument xml)
+        public DbcBuilder()
         {
-            xml_ = xml;
-
-            if (xml_ == null || !xml_.HasChildNodes)
-                new ArgumentException("The given XmlDocument mustn't be empty!");
-
-            var root = xml_.GetElementsByTagName("file");
-            if (root.Count > 1)
-                throw new FormatException("The given XmlDocument mustn't contain more than one <file> node!");
-
-            root_ = root[0];
-
-            if (root_.SelectSingleNode("format") == null)
-                throw new FormatException("The given XmlDocument must contain a format description!");
         }
 
         /// <summary>
         /// Build a Dbc from the given input stream
         /// </summary>
+        /// <param name="xml">A XmlDocument describing the dbc file's format</param>
         /// <param name="input">A stream containing a dbc file</param>
         /// <returns>The parsed Dbc</returns>
-        public Dbc Build(Stream input)
+        public Dbc Build(XmlDocument xml, Stream input)
         {
+            xml_ = xml;
             dbc_ = new Dbc();
+
+            validateXml();
 
             var entries = new List<List<Dbc.Coloumn>>();
             using (var reader = new BinaryReader(input))
@@ -83,6 +74,20 @@ namespace dbc_to_sql
             return dbc_;
         }
 
+        private void validateXml()
+        {
+            if (xml_ == null || !xml_.HasChildNodes)
+                new ArgumentException("The given XmlDocument mustn't be empty!");
+
+            var root = xml_.GetElementsByTagName("file");
+            if (root.Count > 1)
+                throw new FormatException("The given XmlDocument mustn't contain more than one <file> node!");
+
+            root_ = root[0];
+
+            if (root_.SelectSingleNode("format") == null)
+                throw new FormatException("The given XmlDocument must contain a format description!");
+        }
         /// <summary>
         /// Reads the Dbc file's header information
         /// </summary>

@@ -33,6 +33,7 @@ namespace dbc_to_sql
             Console.WriteLine("-x\tPath to the .xml file describing the .dbc file");
             Console.WriteLine("-o\tPath to the .sql file that will be created");
             Console.WriteLine("-s\tShows the syntax supported for the .xml file");
+            Console.WriteLine("-d\tDumps the given .dbc's header information")
             Console.WriteLine();
 
             Console.WriteLine("Example:");
@@ -125,8 +126,8 @@ namespace dbc_to_sql
             var xml = new XmlDocument();
             xml.Load(arguments.XmlPath);
 
-            DbcBuilder builder = new DbcBuilder(xml);
-            var dbc = builder.Build(File.Open(arguments.InputPath, FileMode.Open, FileAccess.Read));
+            DbcBuilder builder = new DbcBuilder();
+            var dbc = builder.Build(xml, File.Open(arguments.InputPath, FileMode.Open, FileAccess.Read));
 
             var sqlBuilder = new SqlBuilder();
             var sql = sqlBuilder.Build(dbc);
