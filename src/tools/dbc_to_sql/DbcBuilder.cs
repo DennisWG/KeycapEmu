@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 
 namespace dbc_to_sql
@@ -122,6 +123,8 @@ namespace dbc_to_sql
                     case "byte": row.Add(readByte(reader, format)); break;
                     case "primary": row.Add(readPrimary(reader, format)); break;
                     case "int": row.Add(readInt(reader, format)); break;
+                    case "uint": row.Add(readUInt(reader, format)); break;
+                    case "string": row.Add(readString(reader, format)); break;
                 }
 
                 format = format.NextSibling;
@@ -180,6 +183,28 @@ namespace dbc_to_sql
         {
             var coloumn = new Dbc.Coloumn(reader.ReadInt32(), typeof(int), node.InnerText);
             return coloumn;
+        }
+
+        private Dbc.Coloumn readString(BinaryReader reader, XmlNode node)
+        {
+            var offset = reader.ReadUInt32();
+            var position = reader.BaseStream.Position;
+
+            reader.BaseStream.Position = head_.stringBegin + offset;
+
+            var sb = new StringBuilder();
+            char chr = '\0';
+            while (reader.BaseStream.Position < head_.stringBegin + head_.stringLength)
+            {
+                chr = reader.ReadChar();
+                if (chr == '\0')
+                    break;
+
+                sb.Append(chr);
+            }
+
+            reader.BaseStream.Position = position;
+            return new Dbc.Coloumn(sb.ToString(), typeof(string), node.InnerText);
         }
 
         /// <summary>

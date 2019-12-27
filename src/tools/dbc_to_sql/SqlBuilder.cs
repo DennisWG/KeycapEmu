@@ -169,6 +169,7 @@ namespace dbc_to_sql
                 case "Byte": return "TINYINT";
                 case "UInt32": return "INT UNSIGNED";
                 case "Int32": return "INT";
+                case "String": return "TEXT";
             }
         }
     }
