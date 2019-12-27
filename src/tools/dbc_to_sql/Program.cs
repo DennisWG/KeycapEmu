@@ -33,7 +33,7 @@ namespace dbc_to_sql
             Console.WriteLine("-x\tPath to the .xml file describing the .dbc file");
             Console.WriteLine("-o\tPath to the .sql file that will be created");
             Console.WriteLine("-s\tShows the syntax supported for the .xml file");
-            Console.WriteLine("-d\tDumps the given .dbc's header information")
+            Console.WriteLine("-d\tDumps the given .dbc's header information. Requires -i");
             Console.WriteLine();
 
             Console.WriteLine("Example:");
@@ -98,31 +98,20 @@ namespace dbc_to_sql
             }
         }
 
-        static void Main(string[] args)
+        static void dump(string dbcFile)
         {
-            if (args.Length == 1 && args[0] == "-s")
-            {
-                PrintSyntax();
-                return;
-            }
-            if (args.Length != 6)
-            {
-                PrintHelp();
-                return;
-            }
+            var builder = new DbcBuilder();
+            var head = builder.GetHead(File.Open(dbcFile, FileMode.Open, FileAccess.Read));
 
-            Args arguments;
-            try
-            {
-                arguments = Args.build(args);
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Write '{0}' without arguments to get a help prompt", System.AppDomain.CurrentDomain.FriendlyName);
-                return;
-            }
+            Console.WriteLine("Rows: " + head.rowCount);
+            Console.WriteLine("Coloumns: " + head.coloumnCount);
+            Console.WriteLine("Coloumn size: " + head.coloumnSize);
+            Console.WriteLine("String begin: " + head.stringBegin);
+            Console.WriteLine("String length: " + head.stringLength);
+        }
 
+        static void convert(Args arguments)
+        {
             var xml = new XmlDocument();
             xml.Load(arguments.XmlPath);
 
@@ -135,6 +124,38 @@ namespace dbc_to_sql
             Directory.CreateDirectory(Path.GetDirectoryName(arguments.OutputPath));
             using (var writer = new StreamWriter(File.Open(arguments.OutputPath, FileMode.Create)))
                 writer.Write(sql);
+        }
+
+        static void Main(string[] args)
+        {
+            if (args.Length == 1 && args[0] == "-s")
+            {
+                PrintSyntax();
+                return;
+            }
+            if (args.Length == 3 && args[0] == "-i" && args[2] == "-d")
+            {
+                dump(args[1]);
+                return;
+            }
+            if (args.Length != 6)
+            {
+                PrintHelp();
+                return;
+            }
+
+            Args arguments;
+            try
+            {
+                arguments = Args.build(args);
+                convert(arguments);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Write '{0}' without arguments to get a help prompt", System.AppDomain.CurrentDomain.FriendlyName);
+                return;
+            }
         }
     }
 }

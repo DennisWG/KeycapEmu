@@ -88,6 +88,15 @@ namespace dbc_to_sql
             if (root_.SelectSingleNode("format") == null)
                 throw new FormatException("The given XmlDocument must contain a format description!");
         }
+
+        public DbcHead GetHead(Stream input)
+        {
+            using (var reader = new BinaryReader(input))
+                readDbcHead(reader);
+
+            return head_;
+        }
+
         /// <summary>
         /// Reads the Dbc file's header information
         /// </summary>
@@ -239,7 +248,7 @@ namespace dbc_to_sql
         /// <summary>
         /// Describes the header stored within a Dbc file
         /// </summary>
-        private struct DbcHead
+        public struct DbcHead
         {
             /// <summary>
             /// The number of rows stored within the Dbc
