@@ -55,6 +55,26 @@ namespace dbc_to_sql
             return sql.ToString();
         }
 
+        private string[] localizations =
+        {
+            "enUS",
+            "koKR",
+            "frFR",
+            "deDE",
+            "zhCN",
+            "zhTW",
+            "esES",
+            "esMX",
+            "ruRU",
+            "jaJP",
+            "ptPT",
+            "itIT",
+            "unk1",
+            "unk2",
+            "unk3",
+            "unk4",
+        };
+
         /// <summary>
         /// Creates the coloumn description
         /// </summary>
@@ -62,6 +82,19 @@ namespace dbc_to_sql
         /// <param name="coloumn">Dbc.Coloumn to describe</param>
         private void buildColoumnHead(ref StringBuilder sql, Dbc.Coloumn coloumn)
         {
+            if (coloumn.Value is LocalizedString)
+            {
+                var localizedString = coloumn.Value as LocalizedString;
+                int i = 0;
+                foreach (var str in localizedString.Strings)
+                {
+                    sql.AppendFormat("    `{0}_{1}` TEXT NOT NULL,\n", coloumn.Name, localizations[i]);
+                    ++i;
+                }
+
+                sql.AppendFormat("    `{0}_flags` INT UNSIGNED NOT NULL,\n", coloumn.Name);
+                return;
+            }
             sql.AppendFormat("    `{0}` {1} NOT NULL,\n", coloumn.Name, toSqlType(coloumn.Type));
         }
 
@@ -170,6 +203,7 @@ namespace dbc_to_sql
                 case "UInt32": return "INT UNSIGNED";
                 case "Int32": return "INT";
                 case "String": return "TEXT";
+                case "Single": return "FLOAT";
             }
         }
     }

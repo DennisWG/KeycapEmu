@@ -54,13 +54,15 @@ namespace dbc_to_sql
             Console.WriteLine();
 
             Console.WriteLine("Types:");
-            Console.WriteLine("Name\t| SQL type\t\t\t| Attributes");
-            Console.WriteLine("--------+-------------------------------+------------");
-            Console.WriteLine("primary\t| INT UNSIGNED PRIMARY KEY\t|");
-            Console.WriteLine("int\t| INT\t\t\t\t| refersTo");
-            Console.WriteLine("uint\t| INT UNSIGNED\t\t\t| refersTo");
-            Console.WriteLine("byte\t| TINYINT\t\t\t| refersTo");
-            Console.WriteLine("string\t| TEXT\t\t\t\t|");
+            Console.WriteLine("Name\t\t\t| SQL type\t\t\t| Attributes");
+            Console.WriteLine("------------------------+-------------------------------+------------");
+            Console.WriteLine("primary\t\t\t| INT UNSIGNED PRIMARY KEY\t|");
+            Console.WriteLine("int\t\t\t| INT\t\t\t\t| refersTo");
+            Console.WriteLine("uint\t\t\t| INT UNSIGNED\t\t\t| refersTo");
+            Console.WriteLine("byte\t\t\t| TINYINT\t\t\t| refersTo");
+            Console.WriteLine("float\t\t\t| FLOAT\t\t\t\t| ");
+            Console.WriteLine("string\t\t\t| TEXT\t\t\t\t|");
+            Console.WriteLine("localized_string\t| TEXT\t\t\t\t|");
             Console.WriteLine();
 
             Console.WriteLine("Attributes:");

@@ -45,12 +45,15 @@ namespace dbc_to_sql
 
             validateXml();
 
+            dbc_.Name = root_.SelectSingleNode("name").InnerText;
+            dbc_.ClientVersion = root_.SelectSingleNode("version").InnerText;
+
             var entries = new List<List<Dbc.Coloumn>>();
             using (var reader = new BinaryReader(input))
             {
                 readDbcHead(reader);
 
-                if (root_.SelectSingleNode("format").ChildNodes.Count != head_.coloumnCount)
+                if (calculateExpectedDbcSize() != head_.coloumnCount)
                 {
                     throw new FormatException(
                         string.Format("The given XmlDocument's number of format elements doesn't match the dbc's number of coloumns (given: {0}, expected: {1})",
@@ -68,8 +71,6 @@ namespace dbc_to_sql
                 }
             }
 
-            dbc_.Name = root_.SelectSingleNode("name").InnerText;
-            dbc_.ClientVersion = root_.SelectSingleNode("version").InnerText;
             dbc_.Entries = entries;
 
             return dbc_;
@@ -94,6 +95,23 @@ namespace dbc_to_sql
 
             if (root_.SelectSingleNode("format") == null)
                 throw new FormatException("The given XmlDocument must contain a format description!");
+        }
+
+        private int calculateExpectedDbcSize()
+        {
+            var root = root_.SelectSingleNode("format");
+            int size = 0;
+
+            foreach (XmlNode node in root.ChildNodes)
+            {
+                switch (node.Name)
+                {
+                    default: size += 1; break;
+                    case "localized_string": size += LocalizedString.SizeForVersion(dbc_.ClientVersion); break;
+                }
+            }
+
+            return size;
         }
 
         public DbcHead GetHead(Stream input)
@@ -134,18 +152,25 @@ namespace dbc_to_sql
 
             var format = root_.SelectSingleNode("format").FirstChild;
 
-            for (uint coloumn = 0; coloumn < head_.coloumnCount; ++coloumn)
+            for (int coloumn = 0; coloumn < head_.coloumnCount;)
             {
                 foreach (XmlAttribute attribute in format.Attributes)
                     dumpAttribute(format, attribute);
 
                 switch (format.Name)
                 {
-                    case "byte": row.Add(readByte(reader, format)); break;
-                    case "primary": row.Add(readPrimary(reader, format)); break;
-                    case "int": row.Add(readInt(reader, format)); break;
-                    case "uint": row.Add(readUInt(reader, format)); break;
-                    case "string": row.Add(readString(reader, format)); break;
+                    default: throw new FormatException(string.Format("Unexpected type '{}'!", format.Name));
+
+                    case "byte": row.Add(readByte(reader, format)); ++coloumn; break;
+                    case "primary": row.Add(readPrimary(reader, format)); ++coloumn; break;
+                    case "int": row.Add(readInt(reader, format)); ++coloumn; break;
+                    case "uint": row.Add(readUInt(reader, format)); ++coloumn; break;
+                    case "float": row.Add(readFloat(reader, format)); ++coloumn; break;
+                    case "string": row.Add(readString(reader, format)); ++coloumn; break;
+                    case "localized_string":
+                        row.Add(readLocalizedString(reader, format));
+                        coloumn += LocalizedString.SizeForVersion(dbc_.ClientVersion);
+                        break;
                 }
 
                 format = format.NextSibling;
@@ -206,7 +231,15 @@ namespace dbc_to_sql
             return coloumn;
         }
 
-        private Dbc.Coloumn readString(BinaryReader reader, XmlNode node)
+        private Dbc.Coloumn readFloat(BinaryReader reader, XmlNode node)
+        {
+            var coloumn = new Dbc.Coloumn(reader.ReadSingle(), typeof(float), node.InnerText);
+            return coloumn;
+        }
+
+        private string escape(string input) => System.Text.RegularExpressions.Regex.Replace(input, @"[\000\010\011\012\015\032\042\047\134\140]", "\\$0");
+
+        private string readStringRef(BinaryReader reader)
         {
             var offset = reader.ReadUInt32();
             var position = reader.BaseStream.Position;
@@ -225,7 +258,29 @@ namespace dbc_to_sql
             }
 
             reader.BaseStream.Position = position;
-            return new Dbc.Coloumn(sb.ToString(), typeof(string), node.InnerText);
+            return escape(sb.ToString());
+        }
+
+        private Dbc.Coloumn readString(BinaryReader reader, XmlNode node)
+        {
+            return new Dbc.Coloumn(readStringRef(reader), typeof(string), node.InnerText);
+        }
+
+        private Dbc.Coloumn readLocalizedString(BinaryReader reader, XmlNode node)
+        {
+            var str = new LocalizedString();
+            int numLocales = LocalizedString.SizeForVersion(dbc_.ClientVersion) - 1; // substract the flags
+
+            var strings = new List<string>(numLocales);
+
+            for (int i = 0; i < numLocales; ++i)
+                strings.Add(readStringRef(reader));
+
+            str.Strings = strings;
+
+            str.Flags = reader.ReadUInt32();
+
+            return new Dbc.Coloumn(str, typeof(LocalizedString), node.InnerText);
         }
 
         /// <summary>
