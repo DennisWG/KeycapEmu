@@ -45,10 +45,13 @@ namespace dbc_to_sql
             foreach (Dbc.Coloumn coloumn in dbc[0])
                 buildColoumnHead(ref sql, coloumn);
 
+            // TODO: Super hacky - remove the last comma added
+            sql.Remove(sql.Length - 2, 2);
+
             buildPrimaryKeys(ref sql, dbc);
             buildForeignKeys(ref sql, dbc);
 
-            sql.Append("\n);\n\n");
+            sql.Append(");\n\n");
 
             buildEntries(ref sql, dbc);
 
@@ -105,7 +108,10 @@ namespace dbc_to_sql
         /// <param name="dbc">Dbc containing the primary keys</param>
         private void buildPrimaryKeys(ref StringBuilder sql, Dbc dbc)
         {
-            sql.Append("    PRIMARY KEY(");
+            if(dbc.PrimaryKeys.Count <= 0)
+                return;
+
+            sql.Append(",\n    PRIMARY KEY(");
 
             bool first = true;
             foreach (string primaryKey in dbc.PrimaryKeys)
@@ -129,7 +135,6 @@ namespace dbc_to_sql
         {
             if (dbc.ForeignKeys.Count <= 0)
             {
-                sql.Append("\n");
                 return;
             }
 

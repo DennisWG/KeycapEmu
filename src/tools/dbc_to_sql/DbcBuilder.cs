@@ -53,13 +53,13 @@ namespace dbc_to_sql
             {
                 readDbcHead(reader);
 
-                if (calculateExpectedDbcSize() != head_.coloumnCount)
+                int expectedColoumns = calculateExpectedDbcSize();
+
+                if (expectedColoumns != head_.coloumnCount)
                 {
                     throw new FormatException(
                         string.Format("The given XmlDocument's number of format elements doesn't match the dbc's number of coloumns (given: {0}, expected: {1})",
-                            root_.SelectSingleNode("format").ChildNodes.Count,
-                            head_.coloumnCount
-                        )
+                            expectedColoumns, head_.coloumnCount)
                     );
                 }
 
@@ -303,6 +303,9 @@ namespace dbc_to_sql
         /// <param name="text">The unformatted text describing the foreign key's table and coloumn seperated by a period</param>
         private Dbc.ForeignKey dumpRefersTo(string coloumnName, string text)
         {
+            if (!text.Contains("."))
+                throw new FormatException("Foreign key must have format \"Table.Coloumn\"!");
+
             var tokens = text.Split('.', 2);
             return new Dbc.ForeignKey(coloumnName, tokens[0], tokens[1]);
         }
