@@ -30,6 +30,10 @@ namespace dbc_to_sql
         /// </summary>
         public class Coloumn
         {
+            public Coloumn()
+            {
+            }
+
             public Coloumn(object value, Type type, string name)
             {
                 Value = value;
@@ -40,18 +44,28 @@ namespace dbc_to_sql
             /// <summary>
             /// The value stored
             /// </summary>
-            public object Value { get; }
+            public object Value { get; set; }
 
             /// <summary>
             /// The type stored
             /// </summary>
             /// <value></value>
-            public Type Type { get; }
+            public Type Type { get; set; }
 
             /// <summary>
             /// The coloumn's name
             /// </summary>
-            public string Name { get; }
+            public string Name { get; set; }
+
+            /// <summary>
+            /// A set of values that will create an output of NULL if encountered within the Dbc
+            /// </summary>
+            public List<string> ZeroValues { get; set; } = new List<string>();
+
+            /// <summary>
+            /// Indicates wether this value should be ouputted as NULL in the resulting .sql
+            /// </summary>
+            public bool IsNull { get; set; } = false;
         }
 
         /// <summary>

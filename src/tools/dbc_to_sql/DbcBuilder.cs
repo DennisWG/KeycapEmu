@@ -154,29 +154,48 @@ namespace dbc_to_sql
 
             for (int coloumn = 0; coloumn < head_.coloumnCount;)
             {
+                var currentColoumn = new Dbc.Coloumn();
+
                 foreach (XmlAttribute attribute in format.Attributes)
-                    dumpAttribute(format, attribute);
+                    dumpAttribute(format, attribute, ref currentColoumn);
 
                 switch (format.Name)
                 {
                     default: throw new FormatException(string.Format("Unexpected type '{}'!", format.Name));
 
-                    case "byte": row.Add(readByte(reader, format)); ++coloumn; break;
-                    case "primary": row.Add(readPrimary(reader, format)); ++coloumn; break;
-                    case "int": row.Add(readInt(reader, format)); ++coloumn; break;
-                    case "uint": row.Add(readUInt(reader, format)); ++coloumn; break;
-                    case "float": row.Add(readFloat(reader, format)); ++coloumn; break;
-                    case "string": row.Add(readString(reader, format)); ++coloumn; break;
+                    case "byte": readByte(reader, format, ref currentColoumn); ++coloumn; break;
+                    case "primary": readPrimary(reader, format, ref currentColoumn); ++coloumn; break;
+                    case "int": readInt(reader, format, ref currentColoumn); ++coloumn; break;
+                    case "uint": readUInt(reader, format, ref currentColoumn); ++coloumn; break;
+                    case "float": readFloat(reader, format, ref currentColoumn); ++coloumn; break;
+                    case "string": readString(reader, format, ref currentColoumn); ++coloumn; break;
                     case "localized_string":
-                        row.Add(readLocalizedString(reader, format));
+                        readLocalizedString(reader, format, ref currentColoumn);
                         coloumn += LocalizedString.SizeForVersion(dbc_.ClientVersion);
                         break;
                 }
+
+                row.Add(currentColoumn);
 
                 format = format.NextSibling;
             }
 
             return row;
+        }
+
+        private bool isNullValue<T>(T value, List<string> nullValues) where T : IComparable
+        {
+            if (nullValues.Count <= 0)
+                return false;
+
+            foreach (string nullStringValue in nullValues)
+            {
+                var nullValue = (T)Convert.ChangeType(nullStringValue, typeof(T));
+                if (value.CompareTo(nullValue) == 0)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -185,10 +204,15 @@ namespace dbc_to_sql
         /// <param name="reader">The BianryReader to read from</param>
         /// <param name="node">The XmlNode describing the current coloumn</param>
         /// <returns>A Dbc.Coloumn describing the stored value</returns>
-        private Dbc.Coloumn readByte(BinaryReader reader, XmlNode node)
+        private void readByte(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            var coloumn = new Dbc.Coloumn(reader.ReadByte(), typeof(byte), node.InnerText);
-            return coloumn;
+            var value = reader.ReadByte();
+            if (isNullValue(value, currentColoumn.ZeroValues))
+                currentColoumn.IsNull = true;
+
+            currentColoumn.Value = value;
+            currentColoumn.Type = typeof(byte);
+            currentColoumn.Name = node.InnerText;
         }
 
         /// <summary>
@@ -197,10 +221,15 @@ namespace dbc_to_sql
         /// <param name="reader">The BianryReader to read from</param>
         /// <param name="node">The XmlNode describing the current coloumn</param>
         /// <returns>A Dbc.Coloumn describing the stored value</returns>
-        private Dbc.Coloumn readUInt(BinaryReader reader, XmlNode node)
+        private void readUInt(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            var coloumn = new Dbc.Coloumn(reader.ReadUInt32(), typeof(uint), node.InnerText);
-            return coloumn;
+            var value = reader.ReadUInt32();
+            if (isNullValue(value, currentColoumn.ZeroValues))
+                currentColoumn.IsNull = true;
+
+            currentColoumn.Value = value;
+            currentColoumn.Type = typeof(uint);
+            currentColoumn.Name = node.InnerText;
         }
 
         /// <summary>
@@ -209,14 +238,12 @@ namespace dbc_to_sql
         /// <param name="reader">The BianryReader to read from</param>
         /// <param name="node">The XmlNode describing the current coloumn</param>
         /// <returns>A Dbc.Coloumn describing the stored value</returns>
-        private Dbc.Coloumn readPrimary(BinaryReader reader, XmlNode node)
+        private void readPrimary(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            var coloumn = readUInt(reader, node);
+            readUInt(reader, node, ref currentColoumn);
 
             if (firstRow_)
-                dbc_.PrimaryKeys.Add(coloumn.Name);
-
-            return coloumn;
+                dbc_.PrimaryKeys.Add(currentColoumn.Name);
         }
 
         /// <summary>
@@ -225,16 +252,26 @@ namespace dbc_to_sql
         /// <param name="reader">The BianryReader to read from</param>
         /// <param name="node">The XmlNode describing the current coloumn</param>
         /// <returns>A Dbc.Coloumn describing the stored value</returns>
-        private Dbc.Coloumn readInt(BinaryReader reader, XmlNode node)
+        private void readInt(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            var coloumn = new Dbc.Coloumn(reader.ReadInt32(), typeof(int), node.InnerText);
-            return coloumn;
+            var value = reader.ReadInt32();
+            if (isNullValue(value, currentColoumn.ZeroValues))
+                currentColoumn.IsNull = true;
+
+            currentColoumn.Value = value;
+            currentColoumn.Type = typeof(int);
+            currentColoumn.Name = node.InnerText;
         }
 
-        private Dbc.Coloumn readFloat(BinaryReader reader, XmlNode node)
+        private void readFloat(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            var coloumn = new Dbc.Coloumn(reader.ReadSingle(), typeof(float), node.InnerText);
-            return coloumn;
+            var value = reader.ReadSingle();
+            if (isNullValue(value, currentColoumn.ZeroValues))
+                currentColoumn.IsNull = true;
+
+            currentColoumn.Value = value;
+            currentColoumn.Type = typeof(float);
+            currentColoumn.Name = node.InnerText;
         }
 
         private string escape(string input) => System.Text.RegularExpressions.Regex.Replace(input, @"[\000\010\011\012\015\032\042\047\134\140]", "\\$0");
@@ -261,12 +298,18 @@ namespace dbc_to_sql
             return escape(sb.ToString());
         }
 
-        private Dbc.Coloumn readString(BinaryReader reader, XmlNode node)
+        private void readString(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
-            return new Dbc.Coloumn(readStringRef(reader), typeof(string), node.InnerText);
+            var value = readStringRef(reader);
+            if (isNullValue(value, currentColoumn.ZeroValues))
+                currentColoumn.IsNull = true;
+
+            currentColoumn.Value = value;
+            currentColoumn.Type = typeof(string);
+            currentColoumn.Name = node.InnerText;
         }
 
-        private Dbc.Coloumn readLocalizedString(BinaryReader reader, XmlNode node)
+        private void readLocalizedString(BinaryReader reader, XmlNode node, ref Dbc.Coloumn currentColoumn)
         {
             var str = new LocalizedString();
             int numLocales = LocalizedString.SizeForVersion(dbc_.ClientVersion) - 1; // substract the flags
@@ -280,7 +323,9 @@ namespace dbc_to_sql
 
             str.Flags = reader.ReadUInt32();
 
-            return new Dbc.Coloumn(str, typeof(LocalizedString), node.InnerText);
+            currentColoumn.Value = str;
+            currentColoumn.Type = typeof(LocalizedString);
+            currentColoumn.Name = node.InnerText;
         }
 
         /// <summary>
@@ -288,11 +333,12 @@ namespace dbc_to_sql
         /// </summary>
         /// <param name="node">The node describing the foreign key</param>
         /// <param name="attribute">The XmlAttribute containing the foreign key's data</param>
-        private void dumpAttribute(XmlNode node, XmlAttribute attribute)
+        private void dumpAttribute(XmlNode node, XmlAttribute attribute, ref Dbc.Coloumn coloumn)
         {
             switch (attribute.Name)
             {
                 case "refersTo": if (firstRow_) dbc_.ForeignKeys.Add(dumpRefersTo(node.InnerText, attribute.InnerText)); break;
+                case "nullValues": coloumn.ZeroValues.AddRange(attribute.InnerText.Split(';')); break;
             }
         }
 

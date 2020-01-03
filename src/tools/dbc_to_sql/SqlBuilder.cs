@@ -98,7 +98,7 @@ namespace dbc_to_sql
                 sql.AppendFormat("    `{0}_flags` INT UNSIGNED NOT NULL,\n", coloumn.Name);
                 return;
             }
-            sql.AppendFormat("    `{0}` {1} NOT NULL,\n", coloumn.Name, toSqlType(coloumn.Type));
+            sql.AppendFormat("    `{0}` {1} {2}NULL,\n", coloumn.Name, toSqlType(coloumn.Type), coloumn.ZeroValues.Count > 0 ? "" : "NOT ");
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace dbc_to_sql
         /// <param name="dbc">Dbc containing the primary keys</param>
         private void buildPrimaryKeys(ref StringBuilder sql, Dbc dbc)
         {
-            if(dbc.PrimaryKeys.Count <= 0)
+            if (dbc.PrimaryKeys.Count <= 0)
                 return;
 
             sql.Append(",\n    PRIMARY KEY(");
@@ -188,7 +188,10 @@ namespace dbc_to_sql
             for (int i = 0; i < coloumns.Count; ++i)
             {
                 var coloumn = coloumns[i];
-                sql.AppendFormat("'{0}'{1}", coloumn.Value.ToString(), i == coloumns.Count - 1 ? "" : ", ");
+                if (coloumn.IsNull)
+                    sql.AppendFormat("NULL{0}", i == coloumns.Count - 1 ? "" : ", ");
+                else
+                    sql.AppendFormat("'{0}'{1}", coloumn.Value.ToString(), i == coloumns.Count - 1 ? "" : ", ");
             }
 
             sql.Append(" )");
