@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>weather</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id" nullValues="0">sound</uint>
+        <uint>type</uint>
+        <float>red</float>
+        <float>green</float>
+        <float>blue</float>
+        <string>texture</string>
+    </format>
+</file>

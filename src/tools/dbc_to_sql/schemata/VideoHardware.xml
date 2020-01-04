@@ -1,0 +1,30 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>video_hardware</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>vendor_id</uint>
+        <uint>device_id</uint>
+        <uint>farclip_index</uint>
+        <uint>terrain_lod_distance_index</uint>
+        <uint>terrain_shadow_lod</uint>
+        <uint>detail_doodad_density_index</uint>
+        <uint>detail_doodad_alpha</uint>
+        <uint>animating_doodad_index</uint>
+        <uint>trilinear</uint>
+        <uint>num_lights</uint>
+        <uint>specularity</uint>
+        <uint>water_lod_index</uint>
+        <uint>particle_density_index</uint>
+        <uint>unit_draw_distance_index</uint>
+        <uint>small_cull_distance_index</uint>
+        <uint>resolution_index</uint>
+        <uint>base_mip_level</uint>
+        <string>ogl_overrides</string>
+        <string>d3d_overrides</string>
+        <uint>fix_lag</uint>
+        <uint>multisample</uint>
+        <uint>atlas_disable</uint>
+    </format>
+</file>

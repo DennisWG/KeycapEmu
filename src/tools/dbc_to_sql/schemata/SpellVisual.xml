@@ -1,0 +1,32 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_visual</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>pre_cast_kit</int>
+        <int>cast_kit</int>
+        <int>impact_kit</int>
+        <int>state_kit</int>
+        <int>state_done_kit</int>
+        <int>channel_kit</int>
+        <int>has_missile</int>
+        <int>missile_model</int>
+        <int>missile_path_type</int>
+        <int>missile_destination_attachment</int>
+        <int>missile_sound</int>
+        <int>anim_event_sound</int>
+        <int>caster_impact_kit</int>
+        <int>target_impact_kit</int>
+        <int>flags</int>
+        <int>missile_attachment</int>
+        <int>missile_follow_ground_height</int>
+        <int>missile_follow_ground_drop_speed</int>
+        <int>missile_follow_ground_approach</int>
+        <int>missile_follow_ground_flags</int>
+        <int>spell_missile_motion</int>
+        <int>missile_target_kit</int>
+        <int>instant_area_kit</int>
+        <int>impact_area_kit</int>
+    </format>
+</file>

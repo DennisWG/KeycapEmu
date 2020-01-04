@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>ground_effect_doodad</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>internal_id</uint>
+        <string>path</string>
+    </format> 
+</file>

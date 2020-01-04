@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>names_profanity</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint>language</uint>
+    </format> 
+</file>

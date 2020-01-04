@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_family</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <float>scale_min</float>
+        <uint>scale_min_level</uint>
+        <float>scale_max</float>
+        <uint>scale_max_level</uint>
+        <uint refersTo="skill_line.id">skill_line1</uint>
+        <uint refersTo="skill_line.id">skill_line2</uint>
+        <int>item_pet_food_mask</int>
+        <localized_string>name</localized_string>
+        <string>icon</string>
+    </format> 
+</file>

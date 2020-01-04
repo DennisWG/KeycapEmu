@@ -1,0 +1,19 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_sub_class</name> 
+    <version>2.4.3</version> 
+    <format>
+        <uint refersTo="item_class.id">item_class</uint>
+        <uint>id</uint>
+        <int>prerequisite_proficiency</int>
+        <int>postrequisite_proficiency</int>
+        <uint>flags</uint>
+        <uint>display_flags</uint>
+        <int>weapon_parry_sequence</int>
+        <int>weapon_ready_sequence</int>
+        <int>weapon_attack_sequence</int>
+        <int>weapon_swing_size</int>
+        <localized_string>display_name</localized_string>
+        <localized_string>verbose_name</localized_string>
+    </format> 
+</file>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<file>
+    <name>area_trigger</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <float>radius</float>
+        <float>length</float>
+        <float>width</float>
+        <float>height</float>
+        <float>yaw</float>
+    </format>
+</file>

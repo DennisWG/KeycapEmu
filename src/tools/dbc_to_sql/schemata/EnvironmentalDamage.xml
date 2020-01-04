@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>environmental_damage</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>client_id</int>
+        <uint refersTo="spell_visual_kit.id">spell_visual_kit</uint>
+    </format> 
+</file>

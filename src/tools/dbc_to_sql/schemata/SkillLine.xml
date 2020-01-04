@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>skill_line</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="skill_line_category.id">category</uint>
+        <uint refersTo="skill_costs.id">costs</uint>
+        <localized_string>name</localized_string>
+        <localized_string>description</localized_string>
+        <uint refersTo="spell_icon.id">spell_icon</uint>
+    </format> 
+</file>

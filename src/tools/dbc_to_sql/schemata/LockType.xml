@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>lock_type</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <localized_string>resource_name</localized_string>
+        <localized_string>process_name</localized_string>
+        <string>cursor</string>
+    </format> 
+</file>

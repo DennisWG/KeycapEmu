@@ -1,0 +1,26 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_shapeshift_form</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>bonus_action_bar</int>
+        <localized_string>name</localized_string>
+        <uint>flags</uint>
+        <uint refersTo="creature_type.id" nullValues="0;4294967295">creature_type</uint>
+        <uint refersTo="spell_icon.id" nullValues="0">spell_icon</uint>
+        <int>combat_round_time</int>
+        <uint refersTo="creature_display_info.id" nullValues="0">display_id1</uint>
+        <uint refersTo="creature_display_info.id" nullValues="0">display_id2</uint>
+        <uint refersTo="creature_display_info.id" nullValues="0">display_id3</uint>
+        <uint refersTo="creature_display_info.id" nullValues="0">display_id4</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell1</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell2</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell3</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell4</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell5</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell6</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell7</uint>
+        <uint refersTo="spell.id" nullValues="0">preset_spell8</uint>
+    </format>
+</file>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_range</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <float>range_min</float>
+        <float>range_max</float>
+        <uint>flags</uint>
+        <localized_string>display_name</localized_string>
+        <localized_string>display_name_short</localized_string>
+    </format>
+</file>

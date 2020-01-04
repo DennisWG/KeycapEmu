@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>footstep_terrain_lookup</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint>footstep_id</uint>
+        <uint refersTo="terrain_type_sounds.id">terrain_type_sounds</uint>
+        <uint refersTo="sound_entries.id">sound</uint>
+        <uint refersTo="sound_entries.id">splash_sound</uint>
+    </format> 
+</file>

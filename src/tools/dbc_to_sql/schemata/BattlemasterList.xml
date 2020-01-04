@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<file>
+    <name>battlemaster_list</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map0</uint>
+        <uint refersTo="map.id">map1</uint>
+        <uint refersTo="map.id">map2</uint>
+        <uint refersTo="map.id">map3</uint>
+        <uint refersTo="map.id">map4</uint>
+        <uint refersTo="map.id">map5</uint>
+        <uint refersTo="map.id">map6</uint>
+        <uint refersTo="map.id">map7</uint>
+        <int>type</int>
+        <int>level_min</int>
+        <int>level_max</int>
+        <int>max_team_size</int>
+        <int>level_step</int>
+        <int>can_queue_as_group</int>
+        <localized_string>name</localized_string>
+        <int>unk</int>
+    </format>
+</file>

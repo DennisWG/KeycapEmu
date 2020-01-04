@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>server_messages</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>message</localized_string>
+    </format> 
+</file>

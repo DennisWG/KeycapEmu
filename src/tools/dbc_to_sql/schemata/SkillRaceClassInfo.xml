@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>skill_race_class_info</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="skill_line.id">skill</uint>
+        <uint>race_mask</uint>
+        <uint>class_mask</uint>
+        <int>flags</int>
+        <int>required_level</int>
+        <uint refersTo="skill_tiers.id">tier</uint>
+        <uint refersTo="skill_cost.id">cost</uint>
+    </format> 
+</file>

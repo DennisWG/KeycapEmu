@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>material</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>flags</uint>
+        <uint refersTo="sound_entries.id">sound_foley</uint>
+        <uint refersTo="sound_entries.id">sound_sheathe</uint>
+        <uint refersTo="sound_entries.id">sound_unsheathe</uint>
+    </format> 
+</file>

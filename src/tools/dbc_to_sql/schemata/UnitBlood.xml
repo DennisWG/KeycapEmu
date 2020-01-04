@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>unit_blood</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>combat_blood_spurt_front1</uint>
+        <uint>combat_blood_spurt_front2</uint>
+        <uint>combat_blood_spurt_back1</uint>
+        <uint>combat_blood_spurt_back2</uint>
+        <string>ground_blood1</string>
+        <string>ground_blood2</string>
+        <string>ground_blood3</string>
+        <string>ground_blood4</string>
+        <string>ground_blood5</string>
+    </format>
+</file>

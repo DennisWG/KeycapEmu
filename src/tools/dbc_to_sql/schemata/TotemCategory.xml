@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>totem_category</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <uint>category</uint>
+        <uint>category_mask</uint>
+    </format>
+</file>

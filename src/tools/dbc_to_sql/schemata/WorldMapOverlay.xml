@@ -1,0 +1,24 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>world_map_overlay</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="world_map_area.id">world_map_area</uint>
+        <uint refersTo="area_table.id" nullValues="0">area1</uint>
+        <uint refersTo="area_table.id" nullValues="0">area2</uint>
+        <uint refersTo="area_table.id" nullValues="0">area3</uint>
+        <uint refersTo="area_table.id" nullValues="0">area4</uint>
+        <int>x</int>
+        <int>y</int>
+        <string>texture</string>
+        <int>texture_width</int>
+        <int>texture_height</int>
+        <int>offset_x</int>
+        <int>offset_y</int>
+        <int>hit_rectangle_top</int>
+        <int>hit_rectangle_left</int>
+        <int>hit_rectangle_bottom</int>
+        <int>hit_rectangle_right</int>
+    </format>
+</file>

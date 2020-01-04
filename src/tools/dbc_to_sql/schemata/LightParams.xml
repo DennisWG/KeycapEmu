@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>light_params</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>highlight_sky</int>
+        <uint refersTo="light_skybox.id">light_skybox</uint>
+        <float>glow</float>
+        <float>water_shallow_alpha</float>
+        <float>water_deep_alpha</float>
+        <float>ocean_shallow_alpha</float>
+        <float>ocean_deep_alpha</float>
+        <uint>flags</uint>
+    </format> 
+</file>

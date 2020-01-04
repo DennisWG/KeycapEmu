@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_random_suffix</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <string>internal_name</string>
+        <uint refersTo="spell_item_enchantment.id">enchant1</uint>
+        <uint refersTo="spell_item_enchantment.id">enchant2</uint>
+        <uint refersTo="spell_item_enchantment.id">enchant3</uint>
+        <int>allocation_percentage1</int>
+        <int>allocation_percentage2</int>
+        <int>allocation_percentage3</int>
+    </format> 
+</file>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>taxi_path_node</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="taxi_path.id" nullValues="248;403">path</uint>
+        <int>index</int>
+        <uint refersTo="map.id">map</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <uint>flags</uint>
+        <int>delay</int>
+        <int>arrival_event_id</int>
+        <int>departure_event_id</int>
+    </format>
+</file>

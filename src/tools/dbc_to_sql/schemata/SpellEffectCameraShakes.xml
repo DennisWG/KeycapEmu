@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_effect_camera_shakes</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="camera_shakes.id" nullValues="0">camera_shake1</uint>
+        <uint refersTo="camera_shakes.id" nullValues="0">camera_shake2</uint>
+        <uint refersTo="camera_shakes.id" nullValues="0">camera_shake3</uint>
+    </format>
+</file>

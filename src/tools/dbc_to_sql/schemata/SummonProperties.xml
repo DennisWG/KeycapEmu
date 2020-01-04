@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>summon_properties</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>category</int>
+        <uint refersTo="faction_template.id" nullValues="0">faction</uint>
+        <int>type</int>
+        <int>slot</int>
+        <int>flags</int>
+    </format>
+</file>

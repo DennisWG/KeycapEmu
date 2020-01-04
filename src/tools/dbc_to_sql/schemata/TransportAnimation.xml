@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>transport_animation</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>transport_id</uint>
+        <uint>time_index</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <uint refersTo="animation_data.id">sequence_id</uint>
+    </format>
+</file>

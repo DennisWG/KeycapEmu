@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>world_map_area</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <uint refersTo="area_table.id" nullValues="0">area</uint>
+        <string>name</string>
+        <float>left_boundary</float>
+        <float>right_boundary</float>
+        <float>top_boundary</float>
+        <float>bottom_boundary</float>
+        <uint refersTo="map.id" nullValues="4294967295">parent_map</uint>
+    </format>
+</file>

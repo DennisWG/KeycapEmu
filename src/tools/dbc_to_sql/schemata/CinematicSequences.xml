@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>cinematic_sequences</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id" nullValues="0">sound_entry</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera1</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera2</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera3</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera4</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera5</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera6</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera7</uint>
+        <uint refersTo="cinematic_camera.id" nullValues="0">camera8</uint>
+    </format> 
+</file>

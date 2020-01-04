@@ -1,0 +1,21 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_extended_cost</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>honor</int>
+        <int>arena</int>
+        <int>required_item1</int>
+        <int>required_item2</int>
+        <int>required_item3</int>
+        <int>required_item4</int>
+        <int>required_item5</int>
+        <int>item_count1</int>
+        <int>item_count2</int>
+        <int>item_count3</int>
+        <int>item_count4</int>
+        <int>item_count5</int>
+        <int>personal_arena_rating</int>
+    </format> 
+</file>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>zone_music</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint>silence_interval_min_day</uint>
+        <uint>silence_interval_min_night</uint>
+        <uint>silence_interval_max_day</uint>
+        <uint>silence_interval_max_night</uint>
+        <uint refersTo="sound_entries.id" nullValues="0;10858;10859">sound_day</uint>
+        <uint refersTo="sound_entries.id" nullValues="0;10858;10859">sound_night</uint>
+    </format>
+</file>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>unit_blood_levels</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="unit_blood.id" nullValues="0">violence_level_none</uint>
+        <uint refersTo="unit_blood.id" nullValues="0">violence_level_medium</uint>
+        <uint refersTo="unit_blood.id" nullValues="0">violence_level_high</uint>
+    </format>
+</file>

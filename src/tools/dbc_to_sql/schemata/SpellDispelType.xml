@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_dispel_type</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <int>mask</int>
+        <int>immunity_possible</int>
+        <string>internal_name</string>
+    </format>
+</file>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>world_map_transforms</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <float>top_left_x</float>
+        <float>top_left_y</float>
+        <float>bottom_right_x</float>
+        <float>bottom_right_y</float>
+        <uint refersTo="map.id">new_map</uint>
+        <float>region_offset_x</float>
+        <float>region_offset_y</float>
+    </format>
+</file>

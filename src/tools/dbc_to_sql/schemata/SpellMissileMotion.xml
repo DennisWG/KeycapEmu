@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_missile_motion</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <string>script_body</string>
+        <int>flags</int>
+        <int>missile_count</int>
+    </format>
+</file>

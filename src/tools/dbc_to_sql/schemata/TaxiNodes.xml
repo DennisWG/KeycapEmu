@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>taxi_nodes</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id" nullValues="131074;9770568;654135852">map</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <localized_string>name</localized_string>
+        <uint>mount_alliance</uint>
+        <uint>mount_horde</uint>
+    </format>
+</file>

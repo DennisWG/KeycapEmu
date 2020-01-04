@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>mail_template</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>subject</localized_string>
+        <localized_string>body</localized_string>
+    </format> 
+</file>

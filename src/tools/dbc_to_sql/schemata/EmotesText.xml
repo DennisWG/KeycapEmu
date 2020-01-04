@@ -1,0 +1,26 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>emotes_text</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <string>name</string>
+        <uint refersTo="emotes.id">emote</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data1</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data2</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data3</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data4</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data5</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data6</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data7</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data8</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data9</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data10</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data11</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data12</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data13</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data14</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data15</uint>
+        <uint refersTo="emotes_text_data.id">emote_text_data16</uint>
+    </format> 
+</file>

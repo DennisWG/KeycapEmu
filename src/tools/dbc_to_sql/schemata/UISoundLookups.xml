@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>ui_sound_lookups</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id" nullValues="820;848;849;885;886;887;889;893;894;904;3356">sound</uint>
+        <string>name</string>
+    </format>
+</file>

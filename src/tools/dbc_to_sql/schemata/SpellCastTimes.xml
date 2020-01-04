@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_cast_times</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>cast_time</int>
+        <int>cast_time_per_level</int>
+        <int>minimum_cast_time</int>
+    </format> 
+</file>

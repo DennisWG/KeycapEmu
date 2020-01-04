@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>game_tables</name> 
+    <version>2.4.3</version> 
+    <format>
+        <string>name</string>
+        <int>num_rows</int>
+        <int>num_coloumns</int>
+    </format> 
+</file>

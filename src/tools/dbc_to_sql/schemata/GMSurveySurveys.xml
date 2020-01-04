@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>gm_survey_surveys</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="gm_survey_questions.id">question1</uint>
+        <uint refersTo="gm_survey_questions.id">question2</uint>
+        <uint refersTo="gm_survey_questions.id">question3</uint>
+        <uint refersTo="gm_survey_questions.id">question4</uint>
+        <uint refersTo="gm_survey_questions.id">question5</uint>
+        <uint refersTo="gm_survey_questions.id">question6</uint>
+        <uint refersTo="gm_survey_questions.id">question7</uint>
+        <uint refersTo="gm_survey_questions.id">question8</uint>
+        <uint refersTo="gm_survey_questions.id">question9</uint>
+        <uint refersTo="gm_survey_questions.id">question10</uint>
+    </format> 
+</file>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_visual_effect_name</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <string>file</string>
+        <float>area_effect_size</float>
+        <float>scale</float>
+    </format>
+</file>

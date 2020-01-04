@@ -1,0 +1,30 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>weapon_impact_sounds</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="item_sub_class.id">item_sub_class</uint>
+        <uint>parry_sound_type</uint>
+        <uint nullValues="0">impact_sound1</uint>
+        <uint nullValues="0">impact_sound2</uint>
+        <uint nullValues="0">impact_sound3</uint>
+        <uint nullValues="0">impact_sound4</uint>
+        <uint nullValues="0">impact_sound5</uint>
+        <uint nullValues="0">impact_sound6</uint>
+        <uint nullValues="0">impact_sound7</uint>
+        <uint nullValues="0">impact_sound8</uint>
+        <uint nullValues="0">impact_sound9</uint>
+        <uint nullValues="0">impact_sound10</uint>
+        <uint nullValues="0">critical_impact_sound1</uint>
+        <uint nullValues="0">critical_impact_sound2</uint>
+        <uint nullValues="0">critical_impact_sound3</uint>
+        <uint nullValues="0">critical_impact_sound4</uint>
+        <uint nullValues="0">critical_impact_sound5</uint>
+        <uint nullValues="0">critical_impact_sound6</uint>
+        <uint nullValues="0">critical_impact_sound7</uint>
+        <uint nullValues="0">critical_impact_sound8</uint>
+        <uint nullValues="0">critical_impact_sound9</uint>
+        <uint nullValues="0">critical_impact_sound10</uint>
+    </format>
+</file>

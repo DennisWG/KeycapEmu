@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<file>
+    <name>cfg_categories</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint>region</uint>
+        <uint>charset</uint>
+        <uint>is_tournament</uint>
+        <localized_string>name</localized_string>
+    </format>
+</file>

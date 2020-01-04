@@ -1,0 +1,28 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>chr_races</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>flags</int>
+        <uint refersTo="faction.id">faction</uint>
+        <uint refersTo="sound_entries.id">exploration_sound</uint>
+        <uint refersTo="creature_display_info.id">model_male</uint>
+        <uint refersTo="creature_display_info.id">model_female</uint>
+        <string>prefix</string>
+        <float>unk</float>
+        <uint refersTo="language.id">language</uint>
+        <uint refersTo="creature_type.id">creature_type</uint>
+        <uint refersTo="spell.id">ress_sickness_spell</uint>
+        <uint refersTo="sound_entries.id">splash_sound</uint>
+        <string>file_string</string>
+        <uint refersTo="cinematic_sequence.id">opening_cinematic</uint>
+        <localized_string>name_neutral</localized_string>
+        <localized_string>name_female</localized_string>
+        <localized_string>name_male</localized_string>
+        <string>facial_hair1</string>
+        <string>facial_hair2</string>
+        <string>hair</string>
+        <int>required_expansion</int>
+    </format> 
+</file>

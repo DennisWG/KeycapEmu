@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_random_properties</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint refersTo="spell_item_enchantment.id">enchantment1</uint>
+        <uint refersTo="spell_item_enchantment.id">enchantment2</uint>
+        <uint refersTo="spell_item_enchantment.id">enchantment3</uint>
+        <uint refersTo="spell_item_enchantment.id">enchantment4</uint>
+        <uint refersTo="spell_item_enchantment.id">enchantment5</uint>
+        <localized_string>suffix</localized_string>
+    </format> 
+</file>

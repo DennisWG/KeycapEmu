@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>cinematic_camera</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <string>filepath</string>
+        <uint refersTo="sound_entries.id">voiceover_id</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <float>o</float>
+    </format> 
+</file>

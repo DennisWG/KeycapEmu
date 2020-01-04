@@ -1,0 +1,22 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>skill_line_ability</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="skill_line.id">skill</uint>
+        <uint refersTo="spell.id">spell</uint>
+        <int>race_mask</int>
+        <int>class_mask</int>
+        <int>exclude_race_mask</int>
+        <int>exclude_class_mask</int>
+        <int>required_rank</int>
+        <uint refersTo="spell.id">parent_spell</uint>
+        <int>aquire_method</int>
+        <int>level_grey</int>
+        <int>level_yellow</int>
+        <int>character_points1</int>
+        <int>character_points2</int>
+        <int>num_skill_ups</int>
+    </format> 
+</file>

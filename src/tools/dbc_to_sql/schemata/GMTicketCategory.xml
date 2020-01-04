@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>gm_ticket_category</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+    </format> 
+</file>

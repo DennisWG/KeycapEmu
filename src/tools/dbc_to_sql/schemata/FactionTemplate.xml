@@ -1,0 +1,21 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>faction_template</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="faction.id">faction</uint>
+        <uint>flags</uint>
+        <uint>faction_group_mask</uint>
+        <uint>friendly_mask</uint>
+        <uint>hostlie_mask</uint>
+        <uint refersTo="faction.id">enemy1</uint>
+        <uint refersTo="faction.id">enemy2</uint>
+        <uint refersTo="faction.id">enemy3</uint>
+        <uint refersTo="faction.id">enemy4</uint>
+        <uint refersTo="faction.id">friend1</uint>
+        <uint refersTo="faction.id">friend2</uint>
+        <uint refersTo="faction.id">friend3</uint>
+        <uint refersTo="faction.id">friend4</uint>
+    </format> 
+</file>

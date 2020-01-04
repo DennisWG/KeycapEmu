@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<file>
+    <name>attack_anim_kits</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="animation_data.id">animation_data</uint>
+        <uint refersTo="attack_anim_types.id">attack_anim_type</uint>
+        <uint>frequency</uint>
+        <int>offhand</int>
+    </format>
+</file>

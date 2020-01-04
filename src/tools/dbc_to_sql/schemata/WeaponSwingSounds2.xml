@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>weapon_swing_sounds2</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>swing_type</int>
+        <int>is_critical</int>
+        <uint refersTo="sound_entries.id">sound</uint>
+    </format>
+</file>

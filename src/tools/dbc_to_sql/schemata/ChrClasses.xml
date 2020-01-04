@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>chr_classes</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>flags</int>
+        <int>power_type</int>
+        <string>pet_name</string>
+        <localized_string>name_male</localized_string>
+        <localized_string>name_female</localized_string>
+        <localized_string>name_neutral</localized_string>
+        <string>name</string>
+        <uint>spell_class</uint>
+        <uint>flags2</uint>
+    </format> 
+</file>

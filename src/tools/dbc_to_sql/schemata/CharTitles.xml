@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>char_titles</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary> 
+        <int>condition</int>
+        <localized_string>title_male</localized_string>
+        <localized_string>title_female</localized_string>
+        <int>client_index</int>
+    </format> 
+</file>

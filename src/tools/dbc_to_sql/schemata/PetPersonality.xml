@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>pet_personality</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <int>happiness_threshold1</int>
+        <int>happiness_threshold2</int>
+        <int>happiness_threshold3</int>
+        <float>hapiness_damage1</float>
+        <float>hapiness_damage2</float>
+        <float>hapiness_damage3</float>
+        <float>damage_modifier1</float>
+        <float>damage_modifier2</float>
+        <float>damage_modifier3</float>
+    </format> 
+</file>

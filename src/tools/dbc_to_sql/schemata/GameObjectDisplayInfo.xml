@@ -1,0 +1,25 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>game_object_display_info</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <string>path</string>
+        <uint refersTo="sound_entries.id">stand_sound</uint>
+        <uint refersTo="sound_entries.id">open_sound</uint>
+        <uint refersTo="sound_entries.id">loop_sound</uint>
+        <uint refersTo="sound_entries.id">close_sound</uint>
+        <uint refersTo="sound_entries.id">destroy_sound</uint>
+        <uint refersTo="sound_entries.id">opened_sound</uint>
+        <uint refersTo="sound_entries.id">custom0_sound</uint>
+        <uint refersTo="sound_entries.id">custom1_sound</uint>
+        <uint refersTo="sound_entries.id">custom2_sound</uint>
+        <uint refersTo="sound_entries.id">custom3_sound</uint>
+        <float>min_x</float>
+        <float>min_y</float>
+        <float>min_z</float>
+        <float>max_x</float>
+        <float>max_y</float>
+        <float>max_z</float>
+    </format> 
+</file>

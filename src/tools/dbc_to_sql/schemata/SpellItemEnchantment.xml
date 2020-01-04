@@ -1,0 +1,25 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_item_enchantment</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="spell_dispel_type.id" nullValues="0">type1</uint>
+        <uint refersTo="spell_dispel_type.id" nullValues="0">type2</uint>
+        <uint refersTo="spell_dispel_type.id" nullValues="0">type3</uint>
+        <int>amount_min1</int>
+        <int>amount_min2</int>
+        <int>amount_min3</int>
+        <int>amount_max1</int>
+        <int>amount_max2</int>
+        <int>amount_max3</int>
+        <uint>effect_arg1</uint>
+        <uint>effect_arg2</uint>
+        <uint>effect_arg3</uint>
+        <localized_string>description</localized_string>
+        <uint refersTo="item_visuals.id">item_visuals</uint>
+        <uint>flags</uint>
+        <uint>gem_id</uint>
+        <uint refersTo="spell_item_enchantment_conditon.id" nullValues="0">enchantment_condition</uint>
+    </format>
+</file>

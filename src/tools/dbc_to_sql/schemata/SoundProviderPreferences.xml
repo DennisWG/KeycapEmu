@@ -1,0 +1,31 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sound_provider_preferences</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>description</string>
+        <uint>flags</uint>
+        <int>environment_selection</int>
+        <float>decay_time</float>
+        <float>environment_size</float>
+        <float>environment_diffusion</float>
+        <int>room</int>
+        <int>room_hf</int>
+        <float>decay_hf_ratio</float>
+        <int>reflections</int>
+        <float>reflections_delay</float>
+        <int>reverb</int>
+        <float>reverb_delay</float>
+        <float>room_rolloff</float>
+        <float>air_absorption</float>
+        <uint>room_lf</uint>
+        <float>decay_lf_ratio</float>
+        <float>echo_timne</float>
+        <float>echo_depth</float>
+        <float>modulation_time</float>
+        <float>modulation_depth</float>
+        <float>hf_reference</float>
+        <float>lf_reference</float>
+    </format> 
+</file>

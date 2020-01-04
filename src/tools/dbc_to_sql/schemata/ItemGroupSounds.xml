@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_group_sounds</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id">pickup_sound</uint>
+        <uint refersTo="sound_entries.id">put_down_sound</uint>
+        <uint refersTo="sound_entries.id">unk1_sound</uint>
+        <uint refersTo="sound_entries.id">unk2_sound</uint>
+    </format> 
+</file>

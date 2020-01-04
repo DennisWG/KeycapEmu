@@ -1,0 +1,23 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>rand_prop_points</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>epic1</int>
+        <int>epic2</int>
+        <int>epic3</int>
+        <int>epic4</int>
+        <int>epic5</int>
+        <int>superior1</int>
+        <int>superior2</int>
+        <int>superior3</int>
+        <int>superior4</int>
+        <int>superior5</int>
+        <int>good1</int>
+        <int>good2</int>
+        <int>good3</int>
+        <int>good4</int>
+        <int>good5</int>
+    </format> 
+</file>

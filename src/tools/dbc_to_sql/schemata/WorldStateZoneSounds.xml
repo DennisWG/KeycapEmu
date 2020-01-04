@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>world_state_zone_sounds</name> 
+    <version>2.4.3</version> 
+    <format>
+        <uint>id</uint>
+        <uint>value</uint>
+        <uint refersTo="area_table.id" nullValues="0">area</uint>
+        <uint refersTo="wmo_area_table.id" nullValues="0">wmo_area</uint>
+        <uint refersTo="zone_intro_music_table.id" nullValues="0">intro_music</uint>
+        <uint refersTo="zone_music.id" nullValues="0">music</uint>
+        <uint refersTo="sound_ambience.id" nullValues="0">ambience</uint>
+        <uint refersTo="sound_provider_preferences.id" nullValues="0">sound_provider_preferences</uint>
+    </format>
+</file>

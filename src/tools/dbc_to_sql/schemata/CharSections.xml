@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<file>
+    <name>char_sections</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="chr_races.id">race</uint>
+        <int>female</int>
+        <int>base_section</int>
+        <int>variation</int>
+        <int>color</int>
+        <string>texture1</string>
+        <string>texture2</string>
+        <string>texture3</string>
+        <int>flags</int>
+    </format>
+</file>

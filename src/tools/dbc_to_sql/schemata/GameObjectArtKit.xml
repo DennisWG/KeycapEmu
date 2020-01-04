@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>game_object_art_kit</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <string>texture_variation1</string>
+        <string>texture_variation2</string>
+        <string>texture_variation3</string>
+        <string>attach_model1</string>
+        <string>attach_model2</string>
+        <string>attach_model3</string>
+        <string>attach_model4</string>
+    </format> 
+</file>

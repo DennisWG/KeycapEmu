@@ -1,0 +1,36 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>map</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>internal_name</string>
+        <uint>type</uint>
+        <int>battleground</int>
+        <localized_string>name</localized_string>
+        <uint>level_min</uint>
+        <uint>level_max</uint>
+        <uint>max_players</uint>
+        <int>unk1</int>
+        <float>unk2</float>
+        <float>unk3</float>
+        <uint refersTo="area_table.id">area</uint>
+        <localized_string>description_horde</localized_string>
+        <localized_string>description_alliance</localized_string>
+        <uint refersTo="loading_screens.id">loading_screen</uint>
+        <uint>level_steps</uint>
+        <uint>unk4</uint>
+        <float>unk5</float>
+        <localized_string>requirement</localized_string>
+        <localized_string>requirement_heroic</localized_string>
+        <localized_string>requirement_epic</localized_string>
+        <int refersTo="map.id">parent_map</int>
+        <float>entrance_x</float>
+        <float>entrance_y</float>
+        <uint>reset_time_raid</uint>
+        <uint>reset_time_heroic</uint>
+        <uint>unk6</uint>
+        <int>unk7</int>
+        <uint>expansion</uint>
+    </format> 
+</file>

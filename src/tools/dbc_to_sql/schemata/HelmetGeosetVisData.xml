@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>helmet_geoset_vis_data</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>hair_flags</int>
+        <int>facial_flags1</int>
+        <int>facial_flags2</int>
+        <int>facial_flags3</int>
+        <int>ears_flags</int>
+        <int>unk1</int>
+        <int>unk2</int>
+    </format> 
+</file>

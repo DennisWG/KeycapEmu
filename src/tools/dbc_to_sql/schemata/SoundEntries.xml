@@ -1,0 +1,36 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sound_entries</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>type</uint>
+        <string>internal_name</string>
+        <string>file1</string>
+        <string>file2</string>
+        <string>file3</string>
+        <string>file4</string>
+        <string>file5</string>
+        <string>file6</string>
+        <string>file7</string>
+        <string>file8</string>
+        <string>file9</string>
+        <string>file10</string>
+        <uint>time_to_next_sound1</uint>
+        <uint>time_to_next_sound2</uint>
+        <uint>time_to_next_sound3</uint>
+        <uint>time_to_next_sound4</uint>
+        <uint>time_to_next_sound5</uint>
+        <uint>time_to_next_sound6</uint>
+        <uint>time_to_next_sound7</uint>
+        <uint>time_to_next_sound8</uint>
+        <uint>time_to_next_sound9</uint>
+        <uint>time_to_next_sound10</uint>
+        <string>directory</string>
+        <float>volume</float>
+        <uint>flags</uint>
+        <float>distance_min</float>
+        <float>distance_cutoff</float>
+        <uint>unk</uint>
+    </format> 
+</file>

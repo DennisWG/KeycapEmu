@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<file>
+    <name>camera_shakes</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <int>type</int>
+        <int>direction</int>
+        <float>amplitude</float>
+        <float>frequency</float>
+        <float>duration</float>
+        <float>phase</float>
+        <float>coefficient</float>
+    </format>
+</file>

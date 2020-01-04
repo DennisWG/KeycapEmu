@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<file>
+    <name>auction_house</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="faction.id">faction</uint>
+        <int>deposit</int>
+        <int>cut</int>
+        <localized_string>name</localized_string>
+    </format>
+</file>

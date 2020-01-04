@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_set</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <int>item1</int>
+        <int>item2</int>
+        <int>item3</int>
+        <int>item4</int>
+        <int>item5</int>
+        <int>item6</int>
+        <int>item7</int>
+        <int>item8</int>
+        <int>item9</int>
+        <int>item10</int>
+        <int>item11</int>
+        <int>item12</int>
+        <int>item13</int>
+        <int>item14</int>
+        <int>item15</int>
+        <int>item16</int>
+        <int>item17</int>
+        <uint refersTo="spell.id">spell1</uint>
+        <uint refersTo="spell.id">spell2</uint>
+        <uint refersTo="spell.id">spell3</uint>
+        <uint refersTo="spell.id">spell4</uint>
+        <uint refersTo="spell.id">spell5</uint>
+        <uint refersTo="spell.id">spell6</uint>
+        <uint refersTo="spell.id">spell7</uint>
+        <uint refersTo="spell.id">spell8</uint>
+        <int>treshold1</int>
+        <int>treshold2</int>
+        <int>treshold3</int>
+        <int>treshold4</int>
+        <int>treshold5</int>
+        <int>treshold6</int>
+        <int>treshold7</int>
+        <int>treshold8</int>
+        <uint refersTo="skill_line.id">required_skill</uint>
+        <int>skill_rank</int>
+    </format> 
+</file>

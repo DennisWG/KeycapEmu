@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>emotes_text_sound</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="emotes_text.id">emote_text</uint>
+        <uint refersTo="chr_races.id">race</uint>
+        <int>female</int>
+        <uint refersTo="sound_entries.id">sound</uint>
+    </format> 
+</file>

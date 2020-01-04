@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>liquid_type</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint>type</uint>
+        <uint refersTo="spell.id">on_enter_spell</uint>
+    </format> 
+</file>

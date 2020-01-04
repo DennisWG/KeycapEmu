@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<file>
+    <name>character_facial_hair_styles</name>
+    <version>2.4.3</version>
+    <format>
+        <uint refersTo="chr_races.id">race</uint>
+        <uint>female</uint>
+        <uint>variation</uint>
+        <int>unk1</int>
+        <int>unk2</int>
+        <int>unk3</int>
+        <int>geoset_1</int>
+        <int>geoset_2</int>
+        <int>geoset_3</int>
+        <int>geoset_4</int>
+        <int>geoset_5</int>
+    </format>
+</file>

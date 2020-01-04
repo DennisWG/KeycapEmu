@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>stable_slot_prices</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>copper_cost</uint>
+    </format>
+</file>

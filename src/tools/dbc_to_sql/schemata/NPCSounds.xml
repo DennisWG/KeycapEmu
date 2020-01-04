@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>npc_sounds</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id">sound_greetings</uint>
+        <uint refersTo="sound_entries.id">sound_farewell</uint>
+        <uint refersTo="sound_entries.id">sound_pissed</uint>
+        <uint refersTo="sound_entries.id">sound_ack</uint>
+    </format> 
+</file>

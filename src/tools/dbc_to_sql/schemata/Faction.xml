@@ -1,0 +1,28 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>faction</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>reputation_index</int>
+        <int>race_mask1</int>
+        <int>race_mask2</int>
+        <int>race_mask3</int>
+        <int>race_mask4</int>
+        <int>class_mask1</int>
+        <int>class_mask2</int>
+        <int>class_mask3</int>
+        <int>class_mask4</int>
+        <int>reputation_base1</int>
+        <int>reputation_base2</int>
+        <int>reputation_base3</int>
+        <int>reputation_base4</int>
+        <int>reputation_flags1</int>
+        <int>reputation_flags2</int>
+        <int>reputation_flags3</int>
+        <int>reputation_flags4</int>
+        <uint refersTo="faction.id">parent_faction</uint>
+        <localized_string>name</localized_string>
+        <localized_string>description</localized_string>
+    </format> 
+</file>

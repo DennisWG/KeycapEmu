@@ -1,0 +1,159 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>category</uint>
+        <uint>cast_ui</uint>
+        <uint refersTo="spell_dispel_type.id">spell_dispel_type</uint>
+        <uint refersTo="spell_mechanic.id" nullValues="0">spell_mechanic</uint>
+        <uint>attributes</uint>
+        <uint>attributes_ex1</uint>
+        <uint>attributes_ex2</uint>
+        <uint>attributes_ex3</uint>
+        <uint>attributes_ex4</uint>
+        <uint>attributes_ex5</uint>
+        <uint>attributes_ex6</uint>
+        <uint>shapeshift_form_mask</uint>
+        <uint>shapeshift_form_exclude_mask</uint>
+        <uint>targets</uint>
+        <uint>target_creature_type_mask</uint>
+        <uint refersTo="spell_focus_object.id" nullValues="0">spell_focus_object</uint>
+        <uint>facing_caster_flags</uint>
+        <uint>caster_aura_state</uint>
+        <uint>target_aura_state</uint>
+        <uint>caster_exclude_aura_state</uint>
+        <uint>target_exclude_aura_state</uint>
+        <uint refersTo="spell_cast_times.id" nullValues="0">spell_cast_times</uint>
+        <uint>recovery_time</uint>
+        <uint>category_recovery_time</uint>
+        <uint>interrupt_flags</uint>
+        <uint>aura_interrupt_flags</uint>
+        <uint>channel_interrupt_flags</uint>
+        <uint>proc_flags</uint>
+        <uint>proc_chance</uint>
+        <uint>proc_charges</uint>
+        <uint>max_level</uint>
+        <uint>base_level</uint>
+        <uint>spell_level</uint>
+        <uint refersTo="spell_duration.id" nullValues="0">spell_duration</uint>
+        <uint>power_type</uint>
+        <uint>power_cost</uint>
+        <uint>power_cost_per_level</uint>
+        <uint>power_cost_per_second</uint>
+        <uint>power_cost_per_second_per_level</uint>
+        <uint refersTo="spell_range.id">spell_range</uint>
+        <float>speed</float>
+        <uint>modal_next_spell</uint>
+        <uint>stack_amount</uint>
+        <uint>required_item1</uint>
+        <uint>required_item2</uint>
+        <int>reagent1</int>
+        <int>reagent2</int>
+        <int>reagent3</int>
+        <int>reagent4</int>
+        <int>reagent5</int>
+        <int>reagent6</int>
+        <int>reagent7</int>
+        <int>reagent8</int>
+        <uint>reagent_count1</uint>
+        <uint>reagent_count2</uint>
+        <uint>reagent_count3</uint>
+        <uint>reagent_count4</uint>
+        <uint>reagent_count5</uint>
+        <uint>reagent_count6</uint>
+        <uint>reagent_count7</uint>
+        <uint>reagent_count8</uint>
+        <uint refersTo="item_class.id" nullValues="4294967295">required_item_class</uint>
+        <int>required_item_sub_class_mask</int>
+        <int>required_item_inventory_type_mask</int>
+        <uint>effect1</uint>
+        <uint>effect2</uint>
+        <uint>effect3</uint>
+        <int>effect1_die_sides</int>
+        <int>effect2_die_sides</int>
+        <int>effect3_die_sides</int>
+        <int>effect1_base_dice</int>
+        <int>effect2_base_dice</int>
+        <int>effect3_base_dice</int>
+        <float>effect1_dice_per_level</float>
+        <float>effect2_dice_per_level</float>
+        <float>effect3_dice_per_level</float>
+        <float>effect1_real_points_per_level</float>
+        <float>effect2_real_points_per_level</float>
+        <float>effect3_real_points_per_level</float>
+        <int>effect1_base_points</int>
+        <int>effect2_base_points</int>
+        <int>effect3_base_points</int>
+        <uint refersTo="spell_mechanic.id" nullValues="0">effect1_mechanic</uint>
+        <uint refersTo="spell_mechanic.id" nullValues="0">effect2_mechanic</uint>
+        <uint refersTo="spell_mechanic.id" nullValues="0">effect3_mechanic</uint>
+        <uint>effect1_implicit_target_a</uint>
+        <uint>effect2_implicit_target_a</uint>
+        <uint>effect3_implicit_target_a</uint>
+        <uint>effect1_implicit_target_b</uint>
+        <uint>effect2_implicit_target_b</uint>
+        <uint>effect3_implicit_target_b</uint>
+        <uint refersTo="spell_raidus.id" nullValues="0">effect1_radius</uint>
+        <uint refersTo="spell_raidus.id" nullValues="0">effect2_radius</uint>
+        <uint refersTo="spell_raidus.id" nullValues="0">effect3_radius</uint>
+        <uint>effect1_apply_aura_name</uint>
+        <uint>effect2_apply_aura_name</uint>
+        <uint>effect3_apply_aura_name</uint>
+        <uint>effect1_amplitude</uint>
+        <uint>effect2_amplitude</uint>
+        <uint>effect3_amplitude</uint>
+        <float>effect1_multiple_value</float>
+        <float>effect2_multiple_value</float>
+        <float>effect3_multiple_value</float>
+        <uint>effect1_chain_target</uint>
+        <uint>effect2_chain_target</uint>
+        <uint>effect3_chain_target</uint>
+        <uint>effect1_required_item</uint>
+        <uint>effect2_required_item</uint>
+        <uint>effect3_required_item</uint>
+        <int>effect1_misc_value_a</int>
+        <int>effect2_misc_value_a</int>
+        <int>effect3_misc_value_a</int>
+        <int>effect1_misc_value_b</int>
+        <int>effect2_misc_value_b</int>
+        <int>effect3_misc_value_b</int>
+        <uint refersTo="spell.id" nullValues="0">effect1_trigger_spell</uint>
+        <uint refersTo="spell.id" nullValues="0">effect2_trigger_spell</uint>
+        <uint refersTo="spell.id" nullValues="0">effect3_trigger_spell</uint>
+        <float>effect1_points_per_combo_point</float>
+        <float>effect2_points_per_combo_point</float>
+        <float>effect3_points_per_combo_point</float>
+        <uint refersTo="spell_visual.id" nullValues="0">spell_visual1</uint>
+        <uint refersTo="spell_visual.id" nullValues="0">spell_visual2</uint>
+        <uint refersTo="spell_icon.id" nullValues="0">spell_icon_inactive</uint>
+        <uint refersTo="spell_icon.id" nullValues="0">spell_icon_active</uint>
+        <uint>priority</uint>
+        <localized_string>name</localized_string>
+        <localized_string>rank</localized_string>
+        <localized_string>description</localized_string>
+        <localized_string>tooltip</localized_string>
+        <uint>power_cost_percentage</uint>
+        <uint>start_recovery_category</uint>
+        <uint>start_recovery_time</uint>
+        <uint>target_level_max</uint>
+        <uint>spell_family_name</uint>
+        <uint>spell_family_flags1</uint>
+        <uint>spell_family_flags2</uint>
+        <uint>max_affected_targets</uint>
+        <uint>damage_class</uint>
+        <uint>prevention_type</uint>
+        <uint>stance_bar_order</uint>
+        <float>effect1_chain_amplitude</float>
+        <float>effect2_chain_amplitude</float>
+        <float>effect3_chain_amplitude</float>
+        <uint>required_faction</uint>
+        <uint>required_reputation</uint>
+        <uint>required_aura_vision</uint>
+        <uint refersTo="totem_category.id" nullValues="0">totem1_category</uint>
+        <uint refersTo="totem_category.id" nullValues="0">totem2_category</uint>
+        <uint refersTo="area_table.id" nullValues="0">required_area</uint>
+        <uint>resistances_mask</uint>
+    </format> 
+</file>

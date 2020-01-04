@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>faction_group</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint>mask</uint>
+        <string>internal_name</string>
+        <localized_string>name</localized_string>
+    </format> 
+</file>

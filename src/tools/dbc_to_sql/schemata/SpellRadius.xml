@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_radius</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <float>radius</float>
+        <float>radius_per_level</float>
+        <float>radius_max</float>
+    </format>
+</file>

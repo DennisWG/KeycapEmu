@@ -1,0 +1,31 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_model_data</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>flags</int>
+        <string>model</string>
+        <int>size_class</int>
+        <float>scale</float>
+        <uint refersTo="unit_blood_levels.id">blood_level</uint>
+        <uint refersTo="foodprint_textures.id">foodprint_texture</uint>
+        <float>foodprint_texture_length</float>
+        <float>foodprint_texture_width</float>
+        <float>foodprint_texture_scale</float>
+        <int>foley_material</int>
+        <uint refersTo="camera_shakes.id">footstep_shake</uint>
+        <uint refersTo="camera_shakes.id">death_shake</uint>
+        <uint refersTo="creature_sound_data.id">creature_sound_data</uint>
+        <float>collision_width</float>
+        <float>collision_height</float>
+        <float>mount_height</float>
+        <float>min_x</float>
+        <float>min_y</float>
+        <float>min_z</float>
+        <float>max_x</float>
+        <float>max_y</float>
+        <float>max_z</float>
+        <float>world_effect_scale</float>
+    </format> 
+</file>

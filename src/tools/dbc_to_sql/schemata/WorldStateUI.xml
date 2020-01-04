@@ -1,0 +1,22 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>world_state_ui</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <uint refersTo="area_table.id" nullValues="0">area</uint>
+        <string>icon</string>
+        <localized_string>text</localized_string>
+        <localized_string>tooltip</localized_string>
+        <int>state</int>
+        <int>world_state</int>
+        <uint>type</uint>
+        <string>dynamic_icon</string>
+        <localized_string>dynamic_tooltip</localized_string>
+        <string>extended_ui</string>
+        <uint>extended_ui_state_variable1</uint>
+        <uint>extended_ui_state_variable2</uint>
+        <uint>extended_ui_state_variable3</uint>
+    </format>
+</file>

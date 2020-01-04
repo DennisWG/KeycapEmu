@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>paper_doll_item_frame</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>icon</string>
+        <int>slot</int>
+    </format> 
+</file>

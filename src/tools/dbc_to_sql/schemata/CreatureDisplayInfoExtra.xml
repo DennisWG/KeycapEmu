@@ -1,0 +1,28 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_display_info_extra</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="chr_races.id">race</uint>
+        <int>female</int>
+        <int>skin_color</int>
+        <int>face_type</int>
+        <uint refersTo="char_hair_geosets.id">hair_type</uint>
+        <uint refersTo="char_sections.id">char_section</uint>
+        <int>beard_style</int>
+        <uint refersTo="item_display_info.id">helm_display_info</uint>
+        <uint refersTo="item_display_info.id">shoulder_display_info</uint>
+        <uint refersTo="item_display_info.id">shirt_display_info</uint>
+        <uint refersTo="item_display_info.id">chest_display_info</uint>
+        <uint refersTo="item_display_info.id">belt_display_info</uint>
+        <uint refersTo="item_display_info.id">legs_display_info</uint>
+        <uint refersTo="item_display_info.id">boots_display_info</uint>
+        <uint refersTo="item_display_info.id">wrist_display_info</uint>
+        <uint refersTo="item_display_info.id">gloves_display_info</uint>
+        <uint refersTo="item_display_info.id">tabard_display_info</uint>
+        <uint refersTo="item_display_info.id">cape_display_info</uint>
+        <int>can_equip</int>
+        <string>texture</string>
+    </format> 
+</file>

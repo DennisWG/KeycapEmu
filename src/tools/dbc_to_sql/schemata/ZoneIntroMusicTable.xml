@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>zone_intro_music_table</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint refersTo="sound_entries.id" nullValues="0">sound</uint>
+        <int>priority</int>
+        <int>min_delay_minutes</int>
+    </format>
+</file>

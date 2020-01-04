@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_class</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="item_sub_class.id">sub_class</uint>
+        <uint>flags</uint>
+        <localized_string>name</localized_string>
+    </format> 
+</file>

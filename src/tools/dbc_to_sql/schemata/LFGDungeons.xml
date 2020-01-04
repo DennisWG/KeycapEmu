@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>lfg_dungeons</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <int>min_level</int>
+        <int>max_level</int>
+        <int>type</int>
+        <int>faction</int>
+        <int>unk</int>
+        <int>expansion</int>
+    </format> 
+</file>

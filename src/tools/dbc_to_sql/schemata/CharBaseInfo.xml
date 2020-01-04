@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<file>
+    <name>char_base_info</name>
+    <version>2.4.3</version>
+    <format>
+        <byte refersTo="chr_races.id">race</byte>
+        <byte refersTo="chr_classes.id">class</byte>
+    </format>
+</file>

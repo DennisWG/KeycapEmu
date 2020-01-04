@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_sub_class_mask</name> 
+    <version>2.4.3</version> 
+    <format>
+        <uint refersTo="item_class.id">item_class</uint>
+        <uint>mask</uint>
+        <localized_string>name</localized_string>
+    </format> 
+</file>

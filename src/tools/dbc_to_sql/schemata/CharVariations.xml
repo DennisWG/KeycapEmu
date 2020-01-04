@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>char_variations</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <uint refersTo="chr_races.id">race</uint> 
+        <int>female</int>
+        <int>unk1</int>
+        <int>unk2</int>
+        <int>unk3</int>
+        <int>unk4</int>
+    </format> 
+</file>

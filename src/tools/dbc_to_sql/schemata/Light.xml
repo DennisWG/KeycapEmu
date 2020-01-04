@@ -1,0 +1,19 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>light</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <float>falloff_start</float>
+        <float>falloff_end</float>
+        <uint refersTo="light_params.id">standard_params</uint>
+        <uint refersTo="light_params.id">standard_underwater_params</uint>
+        <uint refersTo="light_params.id">params3</uint>
+        <uint refersTo="light_params.id">params4</uint>
+        <uint refersTo="light_params.id">params5</uint>
+    </format> 
+</file>

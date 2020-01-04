@@ -1,0 +1,37 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>durability_costs</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>weapon_sub_class_cost1</int>
+        <int>weapon_sub_class_cost2</int>
+        <int>weapon_sub_class_cost3</int>
+        <int>weapon_sub_class_cost4</int>
+        <int>weapon_sub_class_cost5</int>
+        <int>weapon_sub_class_cost6</int>
+        <int>weapon_sub_class_cost7</int>
+        <int>weapon_sub_class_cost8</int>
+        <int>weapon_sub_class_cost9</int>
+        <int>weapon_sub_class_cost10</int>
+        <int>weapon_sub_class_cost11</int>
+        <int>weapon_sub_class_cost12</int>
+        <int>weapon_sub_class_cost13</int>
+        <int>weapon_sub_class_cost14</int>
+        <int>weapon_sub_class_cost15</int>
+        <int>weapon_sub_class_cost16</int>
+        <int>weapon_sub_class_cost17</int>
+        <int>weapon_sub_class_cost18</int>
+        <int>weapon_sub_class_cost19</int>
+        <int>weapon_sub_class_cost20</int>
+        <int>weapon_sub_class_cost21</int>
+        <int>armor_sub_class_cost1</int>
+        <int>armor_sub_class_cost2</int>
+        <int>armor_sub_class_cost3</int>
+        <int>armor_sub_class_cost4</int>
+        <int>armor_sub_class_cost5</int>
+        <int>armor_sub_class_cost6</int>
+        <int>armor_sub_class_cost7</int>
+        <int>armor_sub_class_cost8</int>
+    </format> 
+</file>

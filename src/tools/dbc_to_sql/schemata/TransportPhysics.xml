@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>transport_physics</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <float>unk1</float>
+        <float>unk2</float>
+        <float>unk3</float>
+        <float>unk4</float>
+        <float>unk5</float>
+        <float>unk6</float>
+        <float>unk7</float>
+        <float>unk8</float>
+        <float>unk9</float>
+        <float>unk10</float>
+    </format>
+</file>

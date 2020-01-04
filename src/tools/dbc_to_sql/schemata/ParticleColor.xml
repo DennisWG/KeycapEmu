@@ -1,0 +1,17 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>particle_color</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>start1</int>
+        <int>start2</int>
+        <int>start3</int>
+        <int>mid1</int>
+        <int>mid2</int>
+        <int>mid3</int>
+        <int>end1</int>
+        <int>end2</int>
+        <int>end3</int>
+    </format> 
+</file>

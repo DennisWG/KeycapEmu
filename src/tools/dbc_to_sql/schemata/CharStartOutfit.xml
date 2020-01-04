@@ -1,0 +1,48 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>char_start_outfit</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary> 
+        <byte refersTo="chr_races.id">race</byte> 
+        <byte refersTo="chr_classes.id">class</byte> 
+        <byte>gender</byte> 
+        <byte>outfit_id</byte> 
+        <int>item_id1</int> 
+        <int>item_id2</int> 
+        <int>item_id3</int> 
+        <int>item_id4</int> 
+        <int>item_id5</int> 
+        <int>item_id6</int> 
+        <int>item_id7</int> 
+        <int>item_id8</int> 
+        <int>item_id9</int> 
+        <int>item_id10</int> 
+        <int>item_id11</int> 
+        <int>item_id12</int> 
+        <uint refersTo="Item_display_info.id">Item_display_info1</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info2</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info3</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info4</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info5</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info6</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info7</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info8</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info9</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info10</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info11</uint> 
+        <uint refersTo="Item_display_info.id">Item_display_info12</uint> 
+        <int>inventory_slot1</int> 
+        <int>inventory_slot2</int> 
+        <int>inventory_slot3</int> 
+        <int>inventory_slot4</int> 
+        <int>inventory_slot5</int> 
+        <int>inventory_slot6</int> 
+        <int>inventory_slot7</int> 
+        <int>inventory_slot8</int> 
+        <int>inventory_slot9</int> 
+        <int>inventory_slot10</int> 
+        <int>inventory_slot11</int> 
+        <int>inventory_slot12</int> 
+    </format> 
+</file>

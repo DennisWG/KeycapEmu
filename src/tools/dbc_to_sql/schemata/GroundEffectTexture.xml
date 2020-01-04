@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>ground_effect_texture</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int refersTo="ground_effect_doodad.id">ground_effect_doodad1</int>
+        <int refersTo="ground_effect_doodad.id">ground_effect_doodad2</int>
+        <int refersTo="ground_effect_doodad.id">ground_effect_doodad3</int>
+        <int refersTo="ground_effect_doodad.id">ground_effect_doodad4</int>
+        <uint>density</uint>
+        <uint refersTo="sound_entries.id">sound_entry</uint>
+    </format> 
+</file>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_duration</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>duration_base</int>
+        <int>duration_per_level</int>
+        <int>duration_max</int>
+    </format>
+</file>

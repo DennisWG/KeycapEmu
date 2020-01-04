@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>declined_word_cases</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="declined_word.id">word</uint>
+        <int>case</int>
+        <string>declined_word</string>
+    </format> 
+</file>

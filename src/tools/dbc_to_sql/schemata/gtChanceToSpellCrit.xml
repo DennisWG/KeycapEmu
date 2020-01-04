@@ -1,0 +1,8 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>gt_chance_to_spell_crit</name> 
+    <version>2.4.3</version> 
+    <format>
+        <float>ratio</float>
+    </format> 
+</file>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>vocal_ui_sounds</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>type</uint>
+        <uint refersTo="chr_races.id">race</uint>
+        <uint nullValues="0;4294967295">normal_sound_male</uint>
+        <uint nullValues="0;4294967295">normal_sound_female</uint>
+        <uint nullValues="0;4294967295">pissed_sound_male</uint>
+        <uint nullValues="0;4294967295">pissed_sound_female</uint>
+    </format>
+</file>

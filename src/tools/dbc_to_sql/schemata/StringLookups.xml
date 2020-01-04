@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>string_lookups</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>string</string>
+    </format>
+</file>

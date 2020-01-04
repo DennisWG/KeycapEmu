@@ -1,0 +1,26 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>loading_screen_taxi_splines</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="taxi_path.id">taxi_path</uint>
+        <float>location_x1</float>
+        <float>location_x2</float>
+        <float>location_x3</float>
+        <float>location_x4</float>
+        <float>location_x5</float>
+        <float>location_x6</float>
+        <float>location_x7</float>
+        <float>location_x8</float>
+        <float>location_y1</float>
+        <float>location_y2</float>
+        <float>location_y3</float>
+        <float>location_y4</float>
+        <float>location_y5</float>
+        <float>location_y6</float>
+        <float>location_y7</float>
+        <float>location_y8</float>
+        <int>leg_index</int>
+    </format> 
+</file>

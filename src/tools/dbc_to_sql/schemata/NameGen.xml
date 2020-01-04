@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>name_gen</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint refersTo="chr_races.id">race</uint>
+        <uint>female</uint>
+    </format> 
+</file>

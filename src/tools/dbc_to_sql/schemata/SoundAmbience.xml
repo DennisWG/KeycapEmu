@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sound_ambience</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id">day_sound</uint>
+        <uint refersTo="sound_entries.id">night_sound</uint>
+    </format> 
+</file>

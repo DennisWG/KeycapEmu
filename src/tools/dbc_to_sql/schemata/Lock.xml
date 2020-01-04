@@ -1,0 +1,40 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>lock</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="lock_type.id">lock_type1</uint>
+        <uint refersTo="lock_type.id">lock_type2</uint>
+        <uint refersTo="lock_type.id">lock_type3</uint>
+        <uint refersTo="lock_type.id">lock_type4</uint>
+        <uint refersTo="lock_type.id">lock_type5</uint>
+        <uint refersTo="lock_type.id">lock_type6</uint>
+        <uint refersTo="lock_type.id">lock_type7</uint>
+        <uint refersTo="lock_type.id">lock_type8</uint>
+        <uint>index1</uint>
+        <uint>index2</uint>
+        <uint>index3</uint>
+        <uint>index4</uint>
+        <uint>index5</uint>
+        <uint>index6</uint>
+        <uint>index7</uint>
+        <uint>index8</uint>
+        <uint>skill1</uint>
+        <uint>skill2</uint>
+        <uint>skill3</uint>
+        <uint>skill4</uint>
+        <uint>skill5</uint>
+        <uint>skill6</uint>
+        <uint>skill7</uint>
+        <uint>skill8</uint>
+        <uint>action1</uint>
+        <uint>action2</uint>
+        <uint>action3</uint>
+        <uint>action4</uint>
+        <uint>action5</uint>
+        <uint>action6</uint>
+        <uint>action7</uint>
+        <uint>action8</uint>
+    </format> 
+</file>

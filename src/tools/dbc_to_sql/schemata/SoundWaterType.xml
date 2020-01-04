@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sound_water_type</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint>sound_type</uint>
+        <uint>sound_sub_type</uint>
+        <uint refersTo="sound_entries.id">sound_entry</uint>
+    </format> 
+</file>

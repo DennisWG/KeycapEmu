@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>light_skybox</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>path</string>
+        <uint>flags</uint>
+    </format> 
+</file>

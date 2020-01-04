@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_type</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="spell.id">spell1</uint>
+        <uint refersTo="spell.id">spell2</uint>
+        <uint refersTo="spell.id">spell3</uint>
+        <uint refersTo="spell.id">spell4</uint>
+        <int>cooldown1</int>
+        <int>cooldown2</int>
+        <int>cooldown3</int>
+        <int>cooldown4</int>
+    </format> 
+</file>

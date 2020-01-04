@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sheathe_sound_lookups</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="item_class.id">item_class</uint>
+        <uint refersTo="item_sub_class.id">item_sub_class</uint>
+        <uint refersTo="material.id">material</uint>
+        <int>check_material</int>
+        <uint refersTo="sound_entries.id">sheath_sound</uint>
+        <uint refersTo="sound_entries.id">unsheath_sound</uint>
+    </format> 
+</file>

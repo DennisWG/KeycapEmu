@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<file>
+    <name>cfg_configs</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint>type</uint>
+        <uint>is_pvp</uint>
+        <uint>is_rp</uint>
+    </format>
+</file>

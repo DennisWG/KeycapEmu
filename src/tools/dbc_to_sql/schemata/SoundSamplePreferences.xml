@@ -1,0 +1,24 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>sound_sample_preferences</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <int>unk1</int>
+        <int>unk2</int>
+        <int>unk3</int>
+        <int>unk4</int>
+        <int>unk5</int>
+        <float>unk6</float>
+        <int>unk7</int>
+        <float>unk8</float>
+        <float>unk9</float>
+        <int>unk10</int>
+        <float>unk11</float>
+        <int>unk12</int>
+        <float>unk13</float>
+        <float>unk14</float>
+        <float>unk15</float>
+        <int>unk16</int>
+    </format> 
+</file>

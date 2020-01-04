@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>death_thud_lookups</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>size_class</int>
+        <uint refersTo="terrain_type.id">terrain_type</uint>
+        <uint refersTo="sound_entries.id">ground_sound</uint>
+        <uint refersTo="sound_entries.id">water_sound</uint>
+    </format> 
+</file>

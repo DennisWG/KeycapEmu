@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>talent_tab</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <localized_string>name</localized_string>
+        <uint refersTo="spell_icon.id">spell_icon</uint>
+        <uint>race_mask</uint>
+        <uint>class_mask</uint>
+        <uint>order_index</uint>
+        <string>file</string>
+    </format>
+</file>

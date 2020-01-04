@@ -1,0 +1,32 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_display_info</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>model_name1</string>
+        <string>model_name2</string>
+        <string>model_texture1</string>
+        <string>model_texture2</string>
+        <string>inventory_icon1</string>
+        <string>inventory_icon2</string>
+        <uint>geoset1</uint>
+        <uint>geoset2</uint>
+        <uint>geoset3</uint>
+        <uint>flags</uint>
+        <uint refersTo="spell_visual.id">spell_visual</uint>
+        <uint refersTo="item_group_sound.id">item_group_sound</uint>
+        <uint refersTo="helmet_geoset_vis_data.id">helmet_geoset_vis_data_male</uint>
+        <uint refersTo="helmet_geoset_vis_data.id">helmet_geoset_vis_data_female</uint>
+        <string>upper_arm_texture</string>
+        <string>lower_arm_texture</string>
+        <string>hands_texture</string>
+        <string>upper_torso_texture</string>
+        <string>lower_torso_texture</string>
+        <string>upper_leg_texture</string>
+        <string>lower_leg_texture</string>
+        <string>foot_texture</string>
+        <uint refersTo="item_visuals.id">item_visuals</uint>
+        <uint refersTo="particle_color.id">particle_color</uint>
+    </format> 
+</file>

@@ -1,0 +1,28 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>talent</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="talent_tab.id">talent_tab</uint>
+        <int>tier</int>
+        <int>coloumn_index</int>
+        <uint refersTo="spell.id" nullValues="0">spell_rank1</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank2</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank3</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank4</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank5</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank6</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank7</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank8</uint>
+        <uint refersTo="spell.id" nullValues="0">spell_rank9</uint>
+        <uint refersTo="talent.id" nullValues="0">required_talent1</uint>
+        <uint refersTo="talent.id" nullValues="0">required_talent2</uint>
+        <uint refersTo="talent.id" nullValues="0">required_talent3</uint>
+        <int>required_points1</int>
+        <int>required_points2</int>
+        <int>required_points3</int>
+        <int>flags</int>
+        <uint refersTo="spell.id" nullValues="0">required_spell</uint>
+    </format>
+</file>

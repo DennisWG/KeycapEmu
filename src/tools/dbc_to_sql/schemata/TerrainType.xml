@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>terrain_type</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>name</string>
+        <uint refersTo="spell_visual_effect_name.id" nullValues="0">footstep_spray_run</uint>
+        <uint refersTo="spell_visual_effect_name.id" nullValues="0">footstep_spray_walk</uint>
+        <uint refersTo="terrain_type_sound.id">sound</uint>
+        <uint>flags</uint>
+    </format>
+</file>

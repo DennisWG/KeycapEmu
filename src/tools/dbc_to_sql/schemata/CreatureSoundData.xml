@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_sound_data</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="sound_entries.id">exertion</uint>
+        <uint refersTo="sound_entries.id">exertion_critical</uint>
+        <uint refersTo="sound_entries.id">injury</uint>
+        <uint refersTo="sound_entries.id">injury_critical</uint>
+        <uint refersTo="sound_entries.id">injury_crushing_blow</uint>
+        <uint refersTo="sound_entries.id">dead</uint>
+        <uint refersTo="sound_entries.id">stun</uint>
+        <uint refersTo="sound_entries.id">stand</uint>
+        <uint refersTo="footstep_terrain_lookup.footstep_id">footstep_terrain_lookup</uint>
+        <uint refersTo="sound_entries.id">aggro</uint>
+        <uint refersTo="sound_entries.id">wing_flap</uint>
+        <uint refersTo="sound_entries.id">wing_glide</uint>
+        <uint refersTo="sound_entries.id">alert</uint>
+        <uint refersTo="sound_entries.id">fidget1</uint>
+        <uint refersTo="sound_entries.id">fidget2</uint>
+        <uint refersTo="sound_entries.id">fidget3</uint>
+        <uint refersTo="sound_entries.id">fidget4</uint>
+        <uint refersTo="sound_entries.id">fidget5</uint>
+        <uint refersTo="sound_entries.id">custom_attack1</uint>
+        <uint refersTo="sound_entries.id">custom_attack2</uint>
+        <uint refersTo="sound_entries.id">custom_attack3</uint>
+        <uint refersTo="sound_entries.id">custom_attack4</uint>
+        <uint refersTo="sound_entries.id">npc</uint>
+        <uint refersTo="sound_entries.id">loop</uint>
+        <uint refersTo="sound_entries.id">creature_impact</uint>
+        <uint refersTo="sound_entries.id">jump_start</uint>
+        <uint refersTo="sound_entries.id">jump_end</uint>
+        <uint refersTo="sound_entries.id">pet_attack</uint>
+        <uint refersTo="sound_entries.id">pet_order</uint>
+        <uint refersTo="sound_entries.id">pet_dismiss</uint>
+        <float>fidget_delay_seconds_min</float>
+        <float>fidget_delay_seconds_max</float>
+        <uint refersTo="sound_entries.id">birth</uint>
+        <uint refersTo="sound_entries.id">spell_cast_directed</uint>
+        <uint refersTo="sound_entries.id">submerge</uint>
+        <uint refersTo="sound_entries.id">submerged</uint>
+    </format> 
+</file>

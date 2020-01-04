@@ -1,0 +1,11 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="item_display_info.id">item_display_info</uint>
+        <int>inventory_slot</int>
+        <uint refersTo="item_class.id">item_class</uint>
+    </format> 
+</file>

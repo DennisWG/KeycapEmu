@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<file>
+    <name>area_table</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint refersTo="map.id">map</uint>
+        <uint refersTo="area_table.id">parent</uint>
+        <uint>area_bit</uint>
+        <uint>flags</uint>
+        <uint refersTo="sound_provider_preferences.id">sound_provider_preference</uint>
+        <uint refersTo="sound_provider_preferences.id">sound_provider_preference_underwater</uint>
+        <uint refersTo="sound_ambience.id">sound_ambience</uint>
+        <uint refersTo="zone_music.id">zone_music</uint>
+        <uint refersTo="zone_intro_music.id">zone_intro_music</uint>
+        <int>desired_level</int>
+        <localized_string>name</localized_string>
+        <uint>faction_mask</uint>
+        <uint refersTo="liquid_type.id">liquid_type_river</uint>
+        <uint refersTo="liquid_type.id">liquid_type_ocean</uint>
+        <uint refersTo="liquid_type.id">liquid_type_magma</uint>
+        <uint refersTo="liquid_type.id">liquid_type_slime</uint>
+        <float>min_height</float>
+        <float>light_multiplier</float>
+    </format>
+</file>

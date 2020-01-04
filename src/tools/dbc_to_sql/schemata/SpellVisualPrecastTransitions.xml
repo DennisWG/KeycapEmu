@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>spell_visual_precast_transitions</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <string>precast_load_animation</string>
+        <string>precast_hold_animation</string>
+    </format>
+</file>

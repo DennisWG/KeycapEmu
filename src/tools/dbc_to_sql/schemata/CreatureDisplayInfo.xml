@@ -1,0 +1,21 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>creature_display_info</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <uint refersTo="creature_model_data.id">model_data</uint>
+        <uint refersTo="creature_sound_data.id">sound_data</uint>
+        <uint refersTo="creature_display_info_extra.id">display_info_extra</uint>
+        <float>scale</float>
+        <int>opacity</int>
+        <string>texture1</string>
+        <string>texture2</string>
+        <string>texture3</string>
+        <string>portrait</string>
+        <uint refersTo="unit_blood_levels.id">blood_level</uint>
+        <uint refersTo="unit_blood.id">unit_blood</uint>
+        <uint refersTo="npc_sounds.id">npc_sound</uint>
+        <uint refersTo="particle_colors.id">particle_color</uint>
+    </format> 
+</file>

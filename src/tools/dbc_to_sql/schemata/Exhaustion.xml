@@ -1,0 +1,14 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>exhaustion</name> 
+    <version>2.4.3</version> 
+    <format> 
+        <primary>id</primary>
+        <int>xp</int>
+        <float>factor</float>
+        <float>outdoor_hours</float>
+        <float>inn_hours</float>
+        <localized_string>name</localized_string>
+        <float>threshold</float>
+    </format> 
+</file>

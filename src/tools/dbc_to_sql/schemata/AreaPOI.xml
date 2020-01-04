@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<file>
+    <name>area_poi</name>
+    <version>2.4.3</version>
+    <format>
+        <primary>id</primary>
+        <uint>importance</uint>
+        <uint>icon</uint>
+        <uint>faction</uint>
+        <float>x</float>
+        <float>y</float>
+        <float>z</float>
+        <uint refersTo="map.id">map</uint>
+        <uint>flags</uint>
+        <uint refersTo="area_table.id">area</uint>
+        <localized_string>name</localized_string>
+        <localized_string>description</localized_string>
+        <uint>worldState</uint>
+    </format>
+</file>

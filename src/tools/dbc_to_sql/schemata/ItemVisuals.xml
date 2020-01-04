@@ -1,0 +1,13 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>item_visuals</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="item_visual_effects.id">visual_effect1</uint>
+        <uint refersTo="item_visual_effects.id">visual_effect2</uint>
+        <uint refersTo="item_visual_effects.id">visual_effect3</uint>
+        <uint refersTo="item_visual_effects.id">visual_effect4</uint>
+        <uint refersTo="item_visual_effects.id">visual_effect5</uint>
+    </format> 
+</file>

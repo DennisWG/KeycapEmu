@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<file> 
+    <name>gm_survey_current_survey</name> 
+    <version>2.4.3</version> 
+    <format>
+        <primary>id</primary>
+        <uint refersTo="gm_survey_surveys.id">gm_survey_survey</uint>
+    </format> 
+</file>
