@@ -136,8 +136,8 @@ namespace dbc_to_sql
 
             head_.rowCount = reader.ReadUInt32();
             head_.coloumnCount = reader.ReadUInt32();
-            head_.coloumnSize = (uint)Math.Ceiling(reader.ReadInt32() / (float)head_.coloumnCount);
-            head_.stringBegin = head_.coloumnSize * head_.coloumnCount * head_.rowCount + headerSize;
+            head_.recordSize = reader.ReadUInt32();
+            head_.stringBegin = (uint)(head_.recordSize / head_.coloumnCount * head_.coloumnCount * head_.rowCount + headerSize);
             head_.stringLength = reader.ReadUInt32();
         }
 
@@ -370,9 +370,9 @@ namespace dbc_to_sql
             /// </summary>
             public uint coloumnCount;
             /// <summary>
-            /// The size of a field within a coloumn
+            /// The size of an record (the whole row)
             /// </summary>
-            public uint coloumnSize;
+            public uint recordSize;
             /// <summary>
             /// Points to the beginning of the string block within the Dbc file
             /// </summary>

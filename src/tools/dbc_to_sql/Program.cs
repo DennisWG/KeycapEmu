@@ -107,7 +107,7 @@ namespace dbc_to_sql
 
             Console.WriteLine("Rows: " + head.rowCount);
             Console.WriteLine("Coloumns: " + head.coloumnCount);
-            Console.WriteLine("Coloumn size: " + head.coloumnSize);
+            Console.WriteLine("Record size: " + head.recordSize);
             Console.WriteLine("String begin: " + head.stringBegin);
             Console.WriteLine("String length: " + head.stringLength);
         }
