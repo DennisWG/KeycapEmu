@@ -137,7 +137,7 @@ namespace dbc_to_sql
             head_.rowCount = reader.ReadUInt32();
             head_.coloumnCount = reader.ReadUInt32();
             head_.recordSize = reader.ReadUInt32();
-            head_.stringBegin = (uint)(head_.recordSize / head_.coloumnCount * head_.coloumnCount * head_.rowCount + headerSize);
+            head_.stringBegin = (uint)((float)head_.recordSize / head_.coloumnCount * head_.coloumnCount * head_.rowCount + headerSize);
             head_.stringLength = reader.ReadUInt32();
         }
 

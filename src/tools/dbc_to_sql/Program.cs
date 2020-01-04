@@ -155,6 +155,7 @@ namespace dbc_to_sql
             catch (ArgumentException e)
             {
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 Console.WriteLine("Write '{0}' without arguments to get a help prompt", System.AppDomain.CurrentDomain.FriendlyName);
                 return;
             }
