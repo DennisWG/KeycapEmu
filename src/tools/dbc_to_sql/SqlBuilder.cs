@@ -207,7 +207,7 @@ namespace dbc_to_sql
             switch (type.Name)
             {
                 default: return "UNSUPPORTED " + type.Name;
-                case "Byte": return "TINYINT";
+                case "Byte": return "TINYINT UNSIGNED";
                 case "UInt32": return "INT UNSIGNED";
                 case "Int32": return "INT";
                 case "String": return "TEXT";
