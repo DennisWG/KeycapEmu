@@ -25,6 +25,9 @@ enum shared_command : byte
 	reply_account_id = 11,
 
     login_telemetry = 12,
+
+    char_create = 13,
+    reply_char_create = 14,
 }
 
 message request_account_data
@@ -142,4 +145,19 @@ message login_telemetry
 
     string account_name;
     [zero_terminated] string telemetry;
+}
+
+message char_create
+{
+    shared_command cmd = "shared_command::char_create";
+    
+	uint8 realm_id;
+	uint32 account_id;
+    char_data data;
+}
+
+message reply_char_create
+{
+    shared_command cmd = "shared_command::reply_char_create";
+    char_create_result result;
 }

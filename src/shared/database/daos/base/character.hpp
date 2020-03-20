@@ -15,6 +15,7 @@
 */
 
 #include <generated/character.hpp>
+#include <generated/character_select.hpp>
 
 #include <functional>
 #include <optional>
@@ -27,11 +28,20 @@ namespace keycap::shared::database::dal
         virtual ~character_dao()
         {
         }
+        
+        // Retreives the highest character id
+        // This will block the thread until the operation is finished!
+        virtual uint32 last_id() const = 0;
 
         using character_callback = std::function<void(std::vector<shared::database::character>)>;
 
         // Retreives all characters from the given realm with the given user id from the database and then calls the
         // given callback
         virtual void realm_characters(uint8 realm, uint32 user, character_callback callback) const = 0;
+
+        using create_character_callback = std::function<void(keycap::protocol::char_create_result result)>;
+        virtual void create_character(uint8 realm, uint32 character, uint32 user, keycap::protocol::char_data const& data, create_character_callback callback) const = 0;
+
+        virtual void delete_character(uint32 character) const = 0;
     };
 }

@@ -14,11 +14,13 @@
     limitations under the License.
 */
 
+#include "character_id_provider.hpp"
 #include "cli/registrar.hpp"
 #include "network/connection.hpp"
 
 #include <cli/helpers.hpp>
 #include <crash_dump.hpp>
+#include <database/daos/character.hpp>
 #include <database/database.hpp>
 #include <logging/utility.hpp>
 #include <rbac/rbac.hpp>
@@ -157,7 +159,11 @@ int main()
                              },
                              "Shuts down the Server"s});
 
-    keycap::accountserver::account_service service{config.network.threads};
+    auto character_dao = keycap::shared::database::dal::get_character_dao(get_login_database());
+
+    keycap::accountserver::character_id_provider character_id_provider{character_dao->last_id()};
+
+    keycap::accountserver::account_service service{config.network.threads, character_id_provider};
     service.start(config.network.bind_ip, config.network.port);
 
     keycap::shared::cli::run_command_line(

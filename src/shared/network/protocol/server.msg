@@ -5,8 +5,12 @@ protocol server;
 enum server_command : word
 {
     invalid = 0,
-    char_enum = 59,
+
     auth_srp6_response = 57,
+    char_create = 58,
+    char_enum = 59,
+    char_delete = 60,
+    new_world = 62,
 
     pong = 477,
 

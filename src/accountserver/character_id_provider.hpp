@@ -14,24 +14,21 @@
     limitations under the License.
 */
 
-#include <generated/realm.hpp>
+#pragma once
 
-#include <functional>
-#include <optional>
-#include <vector>
+#include <atomic>
 
-namespace keycap::shared::database::dal
+namespace keycap::accountserver
 {
-    class realm_dao
+    class character_id_provider
     {
       public:
-        virtual ~realm_dao()
-        {
-        }
+        character_id_provider(uint32_t start_id);
 
-        using realm_callback = std::function<void(std::optional<shared::database::realm>)>;
+        uint32_t character_id() const;
+        uint32_t generate_next();
 
-        // Retreives the realm with the given id from the database and then calls the given callback
-        virtual void realm(uint8 id, realm_callback callback) const = 0;
+      private:
+        std::atomic_uint32_t character_id_;
     };
 }

@@ -15,6 +15,7 @@
 */
 
 #include "connection.hpp"
+#include "../character_id_provider.hpp"
 
 #include <generated/shared_protocol.hpp>
 
@@ -33,8 +34,10 @@ extern keycap::shared::database::database& get_login_database();
 
 namespace keycap::accountserver
 {
-    connection::connection(net::service_base& service)
-      : net::service_connection{service}
+    connection::connection(boost::asio::ip::tcp::socket socket, net::service_base& service,
+                           character_id_provider& character_id_provider)
+      : net::service_connection{std::move(socket), service}
+      , character_id_provider_{character_id_provider}
     {
         router_.configure_inbound(this);
     }
@@ -145,6 +148,11 @@ namespace keycap::accountserver
             {
                 auto packet = protocol::login_telemetry::decode(stream);
                 return on_login_telemetry(connection_ptr, sender, packet);
+            }
+            case protocol::shared_command::char_create:
+            {
+                auto packet = protocol::char_create::decode(stream);
+                return on_char_create(connection_ptr, sender, packet);
             }
         }
     }
@@ -280,6 +288,28 @@ namespace keycap::accountserver
     {
         auto telemetry_dao = shared::database::dal::get_user_telemetry_dao(get_login_database());
         telemetry_dao->add_telemetry_data(packet.account_name, packet.telemetry);
+
+        return shared::network::state_result::ok;
+    }
+
+    shared::network::state_result
+    connection::connected::on_char_create(std::weak_ptr<accountserver::connection>& connection_ptr, uint64 sender,
+                                          protocol::char_create& packet)
+    {
+        auto character_dao = shared::database::dal::get_character_dao(get_login_database());
+
+        auto callback = [sender, connection = connection_ptr](keycap::protocol::char_create_result result) {
+            if (connection.expired())
+                return;
+
+            protocol::reply_char_create reply;
+            reply.result = result;
+
+            connection.lock()->send_answer(sender, reply.encode());
+        };
+
+        auto char_id = (*connection_ptr.lock()).character_id_provider_.generate_next();
+        character_dao->create_character(packet.realm_id, char_id, packet.account_id, packet.data, callback);
 
         return shared::network::state_result::ok;
     }

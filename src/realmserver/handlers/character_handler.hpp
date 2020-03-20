@@ -33,6 +33,7 @@ namespace keycap::realmserver
       public:
         explicit character_handler(player_session& session, keycap::root::network::service_locator& locator);
 
+        bool handle_char_create(keycap::protocol::client_char_create packet);
         bool handle_char_enum(keycap::protocol::client_char_enum packet);
 
         bool handle_realm_split(keycap::protocol::client_realm_split pakcet);

@@ -43,14 +43,19 @@ namespace keycap::protocol
     class request_account_id_from_name;
 
     class login_telemetry;
+
+    class char_create;
 }
 
 namespace keycap::accountserver
 {
+    class character_id_provider;
+
     class connection : public keycap::root::network::service_connection
     {
       public:
-        explicit connection(keycap::root::network::service_base& service);
+        explicit connection(boost::asio::ip::tcp::socket socket, keycap::root::network::service_base& service,
+                            character_id_provider& character_id_provider);
 
         bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      uint64 sender, keycap::root::network::memory_stream& stream) override;
@@ -103,10 +108,15 @@ namespace keycap::accountserver
 
             shared::network::state_result on_login_telemetry(std::weak_ptr<accountserver::connection>& connection_ptr,
                                                              uint64 sender, protocol::login_telemetry& packet);
+
+            shared::network::state_result on_char_create(std::weak_ptr<accountserver::connection>& connection_ptr,
+                                                         uint64 sender, protocol::char_create& packet);
         };
 
         std::variant<disconnected, connected> state_;
 
         keycap::root::network::memory_stream input_stream_;
+
+        character_id_provider& character_id_provider_;
     };
 }

@@ -29,6 +29,18 @@ namespace keycap::shared::database::dal
         {
         }
 
+        virtual uint32 last_id() const override
+        {
+            static auto statement = database_.prepare_statement("SELECT MAX(`id`) "
+                                                                "FROM `character` ");
+
+            auto result = statement.query();
+            if (!result || !result->next())
+                return 0;
+
+            return result->getUInt("MAX(`id`)");
+        }
+
         void realm_characters(uint8 realm, uint32 user, character_callback callback) const override
         {
             static auto statement = database_.prepare_statement("SELECT c.*, i.* "
@@ -74,6 +86,94 @@ namespace keycap::shared::database::dal
             };
 
             statement.query_async(whenDone);
+        }
+
+        virtual void create_character(uint8 realm, uint32 character, uint32 user,
+                                      keycap::protocol::char_data const& data,
+                                      create_character_callback callback) const override
+        {
+            static auto statement = database_.prepare_statement("SELECT c.*, r. * "
+                                                                "FROM realm_character r "
+                                                                "INNER JOIN `character` c ON r.`character` = c.id "
+                                                                "WHERE (realm = ? AND name = ?) OR id = ?;");
+
+            static auto create_character = database_.prepare_statement(
+                "INSERT INTO `character`(id, name, race, player_class, gender, skin, face, hair_style, hair_color, "
+                "facial_hair, level, zone, map, x, y, z, guild, flags, first_login, active_pet) VALUES "
+                "( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+
+            static auto create_realm_character = database_.prepare_statement("INSERT INTO realm_character VALUES "
+                                                                             "( ?, ?, ? );");
+
+            statement.add_parameter(realm);
+            statement.add_parameter(data.name);
+            statement.add_parameter(character);
+
+            auto whenDone = [callback, data, this, realm, character, user](std::unique_ptr<sql::ResultSet> result) {
+                if (!result || result->next())
+                    return callback(keycap::protocol::char_create_result::name_unavailable);
+
+                create_character.add_parameter(character);
+                create_character.add_parameter(data.name);
+                create_character.add_parameter(data.race);
+                create_character.add_parameter(data.player_class);
+                create_character.add_parameter(data.gender);
+                create_character.add_parameter(data.skin);
+                create_character.add_parameter(data.face);
+                create_character.add_parameter(data.hair_style);
+                create_character.add_parameter(data.hair_color);
+                create_character.add_parameter(data.facial_hair);
+                create_character.add_parameter(data.level);
+                create_character.add_parameter(data.zone);
+                create_character.add_parameter(data.map);
+                create_character.add_parameter(data.x);
+                create_character.add_parameter(data.y);
+                create_character.add_parameter(data.z);
+                create_character.add_parameter(data.guild_id);
+                create_character.add_parameter(data.flags);
+                create_character.add_parameter(data.first_login);
+                create_character.add_parameter(data.pet_display_id);
+
+                auto when_created = [this, realm, character, user, callback](bool success) {
+                    if (!success)
+                        return callback(keycap::protocol::char_create_result::failed);
+
+                    create_realm_character.add_parameter(realm);
+                    create_realm_character.add_parameter(character);
+                    create_realm_character.add_parameter(user);
+
+                    auto when_realm_char_created = [this, character, callback](bool success) {
+                        if (!success)
+                        {
+                            delete_character(character);
+                            return callback(keycap::protocol::char_create_result::error);
+                        }
+
+                        callback(keycap::protocol::char_create_result::success);
+                    };
+
+                    create_realm_character.execute_async(when_realm_char_created);
+                };
+
+                create_character.execute_async(when_created);
+
+                //
+            };
+
+            statement.query_async(whenDone);
+        }
+
+        virtual void delete_character(uint32 character) const override
+        {
+            static auto delete_realm_character
+                = database_.prepare_statement("DELETE from realm_character WHERE `character` = ?");
+            static auto delete_character = database_.prepare_statement("DELETE from `character` WHERE id = ?");
+
+            delete_realm_character.add_parameter(character);
+            delete_character.add_parameter(character);
+
+            delete_realm_character.execute_async();
+            delete_character.execute_async();
         }
 
       private:

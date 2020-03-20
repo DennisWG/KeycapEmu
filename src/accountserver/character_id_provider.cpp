@@ -14,24 +14,23 @@
     limitations under the License.
 */
 
-#include <generated/realm.hpp>
+#include "character_id_provider.hpp"
 
-#include <functional>
-#include <optional>
-#include <vector>
-
-namespace keycap::shared::database::dal
+namespace keycap::accountserver
 {
-    class realm_dao
+    character_id_provider::character_id_provider(uint32_t start_id)
+      : character_id_{start_id}
     {
-      public:
-        virtual ~realm_dao()
-        {
-        }
+    }
 
-        using realm_callback = std::function<void(std::optional<shared::database::realm>)>;
+    uint32_t character_id_provider::character_id() const
+    {
+        return character_id_;
+    }
 
-        // Retreives the realm with the given id from the database and then calls the given callback
-        virtual void realm(uint8 id, realm_callback callback) const = 0;
-    };
+    uint32_t character_id_provider::generate_next()
+    {
+        ++character_id_;
+        return character_id();
+    }
 }

@@ -23,19 +23,23 @@
 namespace keycap::accountserver
 {
     class connection;
+    class character_id_provider;
 
     class account_service : public keycap::root::network::service<connection>
     {
       public:
-        explicit account_service(int thread_count)
+        explicit account_service(int thread_count, character_id_provider& character_id_provider)
           : service{keycap::root::network::service_mode::Server, shared::network::account_service_type, thread_count}
+          , character_id_provider_{character_id_provider}
         {
         }
 
       protected:
-        virtual SharedHandler make_handler() override
+        virtual SharedHandler make_handler(boost::asio::ip::tcp::socket socket) override
         {
-            return std::make_shared<connection>(*this);
+            return std::make_shared<connection>(std::move(socket), *this, character_id_provider_);
         }
+
+        character_id_provider& character_id_provider_;
     };
 }

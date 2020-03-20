@@ -14,6 +14,7 @@
 
 add_executable(accountserver
     main.cpp
+    character_id_provider.cpp
     cli/account.cpp
     cli/help.cpp
     network/connection.cpp

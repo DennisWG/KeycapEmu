@@ -44,6 +44,75 @@ namespace keycap::realmserver
 
         keycap_add_handler(keycap::protocol::client_command::char_enum, this, &character_handler::handle_char_enum);
         keycap_add_handler(keycap::protocol::client_command::realm_split, this, &character_handler::handle_realm_split);
+        keycap_add_handler(keycap::protocol::client_command::char_create, this, &character_handler::handle_char_create);
+    }
+
+    bool character_handler::handle_char_create(keycap::protocol::client_char_create packet)
+    {
+        keycap::protocol::char_create request;
+        keycap::protocol::char_data data{
+            0,                   // uint64 guid; - created by the account server
+            packet.name,         // string name;
+            packet.race,         // uint8 race;
+            packet.player_class, // uint8 player_class;
+            packet.gender,       // uint8 gender;
+            packet.skin,         // uint8 skin;
+            packet.face,         // uint8 face;
+            packet.hair_style,   // uint8 hair_style;
+            packet.hair_color,   // uint8 hair_color;
+            packet.facial_hair,  // uint8 facial_hair;
+            1,                   // uint8 level;
+            0,                   // uint32 zone;
+            0,                   // uint32 map;
+            0,                   // float x;
+            0,                   // float y;
+            0,                   // float z;
+            0,                   // uint32 guild_id;
+            0,                   // uint32 flags;
+            0,                   // uint8 first_login;
+            0,                   // uint32 pet_display_id;
+            0,                   // uint32 pet_level;
+            0,                   // uint32 pet_family;
+            // char_item_data[20] items;
+        };
+
+        request.realm_id = get_realm_id();
+        request.account_id = session_.account_id();
+        request.data = data;
+
+        auto on_reply = [session = &session_](net::service_type sender, net::memory_stream data) {
+            if (data.peek<keycap::protocol::shared_command>() != keycap::protocol::shared_command::reply_char_create)
+                return false;
+
+            auto reply = keycap::protocol::reply_char_create::decode(data);
+
+            keycap::protocol::server_char_create answer;
+            answer.result = reply.result;
+
+            session->send(answer.encode());
+
+            return true;
+        };
+
+        locator_.send_registered(shared_net::account_service_type, request.encode(), get_net_service(), on_reply);
+
+        /*
+        static uint8 result = 47;
+
+        keycap::root::network::memory_stream encoder;
+        auto position_size = static_cast<uint16>(encoder.size());
+        encoder.put<uint16>(0);
+        encoder.put(keycap::protocol::server_command::char_create);
+        encoder.put<uint8>(result);
+
+        auto position_size_value
+            = std::max<uint16>(0, static_cast<uint16>(encoder.size() - sizeof(uint16) - position_size));
+        encoder.override(boost::endian::endian_reverse(position_size_value), position_size);
+
+        session_.send(encoder);
+        //*/
+
+        return false;
     }
 
     bool character_handler::handle_char_enum(keycap::protocol::client_char_enum packet)
