@@ -42,7 +42,7 @@ namespace keycap::realmserver
 
         virtual bool on_new_connection(SharedHandler handler) override;
 
-        virtual SharedHandler make_handler() override;
+        virtual SharedHandler make_handler(boost::asio::ip::tcp::socket socket) override;
 
       private:
         root::network::service_locator& locator_;

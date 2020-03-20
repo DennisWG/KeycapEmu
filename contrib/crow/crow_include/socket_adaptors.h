@@ -14,12 +14,13 @@ namespace crow
         using context = void;
         SocketAdaptor(boost::asio::io_service& io_service, context*)
             : socket_(io_service)
+            , io_service_(io_service)
         {
         }
 
         boost::asio::io_service& get_io_service()
         {
-            return socket_.get_io_service();
+            return io_service_;
         }
 
         tcp::socket& raw_socket()
@@ -55,6 +56,7 @@ namespace crow
         }
 
         tcp::socket socket_;
+        boost::asio::io_service& io_service_;
     };
 
 #ifdef CROW_ENABLE_SSL

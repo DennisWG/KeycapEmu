@@ -36,19 +36,18 @@ namespace net = keycap::root::network;
 
 namespace keycap::logonserver
 {
-    client_connection::client_connection(net::service_base& service, keycap::root::network::service_locator& locator,
-                                         realm_manager& realm_manager)
-      : base_connection{service}
+    client_connection::client_connection(boost::asio::ip::tcp::socket socket, net::service_base& service,
+                                         net::service_locator& locator, realm_manager& realm_manager)
+      : base_connection{std::move(socket), service}
       , locator_{locator}
       , realm_manager_{realm_manager}
     {
         router_.configure_inbound(this);
     }
 
-    bool client_connection::on_data(net::data_router const& router, net::service_type service,
-                                    std::vector<uint8_t> const& data)
+    bool client_connection::on_data(net::data_router const& router, net::service_type service, gsl::span<uint8_t> data)
     {
-        input_stream_.put(gsl::make_span(data));
+        input_stream_.put(data);
         // clang-format off
         auto result = std::visit([&](auto& state) -> shared::network::state_result
         {

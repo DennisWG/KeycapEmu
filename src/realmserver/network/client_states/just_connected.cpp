@@ -44,8 +44,7 @@ namespace keycap::realmserver
         std::copy(seed2.begin(), seed2.end(), challange.seed2.begin());
         std::copy(seed3.begin(), seed3.end(), challange.seed3.begin());
 
-        auto stream = challange.encode();
-        connection.send(stream);
+        connection.send(challange.encode());
     }
 
     client_connection::state_result client_connection::just_connected::on_data(client_connection& connection,

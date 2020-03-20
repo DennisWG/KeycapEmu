@@ -55,10 +55,8 @@ namespace keycap::logonserver
         conn->service_locator().send_registered(
             shared_net::account_service_type, request.encode(), conn->io_service_,
             [&, account_name = packet.account_name, self = conn](net::service_type sender, net::memory_stream data) {
-                self->io_service_.post(
-                    [this, self, account_name, reply = protocol::reply_account_data::decode(data)]() {
-                        on_account_reply(self, reply, account_name);
-                    });
+                auto reply = protocol::reply_account_data::decode(data);
+                on_account_reply(self, reply, account_name);
                 return true;
             });
 

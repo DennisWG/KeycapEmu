@@ -13,6 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
 #include "prepared_statement.hpp"
 
 #include <mysql_connection.h>
@@ -45,7 +46,7 @@ namespace keycap::shared::database
     bool prepared_statement::execute()
     {
         parameter_index_ = 1;
-        return statement_->execute();
+        return statement_->executeUpdate() != 0;
     }
 
     std::unique_ptr<sql::ResultSet> prepared_statement::query()
@@ -93,5 +94,11 @@ namespace keycap::shared::database
     void prepared_statement::add_parameter(const char* param)
     {
         statement_->setString(parameter_index_++, param);
+    }
+
+    template <>
+    void prepared_statement::add_parameter(float param)
+    {
+        statement_->setDouble(parameter_index_++, param);
     }
 }

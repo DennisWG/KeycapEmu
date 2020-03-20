@@ -54,11 +54,11 @@ namespace keycap::realmserver
     class client_connection : public keycap::root::network::connection, public keycap::root::network::message_handler
     {
       public:
-        client_connection(keycap::root::network::service_base& service,
+        client_connection(boost::asio::ip::tcp::socket socket, keycap::root::network::service_base& service,
                           keycap::root::network::service_locator& locator);
 
         bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
-                     std::vector<uint8_t> const& data) override;
+                     gsl::span<uint8_t> data) override;
 
         bool on_link(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      keycap::root::network::link_status status) override;

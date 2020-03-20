@@ -29,8 +29,8 @@ namespace keycap::logonserver
         return true;
     }
 
-    realm_service::SharedHandler realm_service::make_handler()
+    realm_service::SharedHandler realm_service::make_handler(boost::asio::ip::tcp::socket socket)
     {
-        return std::make_shared<realm_connection>(*this, realm_manager_);
+        return std::make_shared<realm_connection>(std::move(socket), *this, realm_manager_);
     }
 }

@@ -52,7 +52,7 @@ namespace keycap::realmserver
         auto stream = packet.encode();
         scrambler_.encrypt(stream);
 
-        connection.lock()->send(stream.buffer());
+        connection.lock()->send(stream.to_span());
 
         if (position == 1)
             io_service_.post(work_strand_.wrap([this]() { login_first_connection(); }));
@@ -76,7 +76,7 @@ namespace keycap::realmserver
         auto stream = packet.encode();
         scrambler_.encrypt(stream);
 
-        connection.lock()->send(stream.buffer());
+        connection.lock()->send(stream.to_span());
 
         if (!queue_.empty())
             io_service_.post(work_strand_.wrap([this]() { login_first_connection(); }));
@@ -96,7 +96,7 @@ namespace keycap::realmserver
             auto stream = packet.encode();
             scrambler_.encrypt(stream);
 
-            connection.lock()->send(stream.buffer());
+            connection.lock()->send(stream.to_span());
         }
     }
 }

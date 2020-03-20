@@ -35,8 +35,9 @@ constexpr size_t maximum_packet_size = 0x2800; // the client does not support la
 
 namespace keycap::realmserver
 {
-    client_connection::client_connection(root::network::service_base& service, root::network::service_locator& locator)
-      : connection{service}
+    client_connection::client_connection(boost::asio::ip::tcp::socket socket, net::service_base& service,
+                                         net::service_locator& locator)
+      : connection{std::move(socket), service}
       , auth_seed_{util::random_ui32()}
       , locator_{locator}
       , login_queue_{io_service_, scrambler_}
@@ -68,13 +69,12 @@ namespace keycap::realmserver
         return {shared::network::state_result::ok, size, opcode};
     }
 
-    bool client_connection::on_data(net::data_router const& router, net::service_type service,
-                                    std::vector<uint8_t> const& data)
+    bool client_connection::on_data(net::data_router const& router, net::service_type service, gsl::span<uint8_t> data)
     {
         if (data.size() > maximum_packet_size)
             return false;
 
-        input_stream_.put(gsl::make_span(data));
+        input_stream_.put(data);
 
         // clang-format off
         return std::visit([&](auto state)

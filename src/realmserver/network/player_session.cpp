@@ -55,7 +55,7 @@ namespace keycap::realmserver
     void player_session::send(keycap::root::network::memory_stream&& stream)
     {
         scrambler_.encrypt(stream);
-        connection_.send(stream);
+        connection_.send(stream.to_span());
     }
 
     uint32 player_session::account_id() const
@@ -66,12 +66,12 @@ namespace keycap::realmserver
     void player_session::send(keycap::root::network::memory_stream& stream)
     {
         scrambler_.encrypt(stream);
-        connection_.send(stream);
+        connection_.send(stream.to_span());
     }
 
     void player_session::send_addon_info(keycap::protocol::client_addon_info const& client_addons)
     {
-        constexpr std::array<uint8, 256> addon_public_key = {
+        std::array<uint8, 256> constexpr addon_public_key = {
             0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54, 0x5A, 0xA3,
             0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75, 0xFF, 0x31, 0xFE, 0x2F,
             0x64, 0x3F, 0x3D, 0x6D, 0x07, 0xD9, 0x44, 0x9B, 0x40, 0x85, 0x59, 0x34, 0x4E, 0x10, 0xE1, 0xE7, 0x43, 0x69,

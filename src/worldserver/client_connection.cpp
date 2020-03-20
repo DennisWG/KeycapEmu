@@ -18,13 +18,14 @@
 
 namespace keycap::worldserver
 {
-    client_connection::client_connection(keycap::root::network::service_base& service)
-      : connection{service}
+    client_connection::client_connection(boost::asio::ip::tcp::socket socket,
+                                         keycap::root::network::service_base& service)
+      : connection{std::move(socket), service}
     {
     }
 
     bool client_connection::on_data(keycap::root::network::data_router const& router,
-                                    keycap::root::network::service_type service, std::vector<uint8_t> const& data)
+                                    keycap::root::network::service_type service, gsl::span<uint8_t> data)
     {
         return true;
     }

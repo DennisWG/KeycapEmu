@@ -29,7 +29,8 @@ namespace keycap::logonserver
     class realm_connection : public keycap::root::network::service_connection
     {
       public:
-        explicit realm_connection(keycap::root::network::service_base& service, realm_manager& realm_manager);
+        explicit realm_connection(boost::asio::ip::tcp::socket socket, keycap::root::network::service_base& service,
+                                  realm_manager& realm_manager);
 
         bool on_data(keycap::root::network::data_router const& router, keycap::root::network::service_type service,
                      uint64 sender, keycap::root::network::memory_stream& stream) override;

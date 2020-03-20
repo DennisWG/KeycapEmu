@@ -25,8 +25,9 @@ namespace shared_net = keycap::shared::network;
 
 namespace keycap::logonserver
 {
-    realm_connection::realm_connection(keycap::root::network::service_base& service, realm_manager& realm_manager)
-      : net::service_connection{service}
+    realm_connection::realm_connection(boost::asio::ip::tcp::socket socket, net::service_base& service,
+                                       realm_manager& realm_manager)
+      : net::service_connection{std::move(socket), service}
       , realm_manager_{realm_manager}
     {
         router_.configure_inbound(this);

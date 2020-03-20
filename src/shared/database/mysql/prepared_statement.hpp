@@ -52,6 +52,11 @@ namespace keycap::shared::database
                     auto success = execute();
                     callback(success);
                 }
+                catch (std::exception const& e)
+                {
+                    printf("%s\n", e.what());
+                    return callback(false);
+                }
                 catch (...)
                 {
                     return callback(false);
